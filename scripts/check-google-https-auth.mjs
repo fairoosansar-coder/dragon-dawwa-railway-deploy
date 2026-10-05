@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { googleAuthResponse, googleModeConfig, googleSubjectId, canonicalGoogleHost, publicLoginPage } from '../server/google-auth.mjs';
+import { publicPolicyPage } from '../server/public-policies.mjs';
 import { authResponse, verifiedRequestUser } from '../server/auth.mjs';
 import { changeRole } from '../server/access.mjs';
 import { deletionAuditSecret } from '../server/member.mjs';
@@ -147,7 +148,39 @@ test('anonymous login page contains no private content or external assets', asyn
   const html = await response.text();
   assert.match(html, /Continue with Google/);
   assert.match(html, /owner can open/);
+  assert.match(html, /href="\/privacy"/);
+  assert.match(html, /href="\/terms"/);
   assert.doesNotMatch(html, /quran\.html|member_profiles|src="\//);
+});
+
+test('only static legal notices can be read without an invitation on the canonical Google Host', async () => {
+  for (const page of ['/privacy', '/terms']) {
+    const response = publicPolicyPage(page);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('cache-control'), /no-store/);
+    assert.match(response.headers.get('content-type'), /text\/html/);
+    const html = await response.text();
+    assert.match(html, /noindex,nofollow/);
+    assert.match(html, /Private review/i);
+    assert.match(html, /Google|privacy notice/i);
+    assert.doesNotMatch(html, /<script|<link|<img|src="\/|member_profiles|review_roles/);
+    const head = publicPolicyPage(page, 'HEAD');
+    assert.equal(head.status, 200);
+    assert.equal(await head.text(), '');
+    assert.equal(publicPolicyPage(page, 'POST').status, 405);
+  }
+  const privacy = await publicPolicyPage('/privacy').text();
+  assert.match(privacy, /openid email profile/);
+  assert.match(privacy, /email is checked for validity but is not used as your invitation key/);
+  assert.match(privacy, /no automatic expiry/);
+  for (const route of ['/quran', '/member', '/assets/mark.svg', '/data/starter-resources.json', '/api/review/session'])
+    assert.equal(publicPolicyPage(route).status, 404);
+  const source = await readFile(new URL('../server/index.mjs', import.meta.url), 'utf8');
+  const host = source.indexOf('!canonicalGoogleHost(req.headers.host, origin)');
+  const legal = source.indexOf("pathname === '/privacy' || pathname === '/terms'");
+  const authorization = source.indexOf('const user = identityBound ?');
+  assert.ok(host > 0 && legal > host && authorization > legal);
+  assert.match(source, /if \(googleMode && \(pathname === '\/privacy' \|\| pathname === '\/terms'\)\)\s*return publicPolicyPage\(pathname, req\.method\)/);
 });
 
 test('authorization start binds PKCE, state, nonce, redirect URI and encrypted short-lived first-party cookie', async () => {
@@ -308,6 +341,43 @@ test('server startup and protected routes are structurally bounded to the Google
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /not safely configured/);
   assert.doesNotMatch(result.stderr, /synthetic-only|synthetic-session/);
+});
+
+test('actual router permits only login and two legal notices to anonymous canonical-Host requests', () => {
+  const script = `
+    import { handle } from './server/index.mjs';
+    const cases = [
+      ['GET','/login','dragondawwa.org'],
+      ['GET','/privacy','dragondawwa.org'], ['HEAD','/privacy','dragondawwa.org'],
+      ['POST','/privacy','dragondawwa.org'],
+      ['GET','/terms','dragondawwa.org'], ['HEAD','/terms','dragondawwa.org'],
+      ['POST','/terms','dragondawwa.org'],
+      ['GET','/','dragondawwa.org'], ['GET','/quran','dragondawwa.org'],
+      ['GET','/assets/mark.svg','dragondawwa.org'],
+      ['GET','/data/starter-resources.json','dragondawwa.org'],
+      ['GET','/api/review/session','dragondawwa.org'],
+      ['GET','/privacy','www.dragondawwa.org'],
+      ['GET','/terms','dragon-dawwa-fixture.up.railway.app'],
+      ['GET','/login','dragondawwa.org.evil.test'],
+    ];
+    const results = [];
+    for (const [method, url, host] of cases) {
+      const response = await handle({ method, url, headers: { host }, socket: { remoteAddress: '127.0.0.1' } });
+      results.push({ status: response.status, location: response.headers.get('location'), type: response.headers.get('content-type') });
+    }
+    console.log(JSON.stringify(results));
+    process.exit(0);
+  `;
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+    cwd: new URL('../', import.meta.url),
+    env: { ...config, REVIEW_PUBLIC_ORIGIN: 'https://dragondawwa.org', PATH: process.env.PATH },
+    encoding: 'utf8', timeout: 8_000,
+  });
+  assert.equal(result.status, 0, result.stderr.replace(/synthetic-[^\s]*/g, '[redacted]'));
+  const outcomes = JSON.parse(result.stdout.trim().split('\n').at(-1));
+  assert.deepEqual(outcomes.map(value => value.status), [200, 200, 200, 405, 200, 200, 405, 302, 302, 302, 302, 401, 421, 421, 421]);
+  for (const value of outcomes.slice(7, 11)) assert.equal(value.location, '/login');
+  for (const value of [outcomes[1], outcomes[2], outcomes[4], outcomes[5]]) assert.match(value.type, /text\/html/);
 });
 
 test('owner bootstrap refuses a claimed Google account with app privileges before connecting', () => {

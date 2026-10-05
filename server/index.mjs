@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { verifiedRequestUser, authResponse } from './auth.mjs';
 import { tailnetAuthResponse, tailnetIdentity, tailnetSessionCookie, sessionMatchesIdentity } from './tailnet-auth.mjs';
 import { googleAuthResponse, googleModeConfig, canonicalGoogleHost, publicLoginPage, publicExitPage } from './google-auth.mjs';
+import { publicPolicyPage } from './public-policies.mjs';
 import { database, verifySchema } from './db.mjs';
 import { resolveActor, accessResponse } from './access.mjs';
 import { memberResponse } from './member.mjs';
@@ -90,7 +91,7 @@ async function fileResponse(filename, status = 200, {readonlyMosque = false} = {
     return new Response(content, { status, headers: { 'Content-Type': types[path.extname(filename)] || 'application/octet-stream', 'Cache-Control': 'private, no-store' } });
   } catch (error) { if (error.code === 'ENOENT') return simple('Not found', 404); throw error; }
 }
-async function handle(req) {
+export async function handle(req) {
   const url = new URL(req.url || '/', origin);
   const pathname = url.pathname;
   if (pathname === '/healthz') {
@@ -103,6 +104,8 @@ async function handle(req) {
     if (!['GET', 'HEAD'].includes(req.method)) return simple('Method not allowed', 405);
     return publicLoginPage();
   }
+  if (googleMode && (pathname === '/privacy' || pathname === '/terms'))
+    return publicPolicyPage(pathname, req.method);
   if (pathname === '/manus-routes.json' && !googleMode) return fileResponse('manus-routes.json');
   if (pathname === '/recover' || pathname === '/signed-out') {
     if (!['GET', 'HEAD'].includes(req.method)) return simple('Method not allowed', 405);
@@ -205,21 +208,25 @@ async function handle(req) {
   return filename ? fileResponse(filename, 200, {readonlyMosque: visitorRead}) : simple('Not found', 404);
 }
 
-await verifySchema();
-const server = http.createServer(async (req, res) => {
-  try {
-    const response = await handle(req);
-    const headers = { ...Object.fromEntries(response.headers), ...secureHeaders };
-    const cookies = response.headers.getSetCookie?.();
-    if (cookies?.length) headers['set-cookie'] = cookies;
-    res.writeHead(response.status, headers);
-    if (req.method === 'HEAD') res.end(); else res.end(Buffer.from(await response.arrayBuffer()));
-  } catch (error) {
-    // Never log raw query strings, request bodies, database DSNs, session cookies or PII.
-    console.error('[review] request failure', { type: error.name || 'Error', status: error.status || 503 });
-    res.writeHead(error.status === 413 ? 413 : 503, { ...secureHeaders, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-    res.end(JSON.stringify({ error: error.status === 413 ? 'too_large' : 'temporarily_unavailable' }));
-  }
-});
-const bindHost = process.env.REVIEW_BIND_HOST === '127.0.0.1' ? '127.0.0.1' : '0.0.0.0';
-server.listen(port, bindHost, () => console.log(`[review] ready on port ${port}; ${process.env.DD_PUBLIC_READ_MODE === 'approved-public-readonly' ? 'approved public read-only mode' : 'private application login required'}`));
+// Importing the handler for local denial tests never opens a listener or runs
+// migrations. The real app entrypoint always verifies its schema before serving.
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await verifySchema();
+  const server = http.createServer(async (req, res) => {
+    try {
+      const response = await handle(req);
+      const headers = { ...Object.fromEntries(response.headers), ...secureHeaders };
+      const cookies = response.headers.getSetCookie?.();
+      if (cookies?.length) headers['set-cookie'] = cookies;
+      res.writeHead(response.status, headers);
+      if (req.method === 'HEAD') res.end(); else res.end(Buffer.from(await response.arrayBuffer()));
+    } catch (error) {
+      // Never log raw query strings, request bodies, database DSNs, session cookies or PII.
+      console.error('[review] request failure', { type: error.name || 'Error', status: error.status || 503 });
+      res.writeHead(error.status === 413 ? 413 : 503, { ...secureHeaders, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end(JSON.stringify({ error: error.status === 413 ? 'too_large' : 'temporarily_unavailable' }));
+    }
+  });
+  const bindHost = process.env.REVIEW_BIND_HOST === '127.0.0.1' ? '127.0.0.1' : '0.0.0.0';
+  server.listen(port, bindHost, () => console.log(`[review] ready on port ${port}; ${process.env.DD_PUBLIC_READ_MODE === 'approved-public-readonly' ? 'approved public read-only mode' : 'private application login required'}`));
+}
