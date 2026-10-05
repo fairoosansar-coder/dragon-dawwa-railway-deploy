@@ -1,0 +1,18 @@
+body.editorial-page { min-width: 320px; }
+.ops-status { min-height: 1.5rem; padding: .45rem 0; color: #1e5b4a; }
+.ops-error { color: #a53e2e; }
+.ops-grid { display: grid; grid-template-columns: minmax(180px, 270px) minmax(0, 1fr); gap: 1.75rem; align-items: start; }
+.ops-grid aside { display: grid; gap: .9rem; }
+.ops-list { display: grid; gap: .65rem; margin-block: 1rem; }
+.ops-record { display: block; width: 100%; text-align: left; white-space: normal; word-break: break-word; background: #f5f4ed; padding: .8rem; border: 1px solid #ced9ce; border-radius: .4rem; color: #154f3f; cursor: pointer; }
+.ops-record:hover, .ops-record:focus-visible { border-color: #1e5b4a; outline: 2px solid #1e5b4a; outline-offset: 2px; }
+.ops-submission { overflow-wrap: anywhere; padding: 1rem; border: 1px solid #d5e0d5; background: #fcfcf7; border-radius: .4rem; }
+.ops-submission p { margin: .55rem 0; white-space: pre-wrap; }
+.ops-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+#event-form, #role-form { display: grid; gap: .85rem; }
+#event-form label, #role-form label { display: grid; gap: .35rem; font-weight: 600; }
+#event-form input, #event-form select, #event-form textarea, #role-form input, #role-form select { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; border: 1px solid #a8beae; background: #fff; border-radius: .3rem; padding: .7rem; color: #143b32; font: inherit; }
+#event-form textarea { min-height: 8rem; resize: vertical; }
+#event-form :is(input,select,textarea):focus-visible, #role-form :is(input,select):focus-visible { outline: 3px solid #2b775c; outline-offset: 2px; }
+#event-state { padding: .7rem; background: #ecf4ef; border-left: 3px solid #277152; }
+@media (max-width: 760px) { .ops-grid, .ops-two { grid-template-columns: minmax(0,1fr); } .ops-grid { gap: 1rem; } }

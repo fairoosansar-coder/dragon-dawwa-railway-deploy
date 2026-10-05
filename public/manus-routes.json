@@ -1,0 +1,30 @@
+{
+  "routes": [
+    {"path":"/","title":"Home"},
+    {"path":"/about","title":"About"},
+    {"path":"/quran","title":"Qur’an reader"},
+    {"path":"/study","title":"Source-grounded study"},
+    {"path":"/learn","title":"Learning library"},
+    {"path":"/library","title":"Learning library"},
+    {"path":"/library/:id","title":"Reading detail"},
+    {"path":"/resources","title":"External resources"},
+    {"path":"/research","title":"Community research"},
+    {"path":"/mosques","title":"Sourced mosque directory"},
+    {"path":"/mosques/:id","title":"Mosque record"},
+    {"path":"/mosque","title":"Jamia Kadheeja Jummah Mosque"},
+    {"path":"/events","title":"Events and sessions"},
+    {"path":"/events/:id","title":"Event detail"},
+    {"path":"/participate","title":"Contact and participate"},
+    {"path":"/contact","title":"Contact"},
+    {"path":"/member","title":"My learning"},
+    {"path":"/staff","title":"Staff hub"},
+    {"path":"/admin","title":"Editorial workspace"},
+    {"path":"/operations","title":"Staff operations"},
+    {"path":"/recover","title":"Recover sign-in"},
+    {"path":"/signed-out","title":"Signed out"},
+    {"path":"/privacy","title":"Privacy"},
+    {"path":"/terms","title":"Terms"},
+    {"path":"/sources","title":"Sources and rights"},
+    {"path":"/accessibility","title":"Accessibility"}
+  ]
+}

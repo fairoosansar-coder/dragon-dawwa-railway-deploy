@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#f8f6ef">
+  <title>My learning · Dragon Dawwa</title>
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/member.css">
+  <script src="/shared-nav.js" defer></script><script src="/member.js" defer></script>
+</head>
+<body class="member-page">
+  <a class="skip" href="#main" data-copy="skip">Skip to My learning</a>
+  <header class="unified-header member-header">
+    <a class="brand" href="/" aria-label="Dragon Dawwa home"><img src="/assets/mark.svg" width="38" height="38" alt=""><span>DRAGON DAWWA<small>KNOWLEDGE WITH HUMILITY</small></span></a>
+    <nav class="unified-desktop-nav" data-shared-nav-label="main"><a href="/" data-nav="home">Home</a><a href="/quran" data-nav="quran">Qur’an</a><a href="/library" data-nav="learn">Learn</a><a href="/mosque" data-nav="mosque">Mosque</a><a href="/research" data-nav="research">Research</a><a href="/events" data-nav="events">Events</a><a href="/about" data-nav="about">About</a><a href="/participate" data-nav="participate">Contact / participate</a><a href="/member" aria-current="page" data-copy="myLearning" data-nav="member">My learning</a></nav>
+    <div class="unified-actions"><select class="language" id="language" data-shared-language aria-label="Choose language"><option value="en">English</option><option value="ta">தமிழ்</option><option value="si">සිංහල</option></select><button class="menu-toggle" data-shared-menu aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation">☰</button></div>
+  </header>
+  <nav class="unified-mobile-nav" id="mobile-nav" data-shared-nav-label="mobile" hidden><a href="/" data-nav="home">Home</a><a href="/quran" data-nav="quran">Qur’an</a><a href="/library" data-nav="learn">Learn</a><a href="/mosque" data-nav="mosque">Mosque</a><a href="/research" data-nav="research">Research</a><a href="/events" data-nav="events">Events</a><a href="/about" data-nav="about">About</a><a href="/participate" data-nav="participate">Contact / participate</a><a href="/member" aria-current="page" data-copy="myLearning" data-nav="member">My learning</a></nav>
+  <main id="main" class="member-wrap">
+    <section class="member-intro" aria-labelledby="page-title">
+      <div><p class="eyebrow" data-copy="eyebrow">PRIVATE REVIEW · INVITED MEMBERS</p><h1 id="page-title" data-copy="title">My learning</h1><p class="lead" data-copy="intro">Keep a small, private list of saved learning links and a Qur’an reading place across your invited sessions.</p></div>
+      <aside class="private-note"><strong data-copy="privateTitle">Private by default</strong><p data-copy="privateBody">This protected review is not a public release. Your contact choices, saves and reading place are visible only to your own verified member session.</p></aside>
+    </section>
+
+    <p id="status" class="member-status" role="status" aria-live="polite">Checking invited-member access…</p>
+
+    <section id="signed-out" class="member-panel auth-panel" hidden aria-labelledby="sign-in-title">
+      <p class="eyebrow" data-copy="signInEyebrow">SIGN IN</p><h2 id="sign-in-title" data-copy="signInTitle">Continue with Manus</h2>
+      <p data-copy="signInBody">Use the verified Manus sign-in for this private review. Signing in does not itself create a Dragon Dawwa member profile: the owner must first invite your exact account as a reader.</p>
+      <a class="button" href="/auth/login" data-copy="signIn">Sign in with Manus</a>
+      <p class="recovery" data-copy="recovery">Dragon Dawwa cannot reset a Manus password. For a Manus email-password account, choose “Forgot Password” at Manus sign-in. If you use Google, Apple or Microsoft, recover access with that sign-in provider.</p>
+      <a class="plain-link" href="https://help.manus.im/en/articles/11712029-what-can-i-do-if-i-forget-my-password" target="_blank" rel="noopener noreferrer" data-copy="recoveryLink">Manus account recovery guidance ↗</a>
+    </section>
+
+    <section id="not-registered" class="member-panel" hidden aria-labelledby="invite-title">
+      <p class="eyebrow" data-copy="inviteEyebrow">OWNER-INVITED ACCESS</p><h2 id="invite-title" data-copy="inviteTitle">Complete your private member profile</h2>
+      <p data-copy="inviteBody">This profile is available only after an owner has invited your verified Manus account. We do not collect an address, identity document or religious declaration.</p>
+      <button class="button" id="show-registration" type="button" data-copy="register">Create my profile</button>
+      <p class="fineprint" data-copy="inviteFineprint">If this was not expected, sign out and contact the review owner through an established channel. Do not share passwords or account tokens.</p>
+    </section>
+
+    <section id="registration" class="member-panel" hidden aria-labelledby="registration-title">
+      <p class="eyebrow" data-copy="profileEyebrow">PROFILE</p><h2 id="registration-title" data-copy="registrationTitle">Your member profile</h2>
+      <p class="panel-intro" data-copy="profileIntro">Choose only what you want to keep in this private review. Contact details are optional and are not shown in the member list.</p>
+      <form id="profile-form" novalidate>
+        <div class="form-grid">
+          <label><span data-copy="displayName">Display name</span><input name="displayName" maxlength="120" required autocomplete="name"></label>
+          <label><span data-copy="avatar">Avatar preset</span><select name="avatar"><option value="none" data-copy="avatarNone">No avatar</option><option value="rosette" data-copy="avatarRosette">Rosette</option><option value="leaf" data-copy="avatarLeaf">Leaf</option><option value="book" data-copy="avatarBook">Book</option></select></label>
+          <label><span data-copy="preferredLanguage">Preferred language</span><select name="preferredLanguage"><option value="en">English</option><option value="ta">தமிழ்</option><option value="si">සිංහල</option></select></label>
+          <label><span data-copy="preferredTranslation">Preferred Qur’an translation (optional)</span><select name="preferredTranslation" id="preferred-translation"><option value="">No translation preference</option></select></label>
+          <label><span data-copy="preferredReciter">Preferred reciter (optional)</span><select name="preferredReciter" id="preferred-reciter"><option value="">No reciter preference</option></select></label>
+          <label><span data-copy="city">City (optional)</span><input name="city" maxlength="120" autocomplete="address-level2"></label>
+          <label class="wide"><span data-copy="mosque">Mosque or learning place (optional)</span><input name="mosque" maxlength="160"></label>
+        </div>
+        <fieldset class="contact-fieldset"><legend data-copy="contactLegend">Private contact preference (optional)</legend>
+          <div class="form-grid"><label><span data-copy="contactPreference">Preferred contact method</span><select name="contactPreference" id="contact-preference"><option value="none" data-copy="contactNone">Do not store contact</option><option value="email" data-copy="contactEmail">Email</option><option value="phone" data-copy="contactPhone">Phone</option></select></label>
+          <label><span data-copy="contact">Contact detail</span><input name="contact" id="contact" maxlength="320" autocomplete="email"></label></div>
+          <label class="check"><input name="contactOptIn" id="contact-opt-in" type="checkbox"><span data-copy="contactOptIn">I choose to store this contact detail for my selected preference.</span></label>
+        </fieldset>
+        <div class="form-actions"><button class="button" type="submit" id="profile-submit" data-copy="saveProfile">Save private profile</button><button class="button secondary" id="profile-cancel" type="button" hidden data-copy="cancel">Cancel</button></div>
+      </form>
+    </section>
+
+    <div id="member-content" hidden>
+      <section class="member-panel profile-summary" aria-labelledby="profile-summary-title"><div><p class="eyebrow" data-copy="profileEyebrow">PROFILE</p><h2 id="profile-summary-title" data-copy="profileTitle">Your private profile</h2><p id="profile-summary" class="panel-intro"></p></div><button class="button secondary" id="edit-profile" type="button" data-copy="editProfile">Edit profile</button></section>
+
+      <section class="member-panel" aria-labelledby="saves-title"><div class="panel-heading"><div><p class="eyebrow" data-copy="savedEyebrow">SAVED ITEMS</p><h2 id="saves-title" data-copy="savedTitle">Keep a learning link</h2></div><a class="plain-link" href="/library" data-copy="browseLearning">Browse learning</a></div><p class="panel-intro" data-copy="savedIntro">Saved resources are private to this invited profile. Saving a link does not endorse it as individual religious advice.</p><div id="saves-empty" class="empty-state" data-copy="savesEmpty">No saved items yet. Browse the learning library or import your old browser bookmarks below.</div><ul id="saves-list" class="saved-list" aria-live="polite"></ul></section>
+
+      <section class="member-panel" aria-labelledby="export-title"><p class="eyebrow">YOUR DATA</p><h2 id="export-title">Download your private learning data</h2><p class="panel-intro">This JSON export contains only this profile’s saved items and reading place. It does not include another member’s profile, staff records, or private study history.</p><a class="button secondary" href="/api/member/export">Download my data (JSON)</a></section>
+
+      <section class="member-panel import-panel" aria-labelledby="import-title"><p class="eyebrow" data-copy="importEyebrow">ONE-TIME CHOICE</p><h2 id="import-title" data-copy="importTitle">Import old browser bookmarks</h2><p data-copy="importBody">You can explicitly import old <code>dd-saved</code> bookmarks from this browser. Only the former home reading IDs are accepted: ask, wisdom, authenticity and context.</p><p class="note-strong" data-copy="importNote">Your <code>dd-note</code> and <code>dd-question</code> writing stays in this browser. It is not read or uploaded by this import.</p><p id="import-detail" class="fineprint"></p><button class="button secondary" type="button" id="import-saves" data-copy="importButton">Import eligible bookmarks</button></section>
+
+      <section class="member-panel" aria-labelledby="place-title"><div class="panel-heading"><div><p class="eyebrow" data-copy="placeEyebrow">QUR’AN PLACE</p><h2 id="place-title" data-copy="placeTitle">Reading place</h2></div><a class="plain-link" href="/quran" data-copy="openQuran">Open Qur’an reader</a></div><p class="panel-intro" data-copy="placeIntro">Save a verse position to return to during another authenticated invited session. It is a reading marker, not a generated religious answer.</p><form id="place-form" class="place-form"><label><span data-copy="chapter">Chapter</span><input name="chapter" type="number" min="1" max="114" required inputmode="numeric"></label><label><span data-copy="page">Page</span><input name="page" type="number" min="1" max="15" required inputmode="numeric"></label><label><span data-copy="verseKey">Verse key</span><input name="key" maxlength="16" pattern="[0-9]{1,3}:[0-9]{1,3}" required placeholder="2:255"></label><button class="button" type="submit" data-copy="savePlace">Save reading place</button></form><p id="place-summary" class="fineprint" aria-live="polite"></p><div class="local-place-import"><p id="local-place-detail" class="fineprint" aria-live="polite"></p><button class="button secondary" id="import-local-place" type="button" hidden data-copy="localPlaceImport">Import this browser’s older saved verse</button></div></section>
+
+      <section id="delete-panel" class="member-panel delete-panel" aria-labelledby="delete-title"><p class="eyebrow" data-copy="deleteEyebrow">ACCOUNT DELETION</p><h2 id="delete-title" data-copy="deleteTitle">Delete this Dragon Dawwa member profile</h2><p data-copy="deleteBody">This removes this app’s profile, saved items and reading place, then disables this reader invitation. Re-entry requires a new owner invitation. A keyed pseudonymous deletion record and necessary existing role/staff audit IDs remain. This does not delete your upstream Manus account.</p><details><summary data-copy="deleteSummary">I understand what deletion changes</summary><p data-copy="deleteDetails">Manus account recovery and account deletion are provider-managed. Dragon Dawwa has no password store and cannot reset, recover or delete a Manus identity.</p></details><form id="delete-form" class="delete-form"><label><span data-copy="deletePrompt">Type DELETE MY ACCOUNT to continue</span><input name="confirm" required autocomplete="off" spellcheck="false"></label><button class="button danger" type="submit" data-copy="deleteButton">Delete my member profile</button></form></section>
+      <p id="staff-deletion-note" class="member-panel" hidden data-copy="staffDeletion">Staff accounts cannot delete their own role or member profile here. Transfer or revoke staff access through the verified owner process before a separate profile-deletion request; existing staff audits remain.</p>
+    </div>
+
+    <section id="signed-in-actions" class="account-actions" hidden><form action="/auth/logout" method="post"><button class="plain-link" type="submit" data-copy="signOut">Sign out</button></form><form action="/auth/logout-all" method="post"><button class="plain-link" type="submit">Sign out everywhere</button></form><span data-copy="signOutNote">This signs out of this private review session.</span></section>
+  </main>
+  <footer class="member-footer">Dragon Dawwa · <span data-copy="footer">Private invited-member review · no public release is implied</span></footer>
+</body>
+</html>

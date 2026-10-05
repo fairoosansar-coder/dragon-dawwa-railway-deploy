@@ -1,0 +1,221 @@
+{
+  "reviewedAt": "2026-10-05",
+  "collection": "External resources · curated original-publisher links only",
+  "items": [
+    {
+      "id": "quran-start",
+      "category": "Getting started with Quran study",
+      "title": "Quran in a Year",
+      "publisher": "Quran.com (managed by Quran.Foundation, a 501(c)(3) nonprofit)",
+      "url": "https://quran.com/calendar",
+      "evidence_url": "https://quran.com/about-us",
+      "format": "reading plan",
+      "languages": [
+        "English"
+      ],
+      "summary": "Quran in a Year is a public, structured weekly reading schedule designed to take readers through the Quran from one Ramadan to the next at a steady pace. The page presents week-by-week verse ranges, progress tracking, and links to optional discussion and reflection resources.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — Quran.com’s terms allow personal, non-commercial use but restrict reproduction, derivative works, distribution, and public display of service content without prior written consent; no embedding or copying is authorized for this listing.",
+      "caveats": "Verified by opening the primary Quran.com page, which displays the exact title and a public weekly schedule. Quran.com’s About Us page identifies it as a public-trust waqf managed by Quran.Foundation, a 501(c)(3) nonprofit (https://quran.com/about-us); its terms were also reviewed (https://quran.com/terms-and-conditions). English is the selected resource language explicitly displayed; other site-interface language options were not treated as confirmation that this specific program is available in them. The page is a structured reading schedule, so it is classified here as a reading plan rather than a formal course. Optional linked discussion/reflection services may have their own access terms."
+    },
+    {
+      "id": "quran-reader",
+      "category": "Getting started with Quran study",
+      "title": "Read, Listen & Study the Noble Quran",
+      "publisher": "Quran.com, managed by Quran.Foundation (a 501(c)(3) nonprofit)",
+      "url": "https://quran.com/",
+      "evidence_url": "https://quran.com/about-us",
+      "format": "reference",
+      "languages": [
+        "English",
+        "Arabic",
+        "Bangla",
+        "Persian",
+        "French",
+        "Indonesian",
+        "Italian",
+        "Dutch",
+        "Portuguese",
+        "Russian",
+        "Albanian",
+        "Thai",
+        "Turkish",
+        "Urdu",
+        "Simplified Chinese",
+        "Malay",
+        "Spanish",
+        "Swahili",
+        "Vietnamese"
+      ],
+      "summary": "Quran.com is a free browser-based resource for reading the Quran, navigating its chapters and verses, and using a visible language selector. It also provides translations, audio recitations, search, word-by-word tools, bookmarks, notes, and reading-progress features.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — Quran.com’s terms allow personal, non-commercial use but restrict reproduction, derivative works, distribution, and public display of service content without prior written consent; do not embed or copy the content.",
+      "caveats": "Verified by opening the primary resource and Quran.com’s About Us page; the About Us page identifies Quran.com as managed by Quran.Foundation and describes its reading, translations, and audio-recitation features. The visible language selector supports the listed languages, but individual translations and audio options may vary by content. Quran.com’s terms limit content to personal, non-commercial use and prohibit reproduction/public display without prior written consent. Terms: https://quran.com/terms-and-conditions."
+    },
+    {
+      "id": "references-quran",
+      "category": "Finding source references",
+      "title": "Tanzil Quran Navigator",
+      "publisher": "Tanzil Project",
+      "url": "https://tanzil.net/",
+      "evidence_url": "https://tanzil.net/docs/deep_links",
+      "format": "reference",
+      "languages": [
+        "English",
+        "Arabic",
+        "Tamil"
+      ],
+      "summary": "Tanzil Quran Navigator offers navigation by surah and ayah, plus text search and selectable recitations and translations. Its publisher documents direct links to specific Quran locations; this entry links to the navigator without copying its text.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — Tanzil publishes a separate text license; this catalogue neither copies its Quran text nor claims to evaluate the publisher’s accuracy.",
+      "caveats": "Tanzil Project’s own documentation describes the tool and its direct linking scheme. Listed Tamil appears as a translation choice in the navigator; availability can vary by feature. Accuracy claims are the publisher’s, not an independent Dragon Dawwa endorsement."
+    },
+    {
+      "id": "references-hadith",
+      "category": "Finding source references",
+      "title": "Sunnah.com – Sayings and Teachings of Prophet Muhammad",
+      "publisher": "Sunnah.com",
+      "url": "https://sunnah.com/",
+      "evidence_url": "https://sunnah.com/about",
+      "format": "reference",
+      "languages": [
+        "English",
+        "Arabic",
+        "Urdu",
+        "Bangla"
+      ],
+      "summary": "Sunnah.com is a web-based hadith reference search service that indexes collections and presents searchable Arabic and translated text, references, and some displayed grade fields. Its search interface supports phrase, wildcard, fuzzy, relevance-boosted, and Boolean queries, with collection selection available from the site interface.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — Sunnah.com prohibits scraping and mass reproduction of entire books or collections. Its stated allowance for individual selections does not authorize copying or embedding this resource listing’s source content.",
+      "caveats": "Verified from Sunnah.com’s homepage, Search Tips, and About page. The site says collections have differing inclusion criteria and not every hadith in every collection is necessarily authentic; its About page also states that numbering and translations can differ, some reference checks remain in progress, and non-Sahihain grade information is being added. The homepage was browser-accessible; an automated HTTP request received an anti-bot response, which does not indicate a broken public link. Link to results or source pages rather than copying data."
+    },
+    {
+      "id": "character",
+      "category": "Everyday learning and good character",
+      "title": "Manners and Traits of a Good Muslim Student",
+      "publisher": "Sound Vision Foundation, Inc.",
+      "url": "https://www.soundvision.com/book/manners-and-traits-of-a-good-muslim-student",
+      "evidence_url": "https://www.soundvision.com/book/manners-and-traits-of-a-good-muslim-student",
+      "format": "article",
+      "languages": [
+        "English"
+      ],
+      "summary": "This public article presents a list of school-focused conduct suggestions, including punctuality, respect, helpfulness, truthful speech, and returning lost property. It is written for Muslim students and frames some recommendations in Islamic terms.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — no explicit reuse licence was located; Sound Vision’s official search listing carries an all-rights-reserved notice, so do not copy, embed, or redistribute the text.",
+      "caveats": "The article is publicly readable without an account and its exact title and byline (Zainab Shahid) are visible on the publisher page; Sound Vision identifies itself as a 501(c)(3) educational media organization at https://www.soundvision.com/about-us. The resource includes specific religious guidance and is aimed at Muslim school students; present it as the publisher’s perspective rather than as a universal conduct standard."
+    },
+    {
+      "id": "daily-learning",
+      "category": "Everyday learning and good character",
+      "title": "Habits to Win",
+      "publisher": "Yaqeen Institute for Islamic Research",
+      "url": "https://yaqeeninstitute.org/read/books/habits-to-win",
+      "evidence_url": "https://yaqeeninstitute.org/read/books/habits-to-win",
+      "format": "ebook",
+      "languages": [
+        "English"
+      ],
+      "summary": "This companion ebook presents goal-contemplation prompts, habit-building exercises, and a way to track thoughts, goals, and inspiration. It is designed as a practical journal to help readers organize routine responsibilities and reflect on the habits they want to build.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — no explicit reuse or embedding licence was verified.",
+      "caveats": "The primary page labels the item an ebook and provides a Download control; Yaqeen’s privacy policy says some PDF attachments are gated by a contact-information form, although its mission page says its books are free to read, download, and share without paywall or subscription. It is classified as an ebook because the reviewed resource page labels it that way; a separate explicit PDF file URL was not verified. The publisher’s official mission page identifies Yaqeen as a nonprofit research institute; no separate permission granting copying or embedding was found, so retain a direct link only."
+    },
+    {
+      "id": "family-quranic-tarbiyah-i-love-the-ummah",
+      "category": "Family and community learning",
+      "title": "I Love The Ummah of My Prophet ﷺ",
+      "publisher": "Quranic Tarbiyah",
+      "url": "https://quranictarbiyah.com/all-products/i-love-the-ummah-of-my-prophet-%EF%B7%BA/",
+      "evidence_url": "https://quranictarbiyah.com/non-profit-and-educational-use-policy/",
+      "format": "PDF",
+      "languages": [
+        "English"
+      ],
+      "summary": "This downloadable English lesson is designed for learners aged 7+ and combines world-geography activities with exercises about connections among Muslims in different countries. It is presented for classroom, homeschool, and parent-led use, with activities intended to prompt discussion of community ties.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — Quranic Tarbiyah’s policy permits limited attributed educational use but prohibits public online posting without consent; do not embed, reproduce, or redistribute the PDF from this listing.",
+      "caveats": "Verified by opening the primary Quranic Tarbiyah page: the exact title, English language, Lesson type, 7+ age guidance, and direct PDF download are displayed there. The publisher’s FAQ states that digital resources are free; its non-profit/educational-use policy permits limited attributed use within an organisation or educational setting but prohibits public online posting without consent. Quranic Tarbiyah also sells printed books, so its overall operation should not be characterized as wholly non-commercial."
+    },
+    {
+      "id": "community",
+      "category": "Family and community learning",
+      "title": "Service-learning in an Islamic environment",
+      "publisher": "Sound Vision Foundation, Inc.",
+      "url": "https://www.soundvision.com/article/service-learning-in-an-islamic-environment",
+      "evidence_url": "https://www.soundvision.com/about-us",
+      "format": "article",
+      "languages": [
+        "English"
+      ],
+      "summary": "This article introduces service-learning as a way to connect students’ learning with needs in their local community. It outlines aims such as teamwork and community participation and gives adaptable project examples, including food drives, gardening, and visits with older adults.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — Sound Vision’s public site identifies its content as © Sound Vision Foundation, Inc., all rights reserved; no explicit reuse or embedding permission was found.",
+      "caveats": "The article page, title, author attribution, and public access were directly verified, and Sound Vision’s About page identifies the publisher as a Chicago-based 501(c)(3). The article says it was presented at the ISNA Education Forum in March 2005, so users should independently confirm local partners, safeguarding requirements, accessibility, and current service opportunities before implementing an activity."
+    },
+    {
+      "id": "new-muslim-intro",
+      "category": "New Muslim learning resources",
+      "title": "The New Muslim Guide",
+      "publisher": "Modern Guide",
+      "url": "https://app.newmuslimguide.com/media/img%20%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D9%84%D9%85%20%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF/PDF/The%20New%20Muslim%20Guide%20-%20en.pdf",
+      "evidence_url": "https://www.modernguide.org/content/new-muslim-guide",
+      "format": "PDF",
+      "languages": [
+        "English"
+      ],
+      "summary": "This publicly accessible illustrated PDF is presented as a guide for people who are new to Islam, with topical sections arranged around aspects of daily life. The publisher identifies it as part of a broader project that also has web, e-book, app, audio, video, and print versions; the linked item is the English seventh-edition PDF.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — the official PDF states that all rights are reserved by Modern Guide; it says charitable printing and distribution require contacting Modern Guide.",
+      "caveats": "Verified by opening the official Modern Guide project page and the linked official English PDF, whose title, intended audience, ISBN, edition, and rights notice match. This is an external publisher resource; its religious framing and content have not been independently evaluated or endorsed, and only English is listed because it is the explicitly identified language of the linked edition."
+    },
+    {
+      "id": "new-muslim-course",
+      "category": "New Muslim learning resources",
+      "title": "New Muslims eLearning Site",
+      "publisher": "Cooperative Office for Dawah in Rawdah Muzun (NewMuslims.com)",
+      "url": "https://www.newmuslims.com/",
+      "evidence_url": "https://www.newmuslims.com/level/1",
+      "format": "course",
+      "languages": [
+        "English"
+      ],
+      "summary": "New Muslims eLearning Site presents a sequence of numbered written and video lessons organized in ten levels for people newly adopting Islam. Visitors can read the lessons without logging in, while free registration is recommended to save quiz results and learning progress.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — no explicit permission to reproduce or embed course content was found on the reviewed publisher and privacy pages.",
+      "caveats": "The supplied /en URL resolves to the canonical English homepage used here. The site footer identifies it as a website of the Cooperative Office for Dawah in Rawdah Muzun and says it is developed and operated by Distinguished Content for Communications and Information Technology Est.; registration is optional for tracking and quizzes. Only English was explicitly labelled on the reviewed primary page; other localizations were not listed here."
+    },
+    {
+      "id": "local-mosques",
+      "category": "Local community information",
+      "title": "Anuradhapura District Registered Mosque List",
+      "publisher": "Department of Muslim Religious and Cultural Affairs, Sri Lanka",
+      "url": "https://muslimaffairs.gov.lk/wp-content/uploads/2023/12/ANURADHAPURA-DISTRICT.pdf",
+      "evidence_url": "https://muslimaffairs.gov.lk/mosque/",
+      "format": "PDF",
+      "languages": [
+        "English"
+      ],
+      "summary": "This government-hosted three-page district directory lists 108 mosque entries with names, registration identifiers, addresses and locality fields. Its entry 97 lists Jamia Kadheeja Jummah Mosque as R/2141/A 112; the PDF is a published list, not a current inspection or endorsement.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — direct government PDF; no permission to reproduce, rehost or alter its contents was verified.",
+      "caveats": "The government district landing page currently lacks accessible directory text, but the directly hosted PDF returned HTTP 200 and its serial 97 registration was verified from extracted text on 5 October 2026. The published list does not prove current operation or affiliation with Dragon Dawwa."
+    },
+    {
+      "id": "local-census",
+      "category": "Local community information",
+      "title": "Census of Population and Housing - 2024: Final Report",
+      "publisher": "Department of Census and Statistics, Sri Lanka",
+      "url": "https://www.statistics.gov.lk/Resource/en/Population/CPH_2024/CPH2024_Final_Eng.pdf",
+      "evidence_url": "https://www.statistics.gov.lk/Population/StaticalInformation",
+      "format": "PDF",
+      "languages": [
+        "English"
+      ],
+      "summary": "This official final report presents results from Sri Lanka’s 2024 Census of Population and Housing, covering population distribution, demographic and social characteristics, migration, households, and housing. It also explains the census organization and data-collection methodology, including usual-residence enumeration and digital collection methods.",
+      "verified": true,
+      "rightsNote": "LINK ONLY — the Department’s public site states ‘All Rights Reserved,’ and no reuse permission was identified.",
+      "caveats": "Verified on the Department’s official Population page, which links this English final report; that landing page also visibly offers Sinhala and Tamil editions, but this direct resource is the English PDF. The report provides aggregate census context, not a directory or an account of individual belief; its census authority is described by the Department’s Census Ordinance page (https://www.statistics.gov.lk/about_us/censusordanance)."
+    }
+  ]
+}

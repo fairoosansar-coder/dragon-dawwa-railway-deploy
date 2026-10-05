@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f5ed">
+  <meta name="description" content="Ask a question or study a selected Qur’an ayah with displayed source references.">
+  <title>Study · Dragon Dawwa</title>
+  <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="community.css">
+  <link rel="stylesheet" href="study.css">
+  <script src="shared-nav.js" defer></script>
+  <script src="study.js" defer></script>
+</head>
+<body class="study-page">
+  <a class="skip" href="#main" data-study-copy="skip">Skip to content</a>
+  <header class="unified-header">
+    <a class="brand" href="/" aria-label="Dragon Dawwa home"><img src="assets/mark.svg" width="38" height="38" alt=""><span>DRAGON DAWWA<small>KNOWLEDGE WITH HUMILITY</small></span></a>
+    <nav class="unified-desktop-nav" data-shared-nav-label="main">
+      <a href="/" data-nav="home">Home</a><a href="/quran" data-nav="quran">Qur’an</a><a href="/study" data-nav="study" aria-current="page">Study</a><a href="/library" data-nav="learn">Learn</a><a href="/mosques" data-nav="mosque">Mosques</a><a href="/research" data-nav="research">Research</a><a href="/events" data-nav="events">Events</a><a href="/about" data-nav="about">About</a><a href="/participate" data-nav="participate">Contact / participate</a>
+    </nav>
+    <div class="unified-actions"><select class="language" id="study-interface-language" data-shared-language aria-label="Choose language"><option value="en">English</option><option value="ta">தமிழ்</option><option value="si">සිංහල</option></select><button class="menu-toggle" data-shared-menu aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation">☰</button></div>
+  </header>
+  <nav class="unified-mobile-nav" id="mobile-nav" data-shared-nav-label="mobile" hidden>
+    <a href="/" data-nav="home">Home</a><a href="/quran" data-nav="quran">Qur’an</a><a href="/study" data-nav="study" aria-current="page">Study</a><a href="/library" data-nav="learn">Learn</a><a href="/mosques" data-nav="mosque">Mosques</a><a href="/research" data-nav="research">Research</a><a href="/events" data-nav="events">Events</a><a href="/about" data-nav="about">About</a><a href="/participate" data-nav="participate">Contact / participate</a>
+  </nav>
+
+  <main id="main" class="study-main">
+    <section class="study-hero" aria-labelledby="study-title">
+      <div>
+        <p class="eyebrow" data-study-copy="eyebrow">SOURCES BEFORE SUMMARY</p>
+        <h1 id="study-title" data-study-copy="title">Study an ayah<br>with care.</h1>
+        <p class="lead" data-study-copy="lead">Ask a focused question or bring an ayah from the reader. Any generated explanation is kept distinct from the displayed sources.</p>
+      </div>
+      <aside class="study-principle"><span aria-hidden="true">01</span><p data-study-copy="principle">A source reference can be checked. A generated explanation is not a published translation or a religious ruling.</p></aside>
+    </section>
+
+    <section class="study-workspace" aria-labelledby="ask-title">
+      <div class="study-form-column">
+        <p class="eyebrow" data-study-copy="askEyebrow">YOUR QUESTION</p>
+        <h2 id="ask-title" data-study-copy="askTitle">Begin with what you want to understand.</h2>
+        <p class="study-form-help" data-study-copy="askHelp">Add a question, an ayah reference, or both. A source-backed answer is requested only when you choose Ask.</p>
+        <p class="study-provider-note" data-study-copy="providerNote">When available, the server sends only your selected verse or text question to Quran.ai, without your account ID. After you choose Ask, the question and retrieved evidence can be sent to Google for explanation or narration. Provider privacy tier is not verified; do not enter personal or sensitive information.</p>
+        <form id="study-form" novalidate>
+          <div class="study-fields">
+            <label for="study-verse"><span data-study-copy="verseLabel">Ayah or short range (optional)</span><input id="study-verse" name="verse" inputmode="text" autocomplete="off" maxlength="24" placeholder="2:255 or 2:255-257" aria-describedby="study-verse-help"><small id="study-verse-help" data-study-copy="verseHelp">Use surah:ayah, for example 2:255. The server verifies scope and availability.</small></label>
+            <label for="study-question"><span data-study-copy="questionLabel">Question (optional when an ayah is entered)</span><textarea id="study-question" name="question" rows="5" maxlength="600" aria-describedby="study-question-help" data-study-placeholder="questionPlaceholder" placeholder="What would you like to understand?"></textarea><small id="study-question-help" data-study-copy="questionHelp">Do not include account, contact, or other sensitive information in a study question.</small></label>
+            <label for="study-language"><span data-study-copy="languageLabel">Response language</span><select id="study-language" name="language"><option value="en">English</option><option value="ta">தமிழ்</option><option value="si">සිංහල</option></select></label>
+            <label class="study-checkbox" for="study-save-history"><input id="study-save-history" name="saveHistory" type="checkbox"><span data-study-copy="saveHistory">Save this response in my private study history, if my account supports it.</span></label>
+          </div>
+          <div class="study-form-actions"><button class="button" id="study-submit" type="submit" data-study-copy="askButton">Ask with sources</button><button class="text-button" id="study-cancel" type="button" hidden data-study-copy="cancel">Cancel request</button></div>
+          <p id="study-form-status" class="study-status" role="status" aria-live="polite" hidden></p>
+        </form>
+
+        <section class="voice-question" aria-labelledby="voice-title">
+          <div><p class="eyebrow" data-study-copy="voiceEyebrow">OPTIONAL VOICE INPUT</p><h3 id="voice-title" data-study-copy="voiceTitle">Speak your question</h3><p data-study-copy="voiceHelp">Your browser asks for microphone permission only after you choose to record. If transcription is unavailable, type your question instead.</p></div>
+          <div class="voice-actions"><button class="small-button" id="voice-start" type="button" hidden data-study-copy="voiceStart">Record a question</button><button class="small-button secondary" id="voice-stop" type="button" hidden data-study-copy="voiceStop">Stop recording</button><p id="voice-unsupported" class="small-note" hidden data-study-copy="voiceUnsupported">Microphone recording is not available in this browser. You can type a question.</p></div>
+          <p id="voice-status" class="study-status" role="status" aria-live="polite" hidden></p>
+        </section>
+      </div>
+
+      <aside class="study-guidance" aria-labelledby="guidance-title">
+        <p class="eyebrow" data-study-copy="guidanceEyebrow">HOW TO READ A RESPONSE</p><h2 id="guidance-title" data-study-copy="guidanceTitle">Keep the layers visible.</h2>
+        <ol>
+          <li><strong data-study-copy="layerOneTitle">Source quotations</strong><span data-study-copy="layerOne">are shown separately with IDs, edition names and links when the source service provides them.</span></li>
+          <li><strong data-study-copy="layerTwoTitle">Generated explanation</strong><span data-study-copy="layerTwo">is labelled as such. It can help orient study, but it is not a substitute for a named translation, tafsir, or qualified guidance.</span></li>
+          <li><strong data-study-copy="layerThreeTitle">Unavailable evidence</strong><span data-study-copy="layerThree">is shown as unavailable. This page does not invent quotations or citations.</span></li>
+        </ol>
+      </aside>
+    </section>
+
+    <section id="study-result" class="study-result" aria-labelledby="result-title" hidden aria-live="polite">
+      <div class="result-heading"><div><p class="eyebrow" data-study-copy="resultEyebrow">STUDY RESPONSE</p><h2 id="result-title" data-study-copy="resultTitle">Read the explanation alongside its sources.</h2></div><time id="study-generated-at"></time></div>
+      <div id="study-disclosure" class="study-disclosure"></div>
+      <div id="study-paragraphs" class="study-paragraphs"></div>
+      <section class="study-sources" aria-labelledby="sources-title"><div class="source-heading"><h3 id="sources-title" data-study-copy="sourcesTitle">Source references</h3><p data-study-copy="sourcesHelp">Citation IDs below identify the source material supplied for this response.</p></div><div id="study-source-list" class="study-source-list"></div>
+        <form id="study-report-form" class="study-report-form" novalidate>
+          <h4 data-study-report-copy="reportTitle">Report a possible source or answer issue</h4>
+          <p data-study-report-copy="reportHelp">A restricted owner queue receives this report; this does not send email or certify an answer. Do not include names, contact details or sensitive information.</p>
+          <label for="study-report-reason"><span data-study-report-copy="reportReason">Concern</span><select id="study-report-reason" required><option value="citation" data-study-report-copy="reportCitation">Citation or source</option><option value="inaccurate" data-study-report-copy="reportInaccurate">Possible inaccuracy</option><option value="harmful" data-study-report-copy="reportHarmful">Potentially harmful answer</option></select></label>
+          <label for="study-report-details"><span data-study-report-copy="reportDetails">Additional context (optional, no personal details)</span><textarea id="study-report-details" maxlength="600" rows="3"></textarea></label>
+          <button class="small-button secondary" type="submit" data-study-report-copy="reportSend">Send for restricted review</button>
+          <p id="study-report-status" class="study-status" role="status" aria-live="polite" hidden></p>
+        </form>
+      </section>
+      <section class="study-listen" aria-labelledby="listen-title"><div><p class="eyebrow" data-study-copy="listenEyebrow">LISTEN</p><h3 id="listen-title" data-study-copy="listenTitle">Narrate this displayed response</h3><p data-study-copy="listenHelp">Narration is requested for this exact response only. It does not start automatically and it pauses another audio item on this page.</p></div><div class="listen-actions"><button class="button" id="narrate-button" type="button" data-study-copy="listenButton">Prepare audio</button><button class="text-button" id="narrate-cancel" type="button" hidden data-study-copy="cancelNarration">Cancel narration request</button><p id="narrate-status" class="study-status" role="status" aria-live="polite" hidden></p></div><div id="study-audio-controls" class="study-audio-controls" hidden><audio id="study-audio" controls preload="none" aria-label="Study response audio"></audio><div class="audio-buttons"><button class="small-button" id="audio-play" type="button" data-study-copy="play">Play</button><button class="small-button secondary" id="audio-pause" type="button" data-study-copy="pause">Pause</button><button class="small-button secondary" id="audio-replay" type="button" data-study-copy="replay">Replay</button><label for="audio-speed"><span data-study-copy="speed">Speed</span><select id="audio-speed"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.2">1.2×</option><option value="1.5">1.5×</option></select></label></div><p class="small-note" data-study-copy="seekHelp">Use the native audio timeline to seek when available.</p></div></section>
+    </section>
+  </main>
+  <footer class="community-footer"><a class="brand" href="/">DRAGON DAWWA</a><span data-study-copy="footer">Source-aware learning for a thoughtful multilingual community.</span></footer>
+</body>
+</html>

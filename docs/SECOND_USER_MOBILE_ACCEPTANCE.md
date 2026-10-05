@@ -1,0 +1,25 @@
+# Dragon Dawwa — real second-user and physical mobile acceptance
+
+**Status (5 October 2026): arranged as a protocol, not executed.** The existing protected Preview has a real FEROZ owner login and synthetic two-session automation only. No second consenting human, personal device or durable private URL has been provided. No invitation was sent. Browser Chromium Pixel-7 emulation is useful engineering evidence but **not a physical Android/iOS pass**.
+
+## Prerequisites before inviting anyone
+
+1. Owner approves the exact metered Railway app/private MySQL/independent Cloudflare R2 backup, app-generated HTTPS login domain, Google OIDC client, protected variables and operating-cap decision in `DEPLOYMENT_DECISION.md`/`RAILWAY_HTTPS_RUNBOOK.md`. A public internet user may view **only the login/help/readiness surface**, not app pages, assets or APIs. Verify real Google callback and signed revocable cookie, same-origin sign-out, no email-based role and no public-read mode. Tailscale and Funnel are **not** part of this selected member path.
+2. Owner nominates **one different consenting adult tester** via a trusted private channel, obtains their assent to limited account data and agreed test notes, and assigns a test period. Tester has their own real provider account and device; FEROZ does not share credentials or ask the tester to paste passwords/2FA/API keys into chat. Invite only the exact verified identity through `/staff#team`, give no staff role, record an expiry/removal plan.
+3. Use the deliberately separate release schema with only reviewed seed links, zero authentic community records unless authorized, daily off-host encrypted backup and a witnessed disposable restore. Preserve the original Site and its data.
+
+## Two-person witnessed test (record time/device/browser without storing secrets)
+
+| Actor and step | Expected evidence | Stop condition |
+|---|---|---|
+| Tester on **their own** physical Android Chrome or iOS Safari visits the new app-generated public HTTPS Railway URL | Anonymous visitor sees only the login page; consenting tester signs in with their own Google account whose opaque `google:…` reference has the exact active `reader` invitation; an unrelated Google identity gets no application session | If a random URL guest or uninvited Google account can see a private page, JS/CSS/data asset, API, member or staff data, stop |
+| Tester creates their own optional My Learning profile and saves one of the twelve original-publisher links | Owner sees only minimal member index; tester sees exactly their own save | If a profile field changes permissions or another member's save appears, stop |
+| Tester opens a separate signed-in phone or laptop session, then resumes a saved Quran place | Same verse/page after provider validation; no notebook text transmitted | If stored place differs or private notes upload, stop |
+| Tester starts Quran Foundation recitation, then presses Pause and changes surah/reciter | Native recitation plays through speaker/headphones and stops on change; no surprise autoplay | If silent, two streams overlap or pause fails, record device/audio route and stop |
+| Tester opens the supplied **nonreligious** three-language Google WAV sample bundle on the **physical device**; owner separately authorizes a bounded one-account app canary before an in-app Listen test | Each sample decodes on the device; after the deliberately expanded tester cap, app Play/Pause/Replay/seek/speed work with no autoplay. A native Sri Lankan Tamil/Sinhala speaker separately judges pronunciation and Arabic names | If any language fails decode, stutters, has poor pronunciation or is attributed as a reciter, do not invite community users. Do not silently widen the current owner-only paid canary |
+| Tester signs out, then tries a copied pre-logout app token; owner removes their role | Copied token denied; role revoked immediately; other inviter-only APIs deny | Any old cookie or suspended role still working is a release blocker |
+| Tester requests export/deletion; owner verifies only operational tombstone remains and backup retention has a documented owner | Export belongs solely to tester; deleted profile/history/audio absent; provider account remains external | If personal payload survives in active rows or no backup-retention policy exists, stop |
+
+**Evidence record:** date, dedicated release version SHA, exact Railway HTTPS origin (public login only, private content), Google OIDC provider, anonymous-denial status, tester consent marker (no credentials), phone model/OS/browser/audio output, each step pass/fail, owner witness, remediation ticket, and whether synthetic fixtures were deleted. Do not copy Quran verses, private questions, login tokens or microphone recordings into a status document. Human religious review and owner confirmation of mosque affiliations/events are separate from this technical test.
+
+**To schedule:** the owner must choose the consenting tester and approve the private release stack; only then send the private test invitation by a trusted channel. Until then mark **real second-user** and **physical mobile audio** as **not tested**.

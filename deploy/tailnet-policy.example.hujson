@@ -1,0 +1,22 @@
+// TEMPLATE ONLY. Do not apply to an existing/shared tailnet: replacing its
+// policy can change unrelated devices. First create an owner-approved dedicated
+// commercial tailnet, replace these three placeholders with exact verified logins,
+// use the Tailscale policy preview/tests, then apply only after explicit review.
+{
+  "tagOwners": {
+    "tag:dragon-dawwa": ["owner@example.com"]
+  },
+  "acls": [],
+  "grants": [
+    {
+      "src": ["owner@example.com", "tester@example.com"],
+      "dst": ["tag:dragon-dawwa"],
+      "ip": ["tcp:443"]
+    }
+  ],
+  "tests": [
+    {"src": "owner@example.com", "accept": ["tag:dragon-dawwa:443"], "deny": ["tag:dragon-dawwa:22"]},
+    {"src": "tester@example.com", "accept": ["tag:dragon-dawwa:443"], "deny": ["tag:dragon-dawwa:22"]},
+    {"src": "uninvited@example.com", "deny": ["tag:dragon-dawwa:443"]}
+  ]
+}

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><title>Staff hub · Dragon Dawwa</title>
+  <link rel="icon" href="/assets/mark.svg"><link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/editorial.css"><link rel="stylesheet" href="/staff.css">
+  <script src="/staff-nav.js" defer></script><script src="/staff.js" defer></script>
+</head>
+<body class="editorial-page staff-page"><a class="skip" href="#main">Skip to content</a>
+<header class="editorial-header"><a class="brand" href="/">DRAGON DAWWA</a><div data-staff-nav data-staff-page="dashboard"></div></header>
+<main class="editorial-wrap" id="main">
+  <section class="staff-hero" id="dashboard">
+    <p class="eyebrow">PRIVATE · VERIFIED STAFF</p><h1>Staff hub</h1>
+    <p>Administrative actions are server-authorised, attributed and stored as metadata-only audit events. This workspace does not send messages, publish a site, change DNS, expose credentials, or automatically remove retained records.</p>
+    <p id="staff-session" class="editorial-meta" role="status" aria-live="polite">Checking verified access…</p>
+    <p id="staff-status" class="editorial-status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="staff-no-access" class="staff-permission" hidden>
+    <h2>Staff access is unavailable</h2><p>Your verified account can read the private review site, but it does not have a staff role. Staff permissions are assigned only from verified account records; profile fields cannot grant them.</p>
+  </section>
+
+  <div id="staff-workspace" hidden>
+    <section aria-labelledby="staff-areas-title">
+      <h2 id="staff-areas-title">Staff areas</h2>
+      <div class="staff-route-list">
+        <a class="staff-route-card is-current" href="#dashboard"><strong>Dashboard</strong><span>Real queue counts, service status and recent authorised activity.</span></a>
+        <a class="staff-route-card" href="/admin"><strong>Content</strong><span>Open the existing draft and publication workspace.</span></a>
+        <a class="staff-route-card" href="/admin#review-panel" data-staff-roles="owner reviewer publisher"><strong>Reviews</strong><span>Open exact-revision language review and publication controls.</span></a>
+        <a class="staff-route-card" href="#resources" data-staff-roles="owner publisher"><strong>Resources</strong><span>Add, edit, review or archive outbound publisher metadata.</span></a>
+        <a class="staff-route-card" href="/operations#event-section" data-staff-roles="owner reviewer publisher"><strong>Events</strong><span>Open the existing session and authorised-resource workspace.</span></a>
+        <a class="staff-route-card" href="#mosques"><strong>Mosques</strong><span>Propose, review and apply labelled community overlays without editing government data.</span></a>
+        <a class="staff-route-card" href="#members" data-owner-only><strong>Members</strong><span>Owner-only minimal member index; no contact details.</span></a>
+        <a class="staff-route-card" href="/operations#roles-section" data-owner-only><strong>Team</strong><span>Owner-only verified-account role management.</span></a>
+        <a class="staff-route-card" href="#intake" data-owner-only><strong>Inbox</strong><span>Owner-only intake assignment, resolution and manual redaction.</span></a>
+        <a class="staff-route-card" href="#audit" data-owner-only><strong>Audit History</strong><span>Paginated, metadata-only authorised actions.</span></a>
+        <a class="staff-route-card" href="#settings" data-owner-only><strong>Settings</strong><span>Safe contact, usage-limit and retention dry-run settings.</span></a>
+      </div>
+      <p id="staff-owner-note" class="editorial-note" hidden>Some staff areas are hidden because this verified role cannot perform their underlying action.</p>
+    </section>
+
+    <section class="editorial-panel" aria-labelledby="dashboard-title">
+      <div class="staff-section-heading"><h2 id="dashboard-title">Operational dashboard</h2><button id="dashboard-refresh" type="button">Refresh counts</button></div>
+      <p id="dashboard-state" class="editorial-note" role="status" aria-live="polite">Loading live management counts…</p>
+      <dl id="dashboard-counts" class="staff-metric-list"></dl>
+      <div class="staff-dashboard-grid"><div><h3>Integration status</h3><dl id="dashboard-integrations" class="staff-definition-list"></dl></div><div><h3>Recent authorised activity</h3><div id="dashboard-activity" class="staff-record-list"></div></div></div>
+    </section>
+
+    <section class="editorial-panel" id="resources" data-curation-only>
+      <div class="staff-section-heading"><h2>Curated external resources</h2><a class="staff-link" href="/resources">Open visitor catalogue</a></div>
+      <p>Only link-only original-publisher metadata is managed here. Both the original resource URL and publisher evidence URL must be HTTPS. A changed metadata record is reset to <strong>draft / unchecked</strong> until a staff member explicitly records a fresh check and review.</p>
+      <form id="resource-search-form" class="staff-list-tools" novalidate>
+        <label>Search title, publisher or summary <input id="resource-search" type="search" maxlength="120" autocomplete="off"></label>
+        <label>Status <select id="resource-status-filter"><option value="">All states</option><option value="active">Active</option><option value="archived">Archived</option></select></label>
+        <label>Review <select id="resource-review-filter"><option value="">All review states</option><option value="draft">Draft</option><option value="reviewed">Reviewed</option></select></label>
+        <div class="staff-actions"><button class="primary" type="submit">Apply filters</button><button id="resource-clear" type="button">Clear</button></div>
+      </form>
+      <p id="resource-manager-state" class="editorial-note" role="status" aria-live="polite"></p>
+      <div id="resource-manager-list" class="staff-record-list"></div>
+      <div class="staff-pagination" aria-label="Resource result pages"><button id="resource-prev" type="button">Previous</button><span id="resource-page" aria-live="polite"></span><button id="resource-next" type="button">Next</button></div>
+      <details id="resource-editor"><summary id="resource-editor-title">Add managed resource</summary>
+        <p class="editorial-note">Use this form for a new managed link or to create an editable override for a primary-publisher seed. Source content is untrusted metadata; it is rendered as text and never fetched from this form.</p>
+        <form id="resource-form" novalidate>
+          <input id="resource-record-id" type="hidden"><input id="resource-seed-key" type="hidden"><input id="resource-base-version" type="hidden">
+          <div class="source-grid">
+            <label>Title <input id="resource-title" required maxlength="240"></label>
+            <label>Publisher <input id="resource-publisher" required maxlength="240"></label>
+            <label>Original publisher resource URL <input id="resource-url" type="url" required maxlength="2000" placeholder="https://…"></label>
+            <label>Publisher evidence URL <input id="resource-publisher-url" type="url" required maxlength="2000" placeholder="https://…"></label>
+            <label>Theme <select id="resource-category" required><option value="Getting started with Quran study">Getting started with Quran study</option><option value="Finding source references">Finding source references</option><option value="Everyday learning and good character">Everyday learning and good character</option><option value="Family and community learning">Family and community learning</option><option value="New Muslim learning resources">New Muslim learning resources</option><option value="Local community information">Local community information</option></select></label>
+            <label>Format <input id="resource-format" required maxlength="80" placeholder="article, PDF, course…"></label>
+            <label>Source languages <input id="resource-languages" required maxlength="500" placeholder="English, Tamil"></label>
+            <label>Last source check <input id="resource-last-checked" type="date" required></label>
+            <label>Link status <select id="resource-link-status"><option value="unchecked">Unchecked</option><option value="verified">Verified after check</option><option value="broken">Broken</option></select></label>
+            <label>Review state <select id="resource-review-state"><option value="draft">Draft</option><option value="reviewed">Reviewed metadata</option></select></label>
+          </div>
+          <label>Original navigational summary <textarea id="resource-summary" required maxlength="4000"></textarea></label>
+          <label>Rights note <textarea id="resource-rights-note" required maxlength="4000" placeholder="Link only; rights remain with the original publisher."></textarea></label>
+          <div class="staff-actions"><button id="resource-save" class="primary" type="submit">Save resource</button><button id="resource-cancel" type="button">Cancel edit</button><button id="resource-archive" type="button" hidden>Archive resource</button><button id="resource-restore" type="button" hidden>Restore resource</button></div>
+          <p id="resource-form-state" class="editorial-note" role="status" aria-live="polite"></p>
+        </form>
+      </details>
+    </section>
+
+    <section class="editorial-panel" id="mosques">
+      <div class="staff-section-heading"><h2>Mosque correction overlays</h2><a class="staff-link" href="/mosque">Open sourced mosque directory</a></div>
+      <p>The bundled government directory remains unchanged. A correction is a labelled, evidence-linked <strong>community overlay</strong>; it never becomes a government fact and cannot supply an affiliation, current operation, membership or endorsement claim.</p>
+      <form id="correction-filter-form" class="staff-list-tools" novalidate><label>State <select id="correction-filter"><option value="">All states</option><option value="proposed">Proposed</option><option value="reviewed">Reviewed</option><option value="rejected">Rejected</option><option value="applied">Applied overlay</option></select></label><div class="staff-actions"><button class="primary" type="submit">Filter corrections</button><button id="correction-refresh" type="button">Refresh</button></div></form>
+      <p id="correction-state" class="editorial-note" role="status" aria-live="polite"></p><div id="correction-list" class="staff-record-list"></div>
+      <div class="staff-pagination" aria-label="Correction result pages"><button id="correction-prev" type="button">Previous</button><span id="correction-page" aria-live="polite"></span><button id="correction-next" type="button">Next</button></div>
+      <details id="correction-editor" data-correction-write><summary>Propose a correction overlay</summary>
+        <form id="correction-form" novalidate>
+          <input id="correction-record-id" type="hidden"><input id="correction-base-version" type="hidden">
+          <div class="source-grid"><label>Government directory entry <input id="correction-entry" type="number" min="1" max="108" required placeholder="e.g. 97"></label><label>Public evidence URL <input id="correction-evidence-url" type="url" maxlength="2000" required placeholder="https://…"></label></div>
+          <label>Evidence note <textarea id="correction-evidence-note" required maxlength="1000" placeholder="State what the public source supports; do not add private contact or unsupported claims."></textarea></label>
+          <p class="editorial-note">Enter only the display fields proposed for the community overlay. Leave a field empty when the source does not support a change.</p>
+          <div class="source-grid"><label>Proposed name <input id="correction-name" maxlength="240"></label><label>Proposed type <input id="correction-type" maxlength="240"></label><label>Proposed address <input id="correction-address" maxlength="500"></label><label>Proposed city <input id="correction-city" maxlength="240"></label></div>
+          <div class="staff-actions"><button class="primary" type="submit">Store proposal</button><button id="correction-cancel" type="button">Cancel edit</button></div><p id="correction-form-state" class="editorial-note" role="status" aria-live="polite"></p>
+        </form>
+      </details>
+    </section>
+
+    <section class="editorial-panel" id="members" data-owner-only>
+      <div class="staff-section-heading"><h2>Members</h2><p class="editorial-note">Owner only · minimal directory</p></div>
+      <p>Only display name, preferred language, optional city/mosque and account-created time are shown. Private contact, communication preferences, saved resources and learning history are excluded.</p>
+      <form id="member-search-form" class="staff-list-tools" novalidate><label>Search members <input id="member-search" type="search" maxlength="120" autocomplete="off" placeholder="Display name"></label><div class="staff-actions"><button class="primary" type="submit">Search</button><button id="member-clear" type="button">Clear</button></div></form>
+      <p id="member-state" class="editorial-note" role="status" aria-live="polite"></p><div id="member-list" class="staff-record-list"></div><div class="staff-pagination" aria-label="Member result pages"><button id="member-prev" type="button">Previous</button><span id="member-page" aria-live="polite"></span><button id="member-next" type="button">Next</button></div>
+    </section>
+
+    <section class="editorial-panel" id="intake" data-owner-only>
+      <div class="staff-section-heading"><h2>Restricted intake and reports</h2><a class="staff-link" href="/operations#inbox-section">Existing operations inbox</a></div>
+      <p>Only the owner can view, assign, resolve or manually redact these stored submissions. Redaction requires a confirmation and clears contact/detail payloads; it is not an automated retention purge or a message dispatch.</p>
+      <form id="intake-filter-form" class="staff-list-tools" novalidate><label>Kind <select id="intake-kind-filter"><option value="">All kinds</option><option value="participation">Participation</option><option value="correction">Correction</option></select></label><label>Workflow state <select id="intake-state-filter"><option value="">All states</option><option value="new">New</option><option value="assigned">Assigned</option><option value="resolved">Resolved</option><option value="redacted">Redacted</option></select></label><div class="staff-actions"><button class="primary" type="submit">Apply filters</button><button id="intake-refresh" type="button">Refresh</button></div></form>
+      <p id="intake-state" class="editorial-note" role="status" aria-live="polite"></p><div id="intake-list" class="staff-record-list"></div><div class="staff-pagination" aria-label="Intake result pages"><button id="intake-prev" type="button">Previous</button><span id="intake-page" aria-live="polite"></span><button id="intake-next" type="button">Next</button></div>
+    </section>
+
+    <section class="editorial-panel" id="audit" data-owner-only>
+      <div class="staff-section-heading"><h2>Audit history</h2><a class="staff-link" href="/admin#history-panel">Open editorial revision history</a></div>
+      <p>Shows metadata-only authorised actions across management and verified role/session administration. It deliberately excludes contact values, correction narrative, credentials and private study data.</p>
+      <p id="audit-state" class="editorial-note" role="status" aria-live="polite"></p><div id="audit-list" class="staff-record-list"></div><div class="staff-pagination" aria-label="Audit result pages"><button id="audit-prev" type="button">Previous</button><span id="audit-page" aria-live="polite"></span><button id="audit-next" type="button">Next</button></div>
+    </section>
+
+    <section class="editorial-panel" id="study-ops" data-owner-only>
+      <div class="staff-section-heading"><h2>Study and audio operations</h2><a class="staff-link" href="/study">Open the private source-grounded study page</a></div>
+      <p>These are real server counters and provider/model identifiers. They do not disclose member questions, answers, saved places or audio bytes. Request/character caps are not a currency cap. Google account privacy tier has not been verified.</p>
+      <p id="study-ops-state" class="editorial-note" role="status" aria-live="polite"></p>
+      <dl id="study-ops-counts" class="staff-metric-grid"></dl><button id="study-ops-refresh" type="button">Refresh provider and job status</button>
+      <h3>Reported AI answers</h3><p>A member can flag their own answer. This queue shows only bounded report metadata and requires the owner to act; resolving a report does not certify an AI answer or publish it.</p>
+      <form id="study-reports-filter-form" class="staff-list-tools"><label>Status <select id="study-reports-status"><option value="open">Open</option><option value="resolved">Resolved</option><option value="">All</option></select></label><button class="primary" type="submit">Apply filter</button></form>
+      <p id="study-reports-state" class="editorial-note" role="status" aria-live="polite"></p><div id="study-reports-list" class="staff-record-list"></div>
+      <div class="staff-pagination" aria-label="Reported study answer pages"><button id="study-reports-prev" type="button">Previous</button><span id="study-reports-page" aria-live="polite"></span><button id="study-reports-next" type="button">Next</button></div>
+    </section>
+
+    <section class="editorial-panel" id="settings" data-owner-only>
+      <h2>Safe settings</h2><p>Only this constrained management surface is editable. Deployment, audience, DNS, secrets, outgoing delivery and automated deletion remain outside it.</p>
+      <form id="contact-settings-form" class="staff-settings-form" novalidate><h3>Contact channel</h3><p class="editorial-note">Disabled until the owner supplies a valid channel. Saving this does not send a test or deliver a message.</p><label class="check-label"><input id="contact-enabled" type="checkbox"> Enable a supplied contact channel</label><div class="source-grid"><label>Channel type <select id="contact-type"><option value="email">Email</option><option value="url">Secure contact URL</option></select></label><label>Channel value <input id="contact-value" maxlength="320" placeholder="owner@example.org or https://…"></label></div><button class="primary" type="submit">Save contact setting</button></form>
+      <form id="limits-settings-form" class="staff-settings-form" novalidate><h3>Usage limits</h3><div class="source-grid"><label>Study requests per day <input id="limit-study" type="number" min="0" max="10000" required></label><label>Speech requests per day <input id="limit-speech" type="number" min="0" max="10000" required></label><label>Maximum concurrent jobs <input id="limit-concurrent" type="number" min="0" max="20" required></label></div><button class="primary" type="submit">Save usage limits</button></form>
+      <form id="retention-settings-form" class="staff-settings-form" novalidate><h3>Retention dry-run</h3><p class="editorial-note">A period can be prepared for count-only review. Automatic purge is permanently disabled by this interface and no row is removed by a dry run.</p><label>Provisional intake retention days <input id="retention-days" type="number" min="1" max="3650" required></label><div class="staff-actions"><button class="primary" type="submit">Save dry-run setting</button><button id="retention-dry-run" type="button">Run count-only dry run</button></div></form>
+      <p id="settings-state" class="editorial-note" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+</main>
+<footer class="editorial-footer">Dragon Dawwa · Private staff hub · Source-aware, server-authorised management</footer>
+</body></html>

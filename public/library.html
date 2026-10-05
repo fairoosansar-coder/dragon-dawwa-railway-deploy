@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><title>Editorial library · Dragon Dawwa</title>
+  <link rel="icon" href="/assets/mark.svg"><link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/editorial.css"><script src="/library.js" defer></script>
+</head>
+<body class="editorial-page"><a class="skip" href="#main" data-copy="skip">Skip to content</a>
+<header class="editorial-header"><a class="brand" href="/">DRAGON DAWWA</a>
+<nav aria-label="Library and visitor navigation" data-copy-aria="navLabel">
+  <a href="/" data-copy="home">Home</a><a href="/quran" data-copy="quran">Qur’an</a>
+  <a href="/learn" data-copy="learn">Learn</a><a href="/resources" data-copy="resources">Resources</a><a href="/member" data-copy="member">My learning</a><a href="/mosque" data-copy="mosque">Mosque</a>
+  <a href="/research" data-copy="research">Research</a><a href="/events" data-copy="events">Events</a>
+  <a href="/about" data-copy="about">About</a><a href="/participate" data-copy="contact">Contact / participate</a>
+  <select id="library-language" aria-label="Choose language" data-copy-aria="languageLabel"><option value="en">English</option><option value="ta">தமிழ்</option><option value="si">සිංහල</option></select>
+</nav></header>
+<main id="main" class="editorial-wrap">
+  <p class="eyebrow" data-copy="eyebrow">READ · CONSIDER · REFLECT</p><h1 data-copy="title">Editorial library</h1>
+  <p class="editorial-intro" data-copy="intro">Source-linked readings published through the editorial workspace. Translations are attributed renderings; editorial approval is not scholarly endorsement.</p>
+  <form id="library-filters" class="library-filters" role="search">
+    <label><span data-copy="search">Search readings</span><input id="library-search" type="search" maxlength="120" autocomplete="off" data-copy-placeholder="searchPlaceholder" placeholder="Search title, topic or source"></label>
+    <label><span data-copy="topic">Topic</span><select id="topic-filter"><option value="" data-copy="allTopics">All topics</option></select></label>
+    <label><span data-copy="type">Reading type</span><select id="classification-filter"><option value="" data-copy="allTypes">All types</option><option value="quran" data-copy="quran">Qur’an source</option><option value="hadith" data-copy="hadith">Hadith source (grading not asserted)</option><option value="source_text" data-copy="source_text">Source text · legacy / unspecified</option><option value="translation" data-copy="translation">Translation</option><option value="interpretation" data-copy="interpretation">Interpretation / commentary</option><option value="editorial" data-copy="editorial">Editorial note</option></select></label>
+    <button id="clear-filters" type="button" data-copy="clear">Clear filters</button>
+  </form>
+  <div id="library-status" class="editorial-status" role="status" aria-live="polite"></div><button id="retry-library" hidden data-copy="retry">Try again</button>
+  <div id="library-items" class="library-grid"></div>
+</main>
+<dialog id="reading-dialog" aria-labelledby="reading-title"><div class="dialog-heading"><h2 id="reading-title">Reading</h2><button id="close-reading" data-copy="close">Close reading</button></div><div id="reading-content"></div></dialog>
+<footer class="editorial-footer"><a href="/admin" data-copy="workspace">Editorial workspace</a> · Dragon Dawwa</footer>
+</body></html>

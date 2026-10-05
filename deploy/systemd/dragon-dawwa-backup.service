@@ -1,0 +1,32 @@
+[Unit]
+Description=Dragon Dawwa verified encrypted review MySQL backup to private off-host S3
+Documentation=file:/opt/dragon-dawwa/current/docs/DEPLOYMENT_DECISION.md
+Requires=network-online.target
+After=network-online.target mysql.service
+# Do not enable before the owner approves host, bucket, dedicated credentials and retention.
+
+[Service]
+Type=oneshot
+User=dragon-dawwa
+Group=dragon-dawwa
+WorkingDirectory=/opt/dragon-dawwa/current
+EnvironmentFile=/etc/dragon-dawwa/backup.env
+ExecStart=/usr/bin/flock -n /run/dragon-dawwa-backup/backup.lock /usr/bin/bash /opt/dragon-dawwa/current/scripts/offhost-backup.sh
+RuntimeDirectory=dragon-dawwa-backup
+RuntimeDirectoryMode=0700
+UMask=0077
+TimeoutStartSec=1200
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+ReadOnlyPaths=/etc/dragon-dawwa
+ReadWritePaths=/run/dragon-dawwa-backup
+StandardOutput=journal
+StandardError=journal

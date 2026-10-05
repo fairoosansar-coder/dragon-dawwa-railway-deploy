@@ -1,0 +1,13 @@
+[Unit]
+Description=Daily Dragon Dawwa off-host encrypted review database backup
+Documentation=file:/opt/dragon-dawwa/current/docs/DEPLOYMENT_DECISION.md
+
+[Timer]
+OnCalendar=*-*-* 02:15:00 UTC
+Persistent=true
+RandomizedDelaySec=0
+AccuracySec=1min
+Unit=dragon-dawwa-backup.service
+
+[Install]
+WantedBy=timers.target
