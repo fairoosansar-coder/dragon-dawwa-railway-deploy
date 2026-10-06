@@ -17,6 +17,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.addInitScript(() => localStorage.setItem('dd-quran-bookmarks', JSON.stringify(['114_999'])));
   const requested = [];
+  let notesDown = false;
   await page.route('**/*', async route => {
     const url = new URL(route.request().url());
     requested.push(url.pathname);
@@ -33,7 +34,8 @@ try {
         page: key === '1:1' ? 1 : 13, arabic: 'بِسْمِ ٱللَّهِ',
         translation: 'Source translation <sup>1</sup><script>window.scriptFromSource=true</script>',
         translationSource: catalog.translations[0],
-        footnotes: [{id:'1',text:'Publisher note <strong>carefully attributed</strong><img src=x onerror="window.noteScript=true">'}], footnotesAvailable:true,
+        footnotes: notesDown ? [] : [{id:'1',text:'Publisher note <strong>carefully attributed</strong><img src=x onerror="window.noteScript=true">'}],
+        footnotesAvailable:!notesDown, footnotesIncomplete:notesDown,
         tafsir: '<p>Commentary from source.</p><script>window.tafsirScript=true</script>',
         tafsirSource:catalog.tafsirs[0],tafsirAvailable:true,
         audio:'https://verses.quran.com/Alafasy/mp3/001001.mp3',reciter:catalog.recitations[0],
@@ -54,6 +56,7 @@ try {
   assert.match(await page.locator('#ayah-arabic').innerText(), /بِسْمِ/);
   assert.match(await page.locator('#translation-credit').innerText(), /Named translator/);
   assert.match(await page.locator('#footnotes-content').innerText(), /carefully attributed/);
+  assert.equal(await page.locator('#ayah-translation sup a').getAttribute('href'), '#footnote-1');
   assert.match(await page.locator('#tafsir-content').innerText(), /Commentary from source/);
   assert.equal(await page.evaluate(() => !!(window.scriptFromSource || window.noteScript || window.tafsirScript)), false);
   assert.match(await page.locator('#ayah-audio').getAttribute('src'), /^https:\/\/verses\.quran\.com\//);
@@ -74,6 +77,12 @@ try {
   await page.locator('#toggle-bookmark').click();
   assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('dd-quran-bookmarks'))), ['2_255','1_1']);
   assert.equal(await page.locator('#bookmark-list li').count(), 2);
+  await page.locator('#quran-language').selectOption('en');
+  notesDown = true;
+  await page.locator('#ayah-find button[type="submit"]').click();
+  await page.waitForFunction(() => document.querySelector('#footnotes-status')?.textContent?.includes('could not be loaded'));
+  assert.equal(await page.locator('#footnotes-content').innerText(), '');
+  assert.doesNotMatch(await page.locator('#footnotes-status').innerText(), /Some referenced/);
   await page.locator('#ayah-key').fill('999:999');
   await page.locator('#ayah-find button[type="submit"]').click();
   assert.equal(await page.locator('#ayah-study').isVisible(), false);

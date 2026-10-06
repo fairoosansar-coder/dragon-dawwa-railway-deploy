@@ -38,6 +38,7 @@
     emptyTranslation: ['No text was supplied for this selected translation.', 'இந்த மொழிபெயர்ப்பிற்கு உரை வழங்கப்படவில்லை.', 'තෝරාගත් පරිවර්තනයට පාඨයක් ලබා දී නැත.'],
     emptyNotes: ['No footnotes were supplied for this ayah and translation.', 'இந்த ஆயத் மற்றும் மொழிபெயர்ப்பிற்கு அடிக்குறிப்புகள் வழங்கப்படவில்லை.', 'මෙම ආයතය සහ පරිවර්තනයට පාදසටහන් ලබා දී නැත.'],
     notesUnavailable: ['The provider’s footnotes could not be loaded right now.', 'மூலத்தின் அடிக்குறிப்புகளை இப்போது பெற முடியவில்லை.', 'මූලාශ්‍රයේ පාදසටහන් දැන් පූරණය කළ නොහැක.'],
+    notesPartial: ['Some referenced footnotes could not be loaded right now.', 'சுட்டப்பட்ட சில அடிக்குறிப்புகளை இப்போது பெற முடியவில்லை.', 'සඳහන් කළ සමහර පාදසටහන් දැන් පූරණය කළ නොහැක.'],
     emptyTafsir: ['No commentary was supplied for this ayah.', 'இந்த ஆயத்திற்கு விளக்கம் வழங்கப்படவில்லை.', 'මෙම ආයතයට විවරණයක් ලබා දී නැත.'],
     tafsirUnavailable: ['This named tafsir is unavailable for the selected ayah right now.', 'இந்த ஆயத்திற்கு தேர்ந்த தஃப்ஸீர் இப்போது கிடைக்கவில்லை.', 'තෝරාගත් ආයතයට මෙම තෆ්සීර් දැන් ලබාගත නොහැක.'],
     audioUnavailable: ['This recitation is unavailable right now.', 'இந்த ஓதல் ஒலி இப்போது கிடைக்கவில்லை.', 'මෙම පාරායනය දැන් ලබාගත නොහැක.'],
@@ -179,6 +180,14 @@
     $('ayah-translation').replaceChildren();
     if (value.translation) $('ayah-translation').append(cleanMarkup(value.translation));
     else $('ayah-translation').textContent = t('emptyTranslation');
+    const noteLabels = new Set((value.footnotes || []).map(note => String(note.id)));
+    $('ayah-translation').querySelectorAll('sup').forEach(sup => {
+      const label = sup.textContent.trim();
+      if (!/^\d{1,2}$/.test(label) || !noteLabels.has(label)) return;
+      const link = document.createElement('a'); link.href = '#footnote-' + label;
+      link.textContent = label; link.setAttribute('aria-label', t('footnotes') + ' ' + label);
+      sup.replaceChildren(link);
+    });
     const credit = value.translationSource;
     $('translation-credit').textContent = credit ? [credit.name, credit.author, credit.language, 'Quran Foundation'].filter(Boolean).join(' · ') : 'Quran Foundation · ' + t('noTranslation');
     $('original-source').href = 'https://quran.com/' + value.key.replace(':','/');
@@ -193,12 +202,12 @@
     }
     $('footnotes-content').replaceChildren();
     for (const note of value.footnotes || []) {
-      const item = document.createElement('p');
+      const item = document.createElement('p'); item.id = 'footnote-' + note.id;
       const number = document.createElement('strong'); number.textContent = note.id + '. ';
       item.append(number, cleanMarkup(note.text)); $('footnotes-content').append(item);
     }
     $('footnotes-status').textContent = value.translationSource ?
-      (value.footnotes?.length ? '' : t(value.footnotesAvailable ? 'emptyNotes' : 'notesUnavailable')) : t('noTranslation');
+      (value.footnotesIncomplete ? t(value.footnotes?.length ? 'notesPartial' : 'notesUnavailable') : value.footnotes?.length ? '' : t(value.footnotesAvailable ? 'emptyNotes' : 'notesUnavailable')) : t('noTranslation');
     $('tafsir-content').replaceChildren();
     if (value.tafsir) $('tafsir-content').append(cleanMarkup(value.tafsir));
     $('tafsir-credit').textContent = value.tafsirSource ? [value.tafsirSource.name, value.tafsirSource.author, value.tafsirSource.language, 'Quran Foundation'].filter(Boolean).join(' · ') : '';

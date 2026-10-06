@@ -16,11 +16,13 @@ function fixture({rejectOnce=false, denied=false, optionalDenied=false}={}) {
     if(denied)return Response.json({message:'private upstream detail test-secret'},{status:403});
     if(rejectOnce&&first){first=false;return Response.json({error:'expired'},{status:401});}
     if(url.endsWith('/chapters'))return Response.json({chapters:[{id:1,name_simple:'Al-Fatihah',name_arabic:'الفاتحة',verses_count:7}]});
-    if(url.endsWith('/resources/translations'))return Response.json({translations:[{id:85,name:'M.A.S. Abdel Haleem',author_name:'Abdul Haleem',language_name:'english',slug:'en-haleem'},{id:57,name:'Transliteration',language_name:'english',slug:'transliteration'}]});
+    if(url.endsWith('/resources/translations'))return Response.json({translations:[{id:85,name:'M.A.S. Abdel Haleem',author_name:'Abdul Haleem',language_name:'english',slug:'en-haleem'},{id:203,name:'Al-Hilali & Khan',author_name:'Al-Hilali & Khan',language_name:'english',slug:'en-hilali'},{id:57,name:'Transliteration',language_name:'english',slug:'transliteration'}]});
     if(url.endsWith('/resources/recitations'))return Response.json({recitations:[{id:7,reciter_name:'Mishari Rashid al-`Afasy'}]});
     if(url.endsWith('/resources/tafsirs'))return Response.json({tafsirs:[{id:169,name:'Tafsir Ibn Kathir',author_name:'Hafiz Ibn Kathir',language_name:'english'}]});
     if(url.includes('/verses/by_key/1:1?'))return Response.json({verse:{verse_key:'1:1',text_uthmani:'بِسْمِ ٱللَّهِ',translations:[{resource_id:85,text:'Source translation'}],audio:{url:'Alafasy/mp3/001001.mp3'}}});
     if(url.includes('/quran/translations/85?verse_key=1:1&foot_notes=true'))return optionalDenied ? Response.json({error:'not_authorized'},{status:403}) : Response.json({translations:[{verse_key:'1:1',resource_id:85,text:'Source translation <sup>1</sup>',foot_notes:{1:'Translator source note.'}}]});
+    if(url.includes('/quran/translations/203?verse_key=1:1&foot_notes=true'))return Response.json({translations:[{verse_key:'1:1',resource_id:203,text:'Named source <sup foot_note=254690>1</sup> with a cited note.'}]});
+    if(url.endsWith('/foot_notes/254690'))return optionalDenied ? Response.json({error:'not_authorized'},{status:403}) : Response.json({foot_note:{id:254690,text:'Verified standalone source footnote.',language_name:'english'}});
     if(url.includes('/quran/tafsirs/169?verse_key=1:1'))return optionalDenied ? Response.json({error:'not_authorized'},{status:403}) : Response.json({tafsirs:[{verse_key:'1:1',resource_id:169,text:'<p>Named commentary.</p>'}]});
     return Response.json({verses:[{verse_key:'1:1',text_uthmani:'بِسْمِ ٱللَّهِ',translations:[{resource_id:85,text:'Translation text'}],audio:{url:'Alafasy/mp3/001001.mp3'}}],pagination:{current_page:1,next_page:null,total_pages:1,total_records:1}});
   };
@@ -28,7 +30,7 @@ function fixture({rejectOnce=false, denied=false, optionalDenied=false}={}) {
 }
 test('Live-shaped content uses server credentials, caches requests, and exposes only content',async()=>{
   const f=fixture(),client=createQuranClient(config,f.fetcher);
-  const bootstrap=await client.bootstrap();assert.equal(bootstrap.environment,'prelive');assert.equal(bootstrap.translations.length,1);
+  const bootstrap=await client.bootstrap();assert.equal(bootstrap.environment,'prelive');assert.equal(bootstrap.translations.length,2);
   assert.equal(bootstrap.tafsirs[0].author,'Hafiz Ibn Kathir');
   const params=new URLSearchParams({chapter:'1',translation:'85',recitation:'7'});
   const verses=await client.verses(params);assert.equal(verses.verses[0].key,'1:1');assert.equal(verses.verses[0].audio,'https://verses.quran.com/Alafasy/mp3/001001.mp3');
@@ -45,6 +47,21 @@ test('Exact internal ayah study returns only verified provider verse, named tran
   assert.equal(study.audio,'https://verses.quran.com/Alafasy/mp3/001001.mp3');
   assert(!JSON.stringify(study).includes('test-secret'));assert(!JSON.stringify(study).includes('test-token'));
   assert(f.calls.every(c=>!c.url.includes('example.com')));
+});
+test('Referenced translation footnotes load from official bounded foot_notes/{id} API and cache by ID',async()=>{
+  const f=fixture(),client=createQuranClient(config,f.fetcher);
+  const params=new URLSearchParams({key:'1:1',translation:'203'});
+  const verse=await client.ayah(params);
+  assert.match(verse.translation, /<sup foot_note=254690>1<\/sup>/);
+  assert.deepEqual(verse.footnotes,[{id:'1',text:'Verified standalone source footnote.'}]);
+  assert.equal(verse.footnotesIncomplete,false);
+  assert.equal(f.calls.filter(call=>call.url.endsWith('/foot_notes/254690')).length,1);
+  await client.ayah(params);
+  assert.equal(f.calls.filter(call=>call.url.endsWith('/foot_notes/254690')).length,1);
+  const denied=await createQuranClient(config,fixture({optionalDenied:true}).fetcher).ayah(params);
+  assert.equal(denied.footnotesAvailable,false);
+  assert.equal(denied.footnotesIncomplete,true);
+  assert.deepEqual(denied.footnotes,[]);
 });
 test('Ayah study rejects duplicate, unlisted or malformed resources before the provider detail call',async()=>{
   const f=fixture(),client=createQuranClient(config,f.fetcher);
