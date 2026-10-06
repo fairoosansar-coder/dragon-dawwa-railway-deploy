@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import vm from 'node:vm';
 
 const root = new URL('../', import.meta.url);
 const read = name => fs.readFileSync(new URL(name, root), 'utf8');
@@ -26,8 +27,58 @@ test('study page carries the documented API contract and safe source structure',
   assert.match(js, /responseIsValid/);
   assert.match(js, /safeSourceUrl/);
   assert.match(js, /safeAudioUrl/);
+  assert.match(html, /id="study-availability"[^>]*role="status"/);
+  assert.match(html, /id="study-submit"[^>]*disabled/);
+  assert.match(js, /fetch\('\/api\/study\/availability'/);
+  assert.match(js, /studyEnabled = data\?\.enabled === true/);
+  assert.match(js, /if \(!studyEnabled \|\| recordingStarting \|\| activeRecorder \|\| recordingController\) return;/);
+  assert.match(js, /'voice-start'\)\.hidden = !studyEnabled \|\| !micSupported/);
+  for (const language of ['en', 'ta', 'si']) assert.match(js, new RegExp('\\b' + language + ": ['\"]"));
   assert.doesNotMatch(js, /\.innerHTML\s*=/);
   assert.doesNotMatch(js, /insertAdjacentHTML/);
+});
+
+test('rapid Record activations while permission is pending create only one microphone stream', async () => {
+  const nodes = new Map();
+  const node = id => {
+    if (!nodes.has(id)) nodes.set(id, {
+      hidden: false, disabled: false, value: '', handlers: new Map(),
+      addEventListener(name, handler) { this.handlers.set(name, handler); },
+      pause() {}, load() {}, replaceChildren() {},
+    });
+    return nodes.get(id);
+  };
+  let resolvePermission;
+  let requested = 0;
+  let constructed = 0;
+  let recorder;
+  let stopped = false;
+  class Recorder {
+    constructor() { constructed++; recorder = this; this.handlers = new Map(); this.state = 'inactive'; this.mimeType = 'audio/webm'; }
+    addEventListener(name, handler) { this.handlers.set(name, handler); }
+    start() { this.state = 'recording'; }
+    stop() { this.state = 'inactive'; this.handlers.get('stop')(); }
+  }
+  vm.runInNewContext(read('public/study.js'), {
+    document: {getElementById: node, querySelectorAll: () => [], documentElement: {}, addEventListener() {}},
+    window: {location: {search: ''}, MediaRecorder: Recorder}, MediaRecorder: Recorder,
+    navigator: {mediaDevices: {getUserMedia() { requested++; return new Promise(resolve => { resolvePermission = resolve; }); }}},
+    localStorage: {getItem: () => null}, URLSearchParams, setTimeout, clearTimeout, AbortController, Blob, FormData,
+    fetch: async url => { assert.equal(url, '/api/study/availability'); return {ok: true, json: async () => ({enabled: true})}; },
+  });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(node('study-submit').disabled, false);
+  assert.equal(node('voice-start').hidden, false);
+  const start = node('voice-start').handlers.get('click');
+  const first = start();
+  const second = start();
+  assert.equal(requested, 1);
+  assert.equal(node('voice-start').disabled, true);
+  resolvePermission({getTracks: () => [{stop() { stopped = true; }}]});
+  await Promise.all([first, second]);
+  assert.equal(constructed, 1);
+  recorder.stop();
+  assert.equal(stopped, true);
 });
 
 test('study styles cover narrow access, visible focus, and reduced motion', () => {

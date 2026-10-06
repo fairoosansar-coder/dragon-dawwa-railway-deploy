@@ -42,6 +42,7 @@
         <h2 id="ask-title" data-study-copy="askTitle">Begin with what you want to understand.</h2>
         <p class="study-form-help" data-study-copy="askHelp">Add a question, an ayah reference, or both. A source-backed answer is requested only when you choose Ask.</p>
         <p class="study-provider-note" data-study-copy="providerNote">When available, the server sends only your selected verse or text question to Quran.ai, without your account ID. After you choose Ask, the question and retrieved evidence can be sent to Google for explanation or narration. Provider privacy tier is not verified; do not enter personal or sensitive information.</p>
+        <p id="study-availability" class="study-status is-error" role="status" aria-live="polite">AI study and voice are unavailable until the owner enables them.</p>
         <form id="study-form" novalidate>
           <div class="study-fields">
             <label for="study-verse"><span data-study-copy="verseLabel">Ayah or short range (optional)</span><input id="study-verse" name="verse" inputmode="text" autocomplete="off" maxlength="24" placeholder="2:255 or 2:255-257" aria-describedby="study-verse-help"><small id="study-verse-help" data-study-copy="verseHelp">Use surah:ayah, for example 2:255. The server verifies scope and availability.</small></label>
@@ -49,7 +50,7 @@
             <label for="study-language"><span data-study-copy="languageLabel">Response language</span><select id="study-language" name="language"><option value="en">English</option><option value="ta">தமிழ்</option><option value="si">සිංහල</option></select></label>
             <label class="study-checkbox" for="study-save-history"><input id="study-save-history" name="saveHistory" type="checkbox"><span data-study-copy="saveHistory">Save this response in my private study history, if my account supports it.</span></label>
           </div>
-          <div class="study-form-actions"><button class="button" id="study-submit" type="submit" data-study-copy="askButton">Ask with sources</button><button class="text-button" id="study-cancel" type="button" hidden data-study-copy="cancel">Cancel request</button></div>
+          <div class="study-form-actions"><button class="button" id="study-submit" type="submit" disabled data-study-copy="askButton">Ask with sources</button><button class="text-button" id="study-cancel" type="button" hidden data-study-copy="cancel">Cancel request</button></div>
           <p id="study-form-status" class="study-status" role="status" aria-live="polite" hidden></p>
         </form>
 

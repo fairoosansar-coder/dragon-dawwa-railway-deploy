@@ -136,6 +136,24 @@ test('normal runtime refuses Google generation until an explicit controlled cana
   assert.equal(sql.prepare('SELECT SUM(text_requests) AS n FROM study_usage_daily').get().n, 0);
 });
 
+test('private study availability stays off without the exact owner canary, key, usable limit and profile', async () => {
+  const f = setup();
+  const path = '/api/study/availability';
+  const available = async (env, actor = actorOne) => (await request(studyResponse, path, actor, undefined, env)).data;
+  assert.deepEqual(await available(f.env), {enabled: false});
+  const live = {...f.env, STUDY_LIVE_CANARY: 'true', STUDY_LIVE_CANARY_USER_ID: actorOne.id,
+    GEMINI_API_KEY: 'synthetic-only', STUDY_USAGE_LIMITS: {studyRequestsPerDay: 2, speechRequestsPerDay: 0, maxConcurrentJobs: 0}};
+  assert.deepEqual(await available(live), {enabled: true});
+  assert.deepEqual(await available(live, actorTwo), {enabled: false});
+  assert.deepEqual(await available({...live, GEMINI_API_KEY: ''}), {enabled: false});
+  assert.deepEqual(await available({...live, STUDY_USAGE_LIMITS: {studyRequestsPerDay: 0}}), {enabled: false});
+  const noProfile = setup();
+  noProfile.sql.prepare('DELETE FROM member_profiles WHERE user_id=?').run(actorOne.id);
+  assert.deepEqual(await available({...live, DB: noProfile.db}), {enabled: false});
+  assert.equal((await request(studyResponse, path, null, undefined, live)).status, 401);
+  assert.equal((await studyResponse(new Request('https://study.test' + path, {method: 'POST'}), live, actorOne)).status, 405);
+});
+
 test('narration is idempotent, private, WAV-only, and durable job state reaches ready once', async () => {
   const f = setup();
   const generated = await request(studyResponse, '/api/study/generate', actorOne, {question: 'zzprivatequestiontoken', verse: '1:1', language: 'en', saveHistory: false}, f.env);

@@ -2,7 +2,7 @@
 // headers and never logs questions, citations, audio bytes, account IDs, or provider credentials.
 import {createHash, createHmac, randomUUID} from 'node:crypto';
 import {createQuranAiProvider, QuranAiError} from './quran-ai.mjs';
-import {createGeminiStudyProvider, GeminiStudyError, GEMINI_LIMITS} from './gemini-study.mjs';
+import {createGeminiStudyProvider, geminiStudyAvailable, GeminiStudyError, GEMINI_LIMITS} from './gemini-study.mjs';
 
 const LANGUAGES = new Set(['en', 'ta', 'si']);
 const MEMBER_ROLES = new Set(['reader', 'author', 'reviewer', 'publisher', 'owner']);
@@ -546,6 +546,13 @@ export async function studyResponse(request, env, actor = null) {
     const trustedActor = requireActor(actor);
     const url = new URL(request.url);
     const path = url.pathname;
+
+    if (path === '/api/study/availability') {
+      if (request.method !== 'GET') fail(405, 'method_not_allowed');
+      const canGenerate = geminiStudyAvailable(env, trustedActor) && limits(env).user.textRequests > 0;
+      const profile = canGenerate ? await db.prepare('SELECT user_id FROM member_profiles WHERE user_id=?').bind(trustedActor.id).first() : null;
+      return response({enabled: Boolean(profile)});
+    }
 
     const audioMatch = path.match(/^\/api\/study\/audio\/([A-Za-z0-9-]{1,64})$/);
     if (audioMatch) {

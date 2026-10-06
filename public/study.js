@@ -16,6 +16,12 @@
     si: {reportTitle:'මූලාශ්‍රය හෝ පිළිතුර ගැන ඇති ගැටලුවක් වාර්තා කරන්න',reportHelp:'මෙම වාර්තාව හිමිකරුට පමණක් පෙනෙන පෝලිමට සුරකිනු ලැබේ. විද්‍යුත් තැපෑලක් නොයැවේ; පිළිතුර සහතික නොවේ. පුද්ගලික තොරතුරු නොදමන්න.',reportReason:'ගැටලුව',reportCitation:'උපුටනය හෝ මූලාශ්‍රය',reportInaccurate:'සාවද්‍යතාවක් විය හැක',reportHarmful:'හානිකර විය හැකි පිළිතුර',reportDetails:'අමතර විස්තර (විකල්ප; පුද්ගලික තොරතුරු නොදමන්න)',reportSend:'සීමිත සමාලෝචනයට යවන්න',reportSending:'වාර්තාව සුරකිමින්…',reportSaved:'හිමිකරුට පමණක් පෙනෙන සමාලෝචනයට සුරකින ලදී. විද්‍යුත් තැපෑලක් යවා නැත.',reportFailed:'වාර්තාව සුරැකිය නොහැකි විය. පුද්ගලික තොරතුරු නොමැතිව නැවත උත්සාහ කරන්න.'}
   };
 
+  const availabilityCopy = {
+    en: 'AI study and voice are unavailable until the owner enables them.',
+    ta: 'AI படிப்பு மற்றும் குரல் அம்சங்கள் உரிமையாளர் இயக்கும் வரை கிடைக்காது.',
+    si: 'AI අධ්‍යයන සහ හඬ පහසුකම් හිමිකරු සක්‍රිය කරන තුරු ලබා ගත නොහැක.'
+  };
+
   const $ = id => document.getElementById(id);
   const form = $('study-form');
   const verseField = $('study-verse');
@@ -29,11 +35,13 @@
   const generatedAt = $('study-generated-at');
   const audio = $('study-audio');
   let language = storedLanguage();
+  let studyEnabled = false;
   let studyController = null;
   let narrationController = null;
   let recordingController = null;
   let responseId = null;
   let activeRecorder = null;
+  let recordingStarting = false;
   let recordingTimer = null;
 
   function storedLanguage() {
@@ -50,6 +58,7 @@
     document.querySelectorAll('[data-study-copy]').forEach(node => setText(node, text(node.dataset.studyCopy)));
     document.querySelectorAll('[data-study-report-copy]').forEach(node => setText(node, reportCopy[language][node.dataset.studyReportCopy]));
     document.querySelectorAll('[data-study-placeholder]').forEach(node => { node.placeholder = text(node.dataset.studyPlaceholder); });
+    setText($('study-availability'), availabilityCopy[language]);
     languageField.value = language;
     if (responseId) $('narrate-button').textContent = text('listenButton');
   }
@@ -164,6 +173,7 @@
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
+    if (!studyEnabled) { setStatus(status, availabilityCopy[language], 'error'); return; }
     const verse = verseField.value.trim();
     const question = questionField.value.trim();
     if (!verse && !question) { setStatus(status, text('promptRequired'), 'error'); questionField.focus(); return; }
@@ -183,7 +193,7 @@
       else setStatus(status, error && error.message === 'invalid' ? text('invalidResponse') : text('unavailable'), 'error');
     } finally {
       studyController = null;
-      $('study-submit').disabled = false;
+      $('study-submit').disabled = !studyEnabled;
       $('study-cancel').hidden = true;
     }
   });
@@ -258,13 +268,14 @@
   function clearRecorder() {
     clearTimeout(recordingTimer);
     recordingTimer = null;
-    $('voice-start').hidden = false;
+    $('voice-start').hidden = !studyEnabled || !micSupported;
     $('voice-stop').hidden = true;
     activeRecorder = null;
   }
   async function transcribe(blob) {
     if (!blob || blob.size > MAX_RECORDING_BYTES) { setStatus($('voice-status'), text('recordingTooLarge'), 'error'); return; }
     recordingController = new AbortController();
+    $('voice-start').disabled = true;
     setStatus($('voice-status'), text('recordingStopped'));
     const payload = new FormData();
     payload.append('audio', blob, 'study-question.webm');
@@ -278,11 +289,16 @@
       setStatus($('voice-status'), text('transcriptionReady'), 'success');
     } catch (error) {
       setStatus($('voice-status'), text('transcriptionUnavailable'), 'error');
-    } finally { recordingController = null; }
+    } finally { recordingController = null; $('voice-start').disabled = false; }
   }
   async function startRecording() {
+    if (!studyEnabled || recordingStarting || activeRecorder || recordingController) return;
+    recordingStarting = true;
+    $('voice-start').disabled = true;
+    let stream;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      if (!studyEnabled) { stopTracks(stream); return; }
       const recorder = new MediaRecorder(stream);
       const chunks = [];
       let size = 0;
@@ -291,10 +307,11 @@
       $('voice-stop').hidden = false;
       setStatus($('voice-status'), text('recording'));
       recorder.addEventListener('dataavailable', event => { if (event.data && event.data.size) { chunks.push(event.data); size += event.data.size; if (size > MAX_RECORDING_BYTES && recorder.state === 'recording') recorder.stop(); } });
-      recorder.addEventListener('stop', () => { stopTracks(stream); const blob = new Blob(chunks, { type:recorder.mimeType || 'audio/webm' }); clearRecorder(); if (size > MAX_RECORDING_BYTES) setStatus($('voice-status'), text('recordingTooLarge'), 'error'); else transcribe(blob); });
+      recorder.addEventListener('stop', () => { stopTracks(stream); if (activeRecorder !== recorder) return; const blob = new Blob(chunks, { type:recorder.mimeType || 'audio/webm' }); clearRecorder(); if (size > MAX_RECORDING_BYTES) setStatus($('voice-status'), text('recordingTooLarge'), 'error'); else transcribe(blob); });
       recorder.start(250);
       recordingTimer = setTimeout(() => { if (recorder.state === 'recording') recorder.stop(); }, MAX_RECORDING_MS);
-    } catch { clearRecorder(); setStatus($('voice-status'), text('microphoneDenied'), 'error'); }
+    } catch { stopTracks(stream); clearRecorder(); setStatus($('voice-status'), text('microphoneDenied'), 'error'); }
+    finally { recordingStarting = false; $('voice-start').disabled = Boolean(recordingController); }
   }
   $('voice-start').addEventListener('click', startRecording);
   $('voice-stop').addEventListener('click', () => { if (activeRecorder && activeRecorder.state === 'recording') activeRecorder.stop(); });
@@ -305,8 +322,18 @@
   }
   document.addEventListener('dd:languagechange', event => applyLanguage(event.detail && event.detail.language));
   const micSupported = Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
-  $('voice-start').hidden = !micSupported;
-  $('voice-unsupported').hidden = micSupported;
+  async function loadAvailability() {
+    try {
+      const response = await fetch('/api/study/availability', { credentials:'same-origin', cache:'no-store' });
+      const data = response.ok ? await readJson(response) : null;
+      studyEnabled = data?.enabled === true;
+    } catch { studyEnabled = false; }
+    $('study-submit').disabled = !studyEnabled;
+    $('study-availability').hidden = studyEnabled;
+    $('voice-start').hidden = !studyEnabled || !micSupported;
+    $('voice-unsupported').hidden = !studyEnabled || micSupported;
+  }
   applyLanguage(language);
   takeVerseFromQuery();
+  loadAvailability();
 })();

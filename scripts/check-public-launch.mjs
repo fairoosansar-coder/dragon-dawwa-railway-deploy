@@ -32,6 +32,7 @@ test('public policy exposes only visitor pages, published-read endpoints, and re
     assert.equal(publicReadingAllowed('GET', route, config), true, route);
   for (const route of ['/admin', '/staff', '/operations', '/member', '/study', '/api/review/session', '/api/admin/dashboard', '/api/member/me', '/api/study/history', '/api/participation', '/api/corrections', '/admin.js', '/staff.js', '/data/starter-resources.json'])
     assert.equal(publicReadingAllowed('GET', route, config), false, route);
+  assert.equal(publicReadingAllowed('GET', '/api/study/availability', config), false);
   for (const route of ['/api/content', '/api/events', '/api/resources', '/api/quran/bootstrap'])
     assert.equal(publicReadingAllowed('POST', route, config), false, route);
 });

@@ -30,6 +30,10 @@ function liveCanaryAllowed(env, actor) {
   return typeof allowedUser === 'string' && allowedUser.length > 0 && allowedUser === actor?.id;
 }
 
+export function geminiStudyAvailable(env = {}, actor = null) {
+  return liveCanaryAllowed(env, actor) && typeof env.GEMINI_API_KEY === 'string' && env.GEMINI_API_KEY.length > 0;
+}
+
 function deadline(fetcher, url, init, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
