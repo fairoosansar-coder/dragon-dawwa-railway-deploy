@@ -68,7 +68,9 @@ test('signed-out canonical-host responses serve public HTML and keep private rou
     console.log(JSON.stringify(output));
   `;
   const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
-    cwd: new URL('../', import.meta.url), env: { ...process.env, ...config }, encoding: 'utf8', timeout: 10_000,
+    // This child is a synthetic Railway fixture, not the host's Webdev Preview.
+    // Never inherit injected Preview markers or ambient credentials into it.
+    cwd: new URL('../', import.meta.url), env: { ...config }, encoding: 'utf8', timeout: 10_000,
   });
   assert.equal(result.status, 0, result.stderr.replace(/synthetic-[^\s]*/g, '[redacted]'));
   const pages = JSON.parse(result.stdout.trim().split('\n').at(-1));
