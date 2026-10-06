@@ -9,6 +9,7 @@ const settle = () => new Promise(resolve => setImmediate(resolve));
 
 function reader(fetch) {
   const elements = new Map();
+  const store = new Map();
   for (const [, id] of source('quran.html').matchAll(/id="([^"]+)"/g)) {
     elements.set(id, {
       value: '', textContent: '', hidden: false, attrs: {}, listeners: {},
@@ -17,13 +18,18 @@ function reader(fetch) {
       replaceChildren() {},
     });
   }
+  const modes = [...source('quran.html').matchAll(/data-mode="(verse|arabic|translation)"/g)].map(([, mode]) => ({
+    dataset: { mode }, attrs: {}, listeners: {},
+    setAttribute(name,value) { this.attrs[name] = value; },
+    addEventListener(name,listener) { this.listeners[name] = listener; },
+  }));
   const context = vm.createContext({
     fetch, URLSearchParams, AbortController, setTimeout, clearTimeout,
-    localStorage: { getItem: () => null, setItem() {} }, window: {},
+    localStorage: { getItem: key => store.get(key) ?? null, setItem: (key,value) => store.set(key,value) }, window: {},
     location: { search: '', assign() {} },
     document: {
-      documentElement: {}, body: { classList: { add() {}, remove() {} } },
-      getElementById: id => elements.get(id), querySelectorAll: () => [],
+      documentElement: {}, body: { classList: { add() {}, remove() {} }, dataset: {}, style: {setProperty() {}} },
+      getElementById: id => elements.get(id), querySelectorAll: selector => selector === '[data-mode]' ? modes : [],
     },
   });
   vm.runInContext(source('quran-copy.js'), context);
@@ -31,8 +37,25 @@ function reader(fetch) {
   return {
     el: id => elements.get(id), copy: context.window.DD_QURAN_COPY,
     language(value) { elements.get('quran-language').listeners.change({ target: { value } }); },
+    mode: value => modes.find(button => button.dataset.mode === value),
+    preference: () => JSON.parse(store.get('dd-quran-reader') || '{}'),
   };
 }
+
+test('Reader modes, Arabic size and word-level preference are local and reversible', () => {
+  const ui = reader(() => new Promise(() => {}));
+  ui.mode('arabic').listeners.click();
+  assert.equal(ui.el('verses').hidden,true);
+  assert.equal(ui.el('reading-flow').hidden,false);
+  assert.equal(ui.preference().view,'arabic');
+  ui.el('arabic-size').listeners.input({target:{value:'52'}});
+  assert.equal(ui.preference().size,52);
+  ui.el('show-words').listeners.change({target:{checked:true}});
+  assert.equal(ui.preference().words,true);
+  assert.equal(ui.preference().view,'verse');
+  ui.el('reset-reader').listeners.click();
+  assert.deepEqual(ui.preference(), {view:'verse',script:'uthmani',size:38,words:false});
+});
 
 test('Reader loading status follows language changes while a request is pending', () => {
   const ui = reader(() => new Promise(() => {}));

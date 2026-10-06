@@ -29,12 +29,12 @@ const config = {
 };
 
 test('public policy exposes only visitor pages, published-read endpoints, and required assets', () => {
-  for (const route of ['/', '/about', '/quran', '/quran/study', '/library', '/library/published-reading', '/resources', '/research', '/mosque', '/mosques', '/mosques/97', '/events', '/events/published-event', '/contact', '/privacy', '/terms', '/sources', '/accessibility', '/api/content', '/api/content/published-reading', '/api/events', '/api/resources', '/api/mosques', '/api/quran/bootstrap', '/api/quran/verses', '/api/quran/ayah', '/assets/mark.svg', '/library.js', '/quran-study.js'])
+  for (const route of ['/', '/about', '/quran', '/quran/study', '/library', '/library/published-reading', '/resources', '/research', '/mosque', '/mosques', '/mosques/97', '/events', '/events/published-event', '/contact', '/privacy', '/terms', '/sources', '/accessibility', '/api/content', '/api/content/published-reading', '/api/events', '/api/resources', '/api/mosques', '/api/quran/bootstrap', '/api/quran/verses', '/api/quran/ayah', '/api/quran/chapter', '/api/quran/chapter-audio', '/api/quran/navigate', '/assets/mark.svg', '/library.js', '/quran-study.js'])
     assert.equal(publicReadingAllowed('GET', route, config), true, route);
   for (const route of ['/admin', '/staff', '/operations', '/member', '/study', '/api/review/session', '/api/admin/dashboard', '/api/member/me', '/api/study/history', '/api/participation', '/api/corrections', '/admin.js', '/staff.js', '/data/starter-resources.json'])
     assert.equal(publicReadingAllowed('GET', route, config), false, route);
   assert.equal(publicReadingAllowed('GET', '/api/study/availability', config), false);
-  for (const route of ['/api/content', '/api/events', '/api/resources', '/api/quran/bootstrap', '/api/quran/ayah'])
+  for (const route of ['/api/content', '/api/events', '/api/resources', '/api/quran/bootstrap', '/api/quran/ayah', '/api/quran/chapter', '/api/quran/chapter-audio', '/api/quran/navigate'])
     assert.equal(publicReadingAllowed('POST', route, config), false, route);
 });
 
@@ -99,8 +99,9 @@ test('signed-out canonical-host responses serve public HTML and keep private rou
   assert.equal(byPath['/quran/study?ayah=1%3A1'].status, 200);
   assert.match(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="noindex,follow">/);
   assert.doesNotMatch(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="index,follow/);
-  assert.match(byPath['/quran/study?ayah=1%3A1'].body, /src="\/quran-study\.js\?v=20261007-footnotes"/);
-  assert.match(byPath['/quran'].body, /src="\/quran\.js\?v=20261007-footnotes"/);
+  assert.match(byPath['/quran/study?ayah=1%3A1'].body, /src="\/quran-study\.js\?v=20261007-reader"/);
+  assert.match(byPath['/quran'].body, /src="\/quran\.js\?v=20261007-reader"/);
+  assert.match(byPath['/quran'].body, /href="\/quran\.css\?v=20261007-reader"/);
   for (const asset of ['/quran-study.js','/quran.css']) {
     assert.equal(byPath[asset].status, 200, asset);
     assert.equal(byPath[asset].cache, 'public, max-age=0, must-revalidate', asset);

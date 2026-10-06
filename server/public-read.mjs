@@ -11,7 +11,7 @@ const pages = new Set([
 ]);
 const readApis = new Set([
   '/api/content', '/api/events', '/api/quran/bootstrap',
-  '/api/quran/verses', '/api/quran/ayah', '/api/resources', '/api/mosques',
+  '/api/quran/verses', '/api/quran/ayah', '/api/quran/chapter', '/api/quran/chapter-audio', '/api/quran/navigate', '/api/resources', '/api/mosques',
 ]);
 const publicAssets = new Set([
   '/assets/mark.svg', '/assets/garden-arch.png',

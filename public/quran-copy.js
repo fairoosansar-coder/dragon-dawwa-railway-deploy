@@ -40,3 +40,60 @@ footer:['May what we learn bring goodness to the way we live.','நாம் க
 };
 
 window.DD_QURAN_COPY.privacyNote=['Reading loads content through our server from Quran Foundation. Playing audio connects your browser to the recitation delivery service. Saved places are not sent to Quran Foundation.','வாசிக்கும்போது எங்கள் சேவையகம் வழியாக Quran Foundation இலிருந்து உள்ளடக்கம் பெறப்படும். ஒலியை இயக்கும்போது உங்கள் உலாவி ஓதல் ஒலிச் சேவையுடன் இணையும். சேமித்த இடங்கள் Quran Foundation க்கு அனுப்பப்படுவதில்லை.','කියවීමේදී අපගේ සේවාදායකය හරහා Quran Foundation වෙතින් අන්තර්ගතය ලබාගනී. හඬ වාදනය කරන විට ඔබේ බ්‍රවුසරය පාරායන සේවාවට සම්බන්ධ වේ. සුරැකි ස්ථාන Quran Foundation වෙත යවන්නේ නැත.'];
+
+Object.assign(window.DD_QURAN_COPY, {
+  readMode:['Reading mode','வாசிப்பு முறை','කියවීමේ ආකාරය'],
+  verseMode:['Verse by verse','ஆயத் வாரியாக','ආයත් වශයෙන්'],
+  arabicMode:['Continuous Arabic','தொடர்ச்சியான அரபு','අඛණ්ඩ අරාබි'],
+  translationMode:['Continuous translation','தொடர்ச்சியான மொழிபெயர்ப்பு','අඛණ්ඩ පරිවර්තනය'],
+  readerSettings:['Display settings','காட்சியமைப்புகள்','දර්ශන සැකසුම්'],
+  arabicScript:['Arabic script','அரபு எழுத்துமுறை','අරාබි අක්ෂර රටාව'],
+  fontSize:['Arabic font size','அரபு எழுத்து அளவு','අරාබි අකුරු ප්‍රමාණය'],
+  wordMeanings:['Word-by-word meanings (when supplied)','சொல்லுக்குச் சொல் பொருள் (கிடைக்கும் போது)','වචනයෙන් වචනයට අර්ථ (ලබා දී ඇත්නම්)'],
+  settingsScope:['Display choices are saved in this browser; personal account settings can be added later.','காட்சி அமைப்புகள் இந்த உலாவியில் மட்டும் சேமிக்கப்படும்; கணக்குடன் ஒத்திசைவு பின்னர் சேர்க்கலாம்.','දර්ශන සැකසුම් මෙම බ්‍රවුසරයේ පමණක් සුරැකේ; ගිණුමට සමමුහුර්ත කිරීම පසුව එක් කළ හැක.'],
+  resetSettings:['Reset display','காட்சியை மீட்டமை','දර්ශනය යළි සකසන්න'],
+  listenSurah:['Listen to surah','ஸூரா முழுவதும் கேளுங்கள்','සම්පූර්ණ සූරාවට සවන් දෙන්න'],
+  surahReciter:['Full-surah reciter','ஸூரா முழு ஓதுபவர்','සම්පූර්ණ සූරා පාරායනය කරන්නා'],
+  repeatSurah:['Repeat surah','ஸூராவை மீண்டும் ஒலிக்க','සූරාව නැවත වාදනය කරන්න'],
+  chapterInfo:['Surah info','ஸூரா தகவல்','සූරා තොරතුරු'],
+  chapterVerses:['verses','ஆயத்துகள்','ආයත්'],
+  mushafPage:['Mushaf page','முஸ்ஹஃப் பக்கம்','මුෂ්හෆ් පිටුව'],
+  juz:['Juz','ஜுஸ்உ','ජුස්'], hizb:['Hizb','ஹிஸ்ப்','හිස්බ්'],
+  chapterInfoLoading:['Loading named surah context…','மூல ஸூரா விளக்கம் பெறப்படுகிறது…','නම් කළ සූරා විස්තර පූරණය වෙමින්…'],
+  chapterInfoUnavailable:['No named surah description was supplied for this chapter.','இந்த ஸூராவிற்கு மூல விளக்கம் வழங்கப்படவில்லை.','මෙම සූරාව සඳහා මූලාශ්‍ර විස්තරයක් ලබා දී නැත.'],
+  chapterAudioLoading:['Loading full-surah recitation…','முழு ஸூரா ஓதல் பெறப்படுகிறது…','සම්පූර්ණ සූරා පාරායනය පූරණය වෙමින්…'],
+  chapterAudioUnavailable:['Full-surah recitation is unavailable for this connection or reciter. Verse audio remains available below.','இந்த இணைப்பில் முழு ஸூரா ஓதல் கிடைக்கவில்லை. கீழே ஆயத் ஒலி கிடைக்கலாம்.','මෙම සම්බන්ධතාවයට සම්පූර්ණ සූරා පාරායනය නොමැත. පහත ආයත් ශ්‍රව්‍ය ලබා ගත හැක.'],
+  scriptUnavailable:['This Arabic script is unavailable from the provider; Uthmani remains selected.','இந்த அரபு எழுத்துமுறை மூலத்தில் கிடைக்கவில்லை; உஸ்மானி தேர்வாக உள்ளது.','මෙම අරාබි අක්ෂර රටාව මූලාශ්‍රයෙන් නොලැබේ; උස්මානි තෝරා ඇත.'],
+  wordsUnavailable:['Word-level meanings were not supplied for these ayahs.','இந்த ஆயத்துகளுக்குச் சொற்களின் பொருள் வழங்கப்படவில்லை.','මෙම ආයත් සඳහා වචන අර්ථ ලබා දී නැත.'],
+  wordTitle:['Word meaning','சொல்லின் பொருள்','වචනයේ අර්ථය'],
+  wordAudio:['Hear word','சொல்லைக் கேள்','වචනය අසන්න'],
+  meaningEnglish:['English word meanings supplied by Quran Foundation.','Quran Foundation வழங்கும் ஆங்கிலச் சொற்பொருள்.','Quran Foundation ලබා දෙන ඉංග්‍රීසි වචන අර්ථ.'],
+  copyVerse:['Copy verse','ஆயத்தை நகலெடு','ආයතය පිටපත් කරන්න'],
+  copiedVerse:['Verse copied with source credit.','மூலக் குறிப்புடன் ஆயத் நகலெடுக்கப்பட்டது.','මූලාශ්‍ර සටහන සමඟ ආයතය පිටපත් විය.'],
+  shareVerse:['Share link','இணைப்பைப் பகிர்','සබැඳිය බෙදා ගන්න'],
+  shareCopied:['Study link copied.','ஆயத் இணைப்பு நகலெடுக்கப்பட்டது.','ආයත් සබැඳිය පිටපත් විය.'],
+  actionUnavailable:['That action is not available in this browser.','இந்த உலாவியில் இந்தச் செயல் கிடைக்கவில்லை.','මෙම බ්‍රවුසරයේ මෙම ක්‍රියාව නොමැත.'],
+  bookmark:['Bookmark','புத்தகக்குறியிடு','පිටු සලකුණ'],
+  removeBookmark:['Remove bookmark','புத்தகக்குறியை நீக்கு','පිටු සලකුණ ඉවත් කරන්න'],
+  bookmarkLocal:['Bookmarked in this browser only.','இந்த உலாவியில் மட்டும் புத்தகக்குறியிடப்பட்டது.','මෙම බ්‍රවුසරයේ පමණක් සලකුණු විය.'],
+  bookmarkAccount:['Bookmarked in your private profile.','உங்கள் தனியார் சுயவிவரத்தில் புத்தகக்குறியிடப்பட்டது.','ඔබේ පෞද්ගලික පැතිකඩේ සලකුණු විය.'],
+  bookmarkProfile:['Create an invited member profile to sync bookmarks.','புத்தகக்குறிகளை ஒத்திசைக்க உறுப்பினர் சுயவிவரம் உருவாக்குங்கள்.','පිටු සලකුණු සමමුහුර්ත කිරීමට ආරාධිත පැතිකඩක් සාදන්න.'],
+  bookmarkError:['Bookmark was not changed. Try again later.','புத்தகக்குறி மாறவில்லை. பின்னர் முயலுங்கள்.','පිටු සලකුණ වෙනස් නොවීය. පසුව උත්සාහ කරන්න.'],
+  bookmarkLimit:['This browser can keep up to 20 guest bookmarks.','இந்த உலாவியில் விருந்தினர் குறிகள் 20 வரை சேமிக்கலாம்.','මෙම බ්‍රවුසරයේ අමුත්තන්ගේ සලකුණු 20ක් දක්වා තැබිය හැක.'],
+  tafsir:['Tafsir','தஃப்ஸீர்','තෆ්සීර්'],
+  tafsirUnavailable:['Named tafsir is unavailable for this ayah; its source page remains optional.','இந்த ஆயத்திற்கு பெயரிடப்பட்ட தஃப்ஸீர் கிடைக்கவில்லை.','මෙම ආයතයට නම් කළ තෆ්සීර් නොමැත.'],
+  tafsirLoading:['Loading named tafsir…','பெயரிடப்பட்ட தஃப்ஸீர் பெறப்படுகிறது…','නම් කළ තෆ්සීර් පූරණය වෙමින්…'],
+  pagePart:['Chapter part','ஸூரா பகுதி','සූරා කොටස']
+});
+
+Object.assign(window.DD_QURAN_COPY, {
+  jumpTo:['Jump to a Quran location','குர்ஆன் இடத்திற்குச் செல்','කුර්ආන් ස්ථානයකට යන්න'],
+  go:['Go','செல்','යන්න'],
+  jumpLoading:['Finding the first ayah at this location…','இந்த இடத்தின் முதல் ஆயத் தேடப்படுகிறது…','මෙම ස්ථානයේ පළමු ආයතය සොයමින්…'],
+  jumpUnavailable:['This location could not be confirmed from the source. Try a surah or ayah reference.','இந்த இடத்தை மூலத்தில் உறுதிப்படுத்த முடியவில்லை. ஸூரா அல்லது ஆயத் எண்ணை முயலுங்கள்.','මෙම ස්ථානය මූලාශ්‍රයෙන් තහවුරු කළ නොහැකි විය. සූරාවක් හෝ ආයත් යොමුවක් උත්සාහ කරන්න.'],
+  jumpInvalid:['Enter a valid page (1–604), juz (1–30), or hizb (1–60).','செல்லுபடியாகும் பக்கம் (1–604), ஜுஸ்உ (1–30), அல்லது ஹிஸ்ப் (1–60) எண்ணை இடுங்கள்.','වලංගු පිටුවක් (1–604), ජුස් (1–30), හෝ හිස්බ් (1–60) අංකයක් යොදන්න.']
+});
+
+Object.assign(window.DD_QURAN_COPY, {
+  firstShownAyah:['First displayed ayah','முதலில் காட்டப்படும் ஆயத்','මුලින් පෙන්වන ආයතය']
+});

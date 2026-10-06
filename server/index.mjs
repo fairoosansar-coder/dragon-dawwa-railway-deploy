@@ -118,7 +118,7 @@ function secureHeaders(indexable = false) {
     'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': tailnetMode || googleMode ? 'no-referrer' : 'strict-origin-when-cross-origin',
     ...(indexable ? {} : { 'X-Robots-Tag': 'noindex, nofollow, noarchive' }),
     // Embedded Manus Preview permits its Dashboard; Google and tailnet endpoints permit no framing.
-    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors ${tailnetMode || googleMode ? "'none'" : 'https://manus.im https://www.manus.im'}; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' https://verses.quran.com https://verses.quran.foundation https://mirrors.quranicaudio.com; connect-src 'self'`,
+    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors ${tailnetMode || googleMode ? "'none'" : 'https://manus.im https://www.manus.im'}; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' https://verses.quran.foundation; img-src 'self' data:; media-src 'self' https://verses.quran.com https://verses.quran.foundation https://mirrors.quranicaudio.com https://audio.qurancdn.com https://download.quranicaudio.com; connect-src 'self'`,
     ...(tailnetMode || googleMode ? { 'X-Frame-Options': 'DENY' } : {}),
     ...(googleMode ? { 'Strict-Transport-Security': 'max-age=31536000' } : {}),
   };
@@ -158,7 +158,7 @@ async function fileResponse(filename, status = 200, {readonlyMosque = false, pub
         // These non-fingerprinted files were previously cached for one hour.
         // A fresh page must not combine the new footnote API with stale browser JS.
         html = html.replace(/(src|href)="\/?(quran(?:-copy|-study)?\.js|quran\.css)"/g,
-          '$1="/$2?v=20261007-footnotes"');
+          '$1="/$2?v=20261007-reader"');
       }
       if (readonlyMosque && filename === 'mosque.html') {
         html = html.replace(/<section class="community-section" id="correction">[\s\S]*?<\/section>/,
