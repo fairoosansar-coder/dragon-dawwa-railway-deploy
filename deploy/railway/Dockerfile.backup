@@ -1,4 +1,4 @@
-# Dormant Railway daily backup image. No service, schedule or bucket exists yet.
+# Private Railway one-shot backup image. The operator owns schedule activation.
 # Built from the same source as the app, but never starts an HTTP server.
 FROM node:22.23.3-bookworm-slim@sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c
 WORKDIR /app
@@ -7,9 +7,9 @@ RUN corepack enable && corepack prepare pnpm@11.25.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 COPY . .
-RUN node --check scripts/review-backup.mjs && bash -n deploy/railway/railway-r2-backup.sh
+RUN node --check scripts/review-backup.mjs && node --check deploy/railway/notify-backup-failure.mjs && bash -n deploy/railway/railway-r2-backup.sh
 ENV NODE_ENV=production
 USER node
-# Schedule only after an approved private R2 bucket, credentials and MySQL
-# restore drill; 15 2 * * * UTC is a proposed operator setting, not enabled.
+# Daily schedule remains disabled until the owner-visible failure path and
+# independent missed-run freshness check are proven.
 CMD ["bash", "deploy/railway/railway-r2-backup.sh"]

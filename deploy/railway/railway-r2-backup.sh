@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Future Railway cron/operator wrapper. It creates no R2 bucket, Railway service,
+# Railway one-shot backup wrapper. It creates no R2 bucket, Railway service,
 # schedule, database user, schema, public endpoint, or restore operation.
 set -euo pipefail
 set +x
@@ -9,6 +9,40 @@ readonly EXPECTED_PROJECT_ID='786918bd-4ce1-4075-b763-93c7c6f729a1'
 readonly EXPECTED_ENVIRONMENT_ID='91d899e3-0a5e-4a7f-9bcb-c840f7a22f66'
 readonly EXPECTED_DATABASE_URL_PATTERN='^mysql://dd_backup:[^@/?#]+@mysql\.railway\.internal/dragon_dawwa_private_railway$'
 readonly BUCKET_PATTERN='^dragon-dawwa-r2-backup-[a-z0-9]([a-z0-9-]{0,38}[a-z0-9])?$'
+
+working=''
+cleanup() {
+  local status=$?
+  trap - EXIT
+  if [[ -n "$working" && -d "$working" && ! -L "$working" ]]; then
+    if ! rm -rf -- "$working"; then
+      printf 'Railway R2 backup cleanup failed; investigate ephemeral encrypted files\n' >&2
+      if (( status == 0 )); then status=2; fi
+    fi
+  fi
+  unset BACKUP_PASSPHRASE
+  if (( status != 0 )); then
+    local alert_node notifier
+    alert_node=$(command -v -- node) || alert_node=''
+    notifier="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)/notify-backup-failure.mjs"
+    if [[ "${RAILWAY_PROJECT_ID:-}" == "$EXPECTED_PROJECT_ID" &&
+          "${RAILWAY_ENVIRONMENT_ID:-}" == "$EXPECTED_ENVIRONMENT_ID" &&
+          -n "${DD_BACKUP_FAILURE_WEBHOOK:-}" && -n "$alert_node" && -f "$notifier" ]]; then
+      # The endpoint is piped through stdin. The child gets only PATH/HOME,
+      # never the database URL, R2 keys, passphrase, or protected webhook URL.
+      if printf '%s' "$DD_BACKUP_FAILURE_WEBHOOK" |
+        env -i PATH="$PATH" HOME="${HOME:-/tmp}" "$alert_node" "$notifier" "$status"; then
+        :
+      else
+        printf 'BACKUP_ALERT_NOT_DELIVERED: notification process failed\n' >&2
+      fi
+    else
+      printf 'BACKUP_ALERT_NOT_DELIVERED: project or endpoint not configured\n' >&2
+    fi
+  fi
+  return "$status"
+}
+trap cleanup EXIT
 
 fail() {
   printf 'Railway R2 backup refused: %s\n' "$1" >&2
@@ -67,16 +101,6 @@ fi
 chmod 700 -- "$temporary_root" || fail 'could not protect temporary root'
 [[ "$(stat -c '%a:%u' -- "$temporary_root")" == "700:${EUID}" ]] || fail 'temporary root must be 0700 and owned by this non-root user'
 
-working=''
-cleanup() {
-  local status=$?
-  unset BACKUP_PASSPHRASE
-  if [[ -n "$working" && -d "$working" && ! -L "$working" ]]; then
-    rm -rf -- "$working"
-  fi
-  return "$status"
-}
-trap cleanup EXIT
 working=$(mktemp -d "$temporary_root/run.XXXXXXXX") || fail 'could not create temporary working directory'
 chmod 700 -- "$working" || fail 'could not protect temporary working directory'
 [[ "$(stat -c '%a:%u' -- "$working")" == "700:${EUID}" && ! -L "$working" ]] || fail 'temporary working directory protection failed'
