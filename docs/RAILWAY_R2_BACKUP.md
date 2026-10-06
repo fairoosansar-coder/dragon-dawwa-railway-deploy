@@ -1,8 +1,8 @@
-# Railway → Cloudflare R2 encrypted backup — preparation only
+# Railway → Cloudflare R2 encrypted backup — not yet recoverable
 
-**Status: source preparation only. It is not scheduled or deployed.** No Cloudflare account has been selected for this backup, no R2 bucket or credential has been created, and no Railway backup service, cron job, upload, restore drill, retention policy, budget alert, or delivery alert has been configured. This document does not authorize creating any of them.
+**Status, observed 6 October: worker deployed, backup still blocked.** The approved private Standard bucket `dragon-dawwa-r2-backup-private` exists in the selected Cloudflare account, and a bucket-scoped one-year Object Read/Write R2 credential was created. A no-domain, non-root Railway backup worker builds from the source-based `deploy/railway/Dockerfile.backup`. Its most recent deployment reached the wrapper but exited before any upload with `AWS_ACCESS_KEY_ID is required`: the variable is listed as sealed in Railway yet absent/empty at runtime; the separately sealed R2 secret, backup passphrase and private `dd_backup` database URL were present in a names-only diagnostic. **No R2 object upload/download, R2-derived MySQL restore, enabled daily cron, verified failure alert or 35-day lifecycle policy exists.** Read-back confirms `cronSchedule=null`, `restartPolicyType=NEVER`, and the image entrypoint restored. A separate **direct empty-user** logical dump from this Railway MySQL was restored into isolated MySQL 8.4.11 with 30 tables/seven ledger rows; that is not off-host R2 recovery.
 
-[`../deploy/railway/railway-r2-backup.sh`](../deploy/railway/railway-r2-backup.sh) is a future **operator/Railway-cron wrapper**, not an app entrypoint. It delegates the logical snapshot and local rehearsal to [`review-backup.mjs`](../scripts/review-backup.mjs). The wrapper creates no cloud resource, changes no bucket policy/ACL/lifecycle, performs no DDL, never opens a public database address, and does not restore into MySQL.
+[`../deploy/railway/railway-r2-backup.sh`](../deploy/railway/railway-r2-backup.sh) is the worker image's fail-closed **one-shot/possible future Railway-cron entrypoint**, not the HTTPS app entrypoint. It delegates the logical snapshot and local rehearsal to [`review-backup.mjs`](../scripts/review-backup.mjs). The wrapper creates no cloud resource, changes no bucket policy/ACL/lifecycle, performs no DDL, never opens a public database address, and does not restore into MySQL.
 
 ## Intended, isolated flow
 
@@ -39,7 +39,7 @@ The default is intentionally the narrow **global R2 endpoint only**. If the chos
 
 The wrapper refuses inherited AWS profile/config/endpoint/session/role overrides (`AWS_PROFILE`, `AWS_DEFAULT_PROFILE`, `AWS_SHARED_CREDENTIALS_FILE`, `AWS_CONFIG_FILE`, `AWS_ENDPOINT_URL`, `AWS_ENDPOINT_URL_S3`, `AWS_SESSION_TOKEN`, `AWS_ROLE_ARN`, and `AWS_WEB_IDENTITY_TOKEN_FILE`) so the direct dedicated credentials and explicit endpoint are not silently redirected.
 
-## Current integration status and remaining database gate
+## Current integration status
 
 The current source-level Railway adapter recognizes the target role and binding contract:
 
@@ -51,21 +51,18 @@ REVIEW_BIND_HOST=0.0.0.0
 REVIEW_DB_TRANSPORT=railway-internal-wireguard
 ```
 
-This is **not** proof of a live connection or a valid least-privilege grant: no Railway MySQL service, schema, `dd_backup` user, or password exists yet, and no connection has been attempted. Before real use, the owner must confirm that the adapter continues to preserve the app/migrator safety boundaries, rejects root/default MySQL URLs, prevents DDL for `dd_backup`, and uses a `dd_backup` credential with only the required read access. This preparation does not provision or populate any of those resources.
+The Railway MySQL 8.4.11 service, fresh schema and separately credentialed `dd_backup` SELECT-only account now exist; its effective grants were tested separately from the DML-only app account. The backup wrapper has **not reached the DB export** on the latest run: the absent runtime R2 key ID aborts at line 31 first. A real R2 snapshot and downloaded-object restore must prove the complete connection, privilege and recovery chain.
 
-## Owner approvals and future provisioning sequence
+## Remaining activation gates — do not re-create existing resources
 
-Before an operator runs this wrapper against a real service, the owner must explicitly:
+The account/bucket, isolated database and worker already exist under the approved private scope. Do **not** repeat their creation. Finish these remaining checks in order:
 
-1. Select the Cloudflare account, approve the independent storage budget, retention period, purge owner, and the region/jurisdiction decision.
-2. Create one **private, dedicated** R2 bucket matching the wrapper pattern. Do not attach a public R2.dev address or public/custom domain, and do not share it with web assets. Verify its privacy in the Cloudflare control plane; the S3 API wrapper cannot prove that a bucket has no public route.
-3. Create a dedicated least-privilege R2 credential restricted to that one bucket and a separate strong backup passphrase. Put both only in Railway’s protected variable store. Do not place values in source, chat, a command line, image layer, or a checked-in environment file.
-4. Provision the private Railway MySQL service and the isolated `dd_backup` user only after the database adapter accepts the backup role. The backup user must not be root, must not have DDL/DML grants, and must not be reused by the app or migrator.
-5. Review and build the dormant `deploy/railway/Dockerfile.backup` as a non-root Railway cron image with Node 22, the project dependencies and AWS CLI. It has not been built or deployed; no service volume or port is needed for the wrapper.
-6. Add a real failure alert and a separate retention/purge control. Neither exists today.
-7. Perform and record an isolated **MySQL 8** restore drill using a disposable database, including schema/row/constraint checks and an authorized read/write recovery check. The SQLite rehearsal is useful early validation only; it is not evidence that a MySQL 8 restore works.
+1. Correct **only** the sealed Railway worker `AWS_ACCESS_KEY_ID` to the Cloudflare R2 access-key ID matching its already stored R2 secret. Never use Railway Generator for this field. If the one-time ID is unavailable, rotate a dedicated credential for this bucket and replace **both** sealed R2 variables in protected Railway UI. Never put their values in chat, source, logs or a shell argument.
+2. Trigger **one** worker execution with cron still disabled. Require encrypted logical snapshot upload, R2 metadata and byte-identical download, then verify the dedicated bucket has only the expected private object/prefix.
+3. Download that encrypted object and decrypt it only in a controlled environment; restore into disposable network-isolated **MySQL 8.4.11**, check seven migration ledger rows, 30 tables, row/foreign-key integrity and a rolled-back relational write. Remove temporary plaintext and credentials. A direct local dump restore is **not** this test.
+4. Configure a real worker-failure notification, growth/byte monitoring and an approved prefix-scoped retention/purge control; a 128 MiB ceiling is a fail-stop, not an availability guarantee. Only **after** a successful remote round-trip and isolated restore enable the approved `15 2 * * *` UTC daily Railway cron and read it back. A previously running job can cause the next Railway cron to skip.
 
-Only after those steps and an approved test upload/download should a schedule be enabled. There is presently **no real upload, restore, alert, or scheduled execution**.
+There is presently **no successful real R2 upload, R2-derived restore, verified failure alert or scheduled execution**.
 
 ## Source-only mock test
 
