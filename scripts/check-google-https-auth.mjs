@@ -10,6 +10,7 @@ import { changeRole } from '../server/access.mjs';
 import { deletionAuditSecret } from '../server/member.mjs';
 import { usageSecret } from '../server/study.mjs';
 import { sessionTokenHash } from '../server/session.mjs';
+import { quranResponse } from '../lib/quran.mjs';
 
 const now = Date.now();
 const origin = 'https://dragon-dawwa-fixture.up.railway.app';
@@ -96,6 +97,7 @@ async function finish(startResponse, database, { path = callbackQuery(), cookie 
 test('Google mode accepts only the exact private Railway project and canonical HTTPS origin', () => {
   assert.equal(googleModeConfig(config).origin, origin);
   assert.equal(googleModeConfig({ ...config, REVIEW_PUBLIC_ORIGIN: 'https://dragondawwa.org' }).origin, 'https://dragondawwa.org');
+  assert.equal(googleModeConfig({ ...config, QURAN_CLIENT_ID: '', QURAN_CLIENT_SECRET: '' }).origin, origin);
   for (const patch of [
     { RAILWAY_PROJECT_ID: 'unrelated-hobby' }, { RAILWAY_ENVIRONMENT_ID: 'different' },
     { REVIEW_PUBLIC_ORIGIN: 'http://dragon-dawwa-fixture.up.railway.app' },
@@ -114,6 +116,17 @@ test('Google mode accepts only the exact private Railway project and canonical H
     { DD_DELETION_AUDIT_SECRET: '' }, { STUDY_USAGE_SECRET: '' },
     { QURAN_CLIENT_ID: '' }, { QURAN_CLIENT_SECRET: '' }, { QURAN_ENVIRONMENT: 'staging' },
   ]) assert.throws(() => googleModeConfig({ ...config, ...patch }), /not safely configured/);
+});
+test('missing separate Quran credentials do not block owner login or serve substituted Quran content', async () => {
+  const authOnly = { ...config, QURAN_CLIENT_ID: '', QURAN_CLIENT_SECRET: '' };
+  assert.equal(googleModeConfig(authOnly).origin, origin);
+  const denial = await quranResponse(new Request(origin + '/api/quran/bootstrap'), authOnly);
+  assert.equal(denial.status, 503);
+  assert.deepEqual(await denial.json(), { error: 'not_configured' });
+  for (const incomplete of [
+    { QURAN_CLIENT_ID: config.QURAN_CLIENT_ID, QURAN_CLIENT_SECRET: '' },
+    { QURAN_CLIENT_ID: '', QURAN_CLIENT_SECRET: config.QURAN_CLIENT_SECRET },
+  ]) assert.throws(() => googleModeConfig({ ...authOnly, ...incomplete }), /not safely configured/);
 });
 test('Google application routes are allowed only on the canonical public Host, never the Railway bootstrap hostname', () => {
   const apex = 'https://dragondawwa.org';

@@ -21,6 +21,10 @@ export function googleModeConfig(env = process.env) {
   const value = env.REVIEW_PUBLIC_ORIGIN || '';
   let url;
   try { url = new URL(value); } catch { throw new Error('Google HTTPS review mode is not safely configured.'); }
+  // An owner-login pilot must not depend on a separate Quran Foundation account.
+  // Both absent means the existing /api/quran/* client returns 503 not_configured;
+  // a partially provisioned pair is never accepted as working provider access.
+  const quranClientPair = Boolean(env.QURAN_CLIENT_ID) === Boolean(env.QURAN_CLIENT_SECRET);
   if (env.AUTH_PROVIDER !== 'google-oidc' || env.RAILWAY_PROJECT_ID !== PROJECT ||
       env.RAILWAY_ENVIRONMENT_ID !== ENVIRONMENT || env.REVIEW_DB_TRANSPORT !== 'railway-internal-wireguard' ||
       env.REVIEW_DB_ROLE !== 'app' || env.REVIEW_BIND_HOST !== '0.0.0.0' ||
@@ -35,8 +39,7 @@ export function googleModeConfig(env = process.env) {
       typeof env.REVIEW_SESSION_SECRET !== 'string' || env.REVIEW_SESSION_SECRET.length < 32 || env.REVIEW_SESSION_SECRET.length > 4096 ||
       typeof env.DD_DELETION_AUDIT_SECRET !== 'string' || env.DD_DELETION_AUDIT_SECRET.length < 32 ||
       typeof env.STUDY_USAGE_SECRET !== 'string' || env.STUDY_USAGE_SECRET.length < 32 ||
-      typeof env.QURAN_CLIENT_ID !== 'string' || !env.QURAN_CLIENT_ID ||
-      typeof env.QURAN_CLIENT_SECRET !== 'string' || !env.QURAN_CLIENT_SECRET ||
+      !quranClientPair ||
       env.QURAN_ENVIRONMENT !== 'production')
     throw new Error('Google HTTPS review mode is not safely configured.');
   return { origin: url.origin, appId: env.REVIEW_APP_ID, secret: env.REVIEW_SESSION_SECRET,
