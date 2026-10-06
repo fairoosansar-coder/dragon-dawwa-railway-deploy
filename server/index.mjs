@@ -126,8 +126,13 @@ export async function handle(req) {
         // Temporary transport diagnostic: only categories, never headers or identity values.
         const supplied = req.headers.origin;
         const site = req.headers['sec-fetch-site'];
+        const parsed = supplied && URL.canParse(supplied) ? new URL(supplied) : null;
         console.warn('[review] logout transport denied', {
-          origin: supplied === undefined ? 'absent' : supplied === origin ? 'canonical' : 'other',
+          origin: supplied === undefined ? 'absent' : supplied === origin ? 'canonical' :
+            supplied === 'null' ? 'opaque-null' : supplied === '' ? 'empty' :
+            parsed?.origin === origin ? 'canonical-url-variant' :
+            ['localhost', '127.0.0.1'].includes(parsed?.hostname) ? 'loopback' :
+            parsed?.hostname?.endsWith('.railway.internal') ? 'railway-internal' : 'external-or-invalid',
           fetchSite: ['same-origin', 'same-site', 'cross-site', 'none'].includes(site) ? site : 'absent-or-other',
           referer: req.headers.referer === undefined ? 'absent' : 'present',
           fetchMode: req.headers['sec-fetch-mode'] === 'navigate' ? 'navigate' : 'other',
