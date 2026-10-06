@@ -280,6 +280,23 @@ test('invited login becomes an eight-hour secure cookie with DB-backed immediate
   assert.notEqual(sessionTokenHash(session.split('=')[1]), null);
 });
 
+test('Google form logout-all accepts missing Origin only with same-origin Fetch Metadata', async () => {
+  const database = db('owner');
+  const session = getCookie(await finish(await start(), database), 'webdev_app_session');
+  const post = headers => authResponse(request('/auth/logout-all', { cookie: session, method: 'POST', headers }),
+    config, { db: database, now: () => now });
+  for (const headers of [
+    {}, { 'sec-fetch-site': 'cross-site' },
+    { origin: '', 'sec-fetch-site': 'same-origin' },
+    { origin: 'null', 'sec-fetch-site': 'same-origin' },
+    { origin: 'https://attacker.test', 'sec-fetch-site': 'same-origin' },
+    { origin, 'sec-fetch-site': 'cross-site' },
+  ]) assert.equal((await post(headers)).status, 403);
+  assert.equal((await verifiedRequestUser(request('/', { cookie: session }), config, database, { now: () => now }))?.id, id);
+  assert.equal((await post({ 'sec-fetch-site': 'same-origin' })).status, 303);
+  assert.equal(await verifiedRequestUser(request('/', { cookie: session }), config, database, { now: () => now + 1 }), null);
+});
+
 test('an owner role revocation commits the session epoch atomically and invalidates a copied Google cookie', async () => {
   const database = db('reader');
   const session = getCookie(await finish(await start(), database), 'webdev_app_session');

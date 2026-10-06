@@ -101,11 +101,16 @@ function publicOrigin(config) {
 function redirect(location, headers = {}) { return new Response(null, { status: 302, headers: { Location: location, 'Cache-Control': 'no-store', ...headers } }); }
 function failure(message, status) { return new Response(message, { status, headers: { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain; charset=utf-8' } }); }
 
-function sameOriginPost(request, origin, previewProxyOrigin) {
+function sameOriginPost(request, origin, previewProxyOrigin, googleMode = false) {
   const supplied = request.headers.get('origin');
   const fetchSite = request.headers.get('sec-fetch-site');
   const previewRewritten = previewProxyOrigin && supplied === previewProxyOrigin && fetchSite === 'same-origin';
-  return (supplied === origin || previewRewritten) && fetchSite !== 'cross-site';
+  // A browser form submission may reach Railway without Origin. A browser's
+  // non-forgeable Fetch Metadata may authenticate that narrow first-party case;
+  // never use this fallback for a supplied wrong/null Origin or older browsers
+  // without Sec-Fetch-Site. SameSite=Lax also excludes cross-site POST cookies.
+  const firstPartyForm = googleMode && supplied === null && fetchSite === 'same-origin';
+  return (supplied === origin || previewRewritten || firstPartyForm) && fetchSite !== 'cross-site';
 }
 
 function signedOutResponse(origin, config) {
@@ -128,7 +133,7 @@ export async function authResponse(request, config, { db = null, previewProxyOri
     return failure('Sign-in is not configured for this review environment.', 503);
   if (path === '/auth/logout' || path === '/auth/logout-all') {
     if (request.method !== 'POST') return failure('Method not allowed', 405);
-    if (!sameOriginPost(request, origin, googleMode ? null : previewProxyOrigin)) return failure('Same-origin request required.', 403);
+    if (!sameOriginPost(request, origin, googleMode ? null : previewProxyOrigin, googleMode)) return failure('Same-origin request required.', 403);
     const details = sessionDetails(applicationSession(request, config), config, now());
     if (!details || details.expiresAt <= now()) return signedOutResponse(origin, config);
     if (!db) return failure('Session logout is temporarily unavailable. Please retry.', 503);

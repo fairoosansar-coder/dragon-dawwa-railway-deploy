@@ -112,6 +112,10 @@ test('GET logout and cross-site POST logout are denied without revocation', asyn
     method: 'POST', origin: 'https://attacker.fixture.test', 'sec-fetch-site': 'cross-site',
   }), config, { db, now: () => now });
   assert.equal(crossSite.status, 403);
+  const noOrigin = await authResponse(request('/auth/logout', active, {
+    method: 'POST', 'sec-fetch-site': 'same-origin',
+  }), config, { db, now: () => now });
+  assert.equal(noOrigin.status, 403);
   assert.notEqual(await verifiedRequestUser(request('/', active), config, db, { now: () => now }), null);
 });
 
