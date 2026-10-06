@@ -25,11 +25,12 @@ export function googleModeConfig(env = process.env) {
   // Both absent means the existing /api/quran/* client returns 503 not_configured;
   // a partially provisioned pair is never accepted as working provider access.
   const quranClientPair = Boolean(env.QURAN_CLIENT_ID) === Boolean(env.QURAN_CLIENT_SECRET);
+  const publicReadMode = env.DD_PUBLIC_READ_MODE || '';
   if (env.AUTH_PROVIDER !== 'google-oidc' || env.RAILWAY_PROJECT_ID !== PROJECT ||
       env.RAILWAY_ENVIRONMENT_ID !== ENVIRONMENT || env.REVIEW_DB_TRANSPORT !== 'railway-internal-wireguard' ||
       env.REVIEW_DB_ROLE !== 'app' || env.REVIEW_BIND_HOST !== '0.0.0.0' ||
       env.MANUS_WEBDEV_PROJECT_ID || env.MANUS_ADDON_PREVIEW_PUBLIC_ORIGIN || env.MANUS_ADDON_RUNTIME_PUBLIC_ORIGIN ||
-      env.DD_PUBLIC_READ_MODE || env.EDITORIAL_OWNER_ID || env.REVIEW_OWNER_ID ||
+      !['', 'approved-public-readonly', 'private'].includes(publicReadMode) || env.EDITORIAL_OWNER_ID || env.REVIEW_OWNER_ID ||
       url.protocol !== 'https:' || !(DOMAIN.test(url.hostname) || url.hostname === OWNER_APEX) ||
       url.port || url.username || url.password ||
       value !== url.origin || env.GOOGLE_OIDC_ISSUER !== ISSUER ||

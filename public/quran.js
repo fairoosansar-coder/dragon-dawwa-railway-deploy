@@ -15,6 +15,11 @@
   async function restoreMemberPlace() {
     try {
       const response = await fetch('/api/member/me', {credentials:'same-origin',signal:AbortSignal.timeout(3000)});
+      if (response.status === 401) {
+        memberState = 'unregistered';
+        saved = validPlace(read('dd-quran-place'));
+        return;
+      }
       if (!response.ok) throw new Error('member_unavailable');
       const account = await response.json();
       memberState = account.registered ? 'registered' : 'unregistered';
@@ -85,7 +90,7 @@
     return data;
   }
   function error(error) {
-    setStatus(error.message === 'access_pending' ? 'access' : error.message === 'rate_limited' ? 'rate' : 'error');
+    setStatus(error.message === 'not_configured' ? 'notConfigured' : error.message === 'access_pending' ? 'access' : error.message === 'rate_limited' ? 'rate' : 'error');
     $('retry-reader').hidden = false; $('verses').setAttribute('aria-busy', 'false');
   }
   async function start() {

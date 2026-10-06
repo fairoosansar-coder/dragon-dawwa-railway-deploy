@@ -41,7 +41,7 @@ test('Reader loading status follows language changes while a request is pending'
   assert.equal(ui.el('reader-status').textContent, ui.copy.loading[2]);
 });
 
-for (const [code, key] of [['not_configured', 'error'], ['access_pending', 'access'], ['rate_limited', 'rate']]) {
+for (const [code, key] of [['not_configured', 'notConfigured'], ['access_pending', 'access'], ['rate_limited', 'rate']]) {
   test(`${code} remains localized after failure and retry`, async () => {
     const ui = reader(async () => ({ ok: false, json: async () => ({ error: code }) }));
     await settle();

@@ -2,6 +2,7 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { verifiedRequestUser, authResponse } from './auth.mjs';
 import { tailnetAuthResponse, tailnetIdentity, tailnetSessionCookie, sessionMatchesIdentity } from './tailnet-auth.mjs';
 import { googleAuthResponse, googleModeConfig, canonicalGoogleHost, publicLoginPage, publicExitPage } from './google-auth.mjs';
@@ -12,7 +13,7 @@ import { memberResponse } from './member.mjs';
 import { manageResponse, validateSafeSetting } from './manage.mjs';
 import { studyResponse, configUsageLimits } from './study.mjs';
 import { GEMINI_LIMITS } from './gemini-study.mjs';
-import { publicReadingAllowed } from './public-read.mjs';
+import { publicReadingAllowed, publicReadEnabled } from './public-read.mjs';
 import { quranResponse } from '../lib/quran.mjs';
 import { editorialResponse } from '../lib/editorial.mjs';
 
@@ -49,21 +50,77 @@ const pages = new Map([
 ]);
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon' };
 const rate = new Map();
-function limited(key, max, span = 60000) {
-  const now = Date.now(), entry = rate.get(key);
-  if (!entry || entry.until <= now) { rate.set(key, { count: 1, until: now + span }); return false; }
+const ANONYMOUS_RATE_COOKIE = '__Host-dd_public_rate';
+const ANONYMOUS_RATE_SECONDS = 30 * 60;
+const PUBLIC_ORIGIN = 'https://dragondawwa.org';
+const sitemapPaths = ['/', '/about', '/quran', '/library', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/privacy', '/terms', '/sources', '/accessibility'];
+const pageMetadata = new Map([
+  ['/', ['Dragon Dawwa · Knowledge with humility', 'A source-aware multilingual space for careful learning, public records, and published resources.']],
+  ['/about', ['About Dragon Dawwa', 'Learn how Dragon Dawwa distinguishes sources, interpretation, and editorial review.']],
+  ['/quran', ['Qur’an reader · Dragon Dawwa', 'Read Quran content from the configured Quran Foundation source when it is available.']],
+  ['/library', ['Published library · Dragon Dawwa', 'Source-linked readings published through the Dragon Dawwa editorial workflow.']],
+  ['/resources', ['Curated resources · Dragon Dawwa', 'Verified outbound learning resources from their original publishers.']],
+  ['/research', ['Research · Dragon Dawwa', 'Source-limited public research and government-directory context for Anuradhapura.']],
+  ['/mosque', ['Mosque profile · Dragon Dawwa', 'A source-limited public directory profile for Jamia Kadheeja Jummah Mosque.']],
+  ['/mosques', ['Mosque directory · Dragon Dawwa', 'A preserved government-directory view of listed Anuradhapura mosques.']],
+  ['/events', ['Published events · Dragon Dawwa', 'Confirmed events published by Dragon Dawwa, with honest empty states when none are available.']],
+  ['/contact', ['Contact · Dragon Dawwa', 'Public contact information and the boundary between browsing and protected accounts.']],
+  ['/privacy', ['Privacy · Dragon Dawwa', 'Privacy information for Dragon Dawwa public pages and protected accounts.']],
+  ['/terms', ['Terms · Dragon Dawwa', 'Terms and source-use information for Dragon Dawwa public pages.']],
+  ['/sources', ['Sources · Dragon Dawwa', 'Source and attribution information for Dragon Dawwa visitor pages.']],
+  ['/accessibility', ['Accessibility · Dragon Dawwa', 'Accessibility information for Dragon Dawwa visitor pages.']],
+]);
+export function rateLimited(key, max, span = 60000, entries = rate, now = Date.now()) {
+  const entry = entries.get(key);
+  if (!entry || entry.until <= now) { entries.set(key, { count: 1, until: now + span }); return false; }
   entry.count++;
-  if (rate.size > 5000) for (const [id, value] of rate) if (value.until < now) rate.delete(id);
+  if (entries.size > 5000) for (const [id, value] of entries) if (value.until < now) entries.delete(id);
   return entry.count > max;
 }
-const secureHeaders = {
-  'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': tailnetMode || googleMode ? 'no-referrer' : 'strict-origin-when-cross-origin',
-  'X-Robots-Tag': 'noindex, nofollow, noarchive',
-  // Embedded Manus Preview permits its Dashboard; a private tailnet host permits no framing.
-  'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors ${tailnetMode || googleMode ? "'none'" : 'https://manus.im https://www.manus.im'}; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' https://verses.quran.com https://verses.quran.foundation https://mirrors.quranicaudio.com; connect-src 'self'`,
-  ...(tailnetMode || googleMode ? { 'X-Frame-Options': 'DENY' } : {}),
-  ...(googleMode ? { 'Strict-Transport-Security': 'max-age=31536000' } : {}),
-};
+function requestCookie(req, name) {
+  let value = null;
+  for (const part of String(req.headers?.cookie || '').split(';')) {
+    const at = part.indexOf('=');
+    if (at < 1 || part.slice(0, at).trim() !== name) continue;
+    if (value !== null) return null;
+    value = part.slice(at + 1).trim();
+  }
+  return value;
+}
+function anonymousRateSignature(token, config = process.env) {
+  return createHmac('sha256', config.REVIEW_SESSION_SECRET || '')
+    .update('dragon-dawwa-public-rate-v1\0').update(token).digest('base64url');
+}
+function validAnonymousRateToken(req, config = process.env) {
+  const raw = requestCookie(req, ANONYMOUS_RATE_COOKIE);
+  const parts = raw?.split('.') || [];
+  if (parts.length !== 3 || parts[0] !== 'v1' || !/^[A-Za-z0-9_-]{24}$/.test(parts[1]) || !/^[A-Za-z0-9_-]{43}$/.test(parts[2])) return null;
+  const expected = Buffer.from(anonymousRateSignature(parts[1], config));
+  const supplied = Buffer.from(parts[2]);
+  return supplied.length === expected.length && timingSafeEqual(supplied, expected) ? parts[1] : null;
+}
+export function anonymousRateCookie(config = process.env, random = randomBytes) {
+  const token = random(18).toString('base64url');
+  const value = `v1.${token}.${anonymousRateSignature(token, config)}`;
+  return `${ANONYMOUS_RATE_COOKIE}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${ANONYMOUS_RATE_SECONDS}`;
+}
+export function anonymousRateIdentity(req, config = process.env) {
+  const token = validAnonymousRateToken(req, config);
+  // A forged or absent token uses a deliberately small shared bucket. Ordinary
+  // browsers receive a signed, opaque token on their first public HTML page,
+  // so one visitor cannot exhaust another visitor's normal read quota.
+  return token ? { id: `anonymous:${token}`, seeded: true } : { id: 'anonymous:unseeded', seeded: false };
+}
+function secureHeaders(indexable = false) {
+  return {
+    'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': tailnetMode || googleMode ? 'no-referrer' : 'strict-origin-when-cross-origin',
+    ...(indexable ? {} : { 'X-Robots-Tag': 'noindex, nofollow, noarchive' }),
+    // Embedded Manus Preview permits its Dashboard; Google and tailnet endpoints permit no framing.
+    'Content-Security-Policy': `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors ${tailnetMode || googleMode ? "'none'" : 'https://manus.im https://www.manus.im'}; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' https://verses.quran.com https://verses.quran.foundation https://mirrors.quranicaudio.com; connect-src 'self'`,
+    ...(tailnetMode || googleMode ? { 'X-Frame-Options': 'DENY' } : {}),
+    ...(googleMode ? { 'Strict-Transport-Security': 'max-age=31536000' } : {}),
+  };
+}
 function simple(text, status, extra = {}) { return new Response(text, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', ...extra } }); }
 async function body(req, max = 100000) {
   if (Number(req.headers['content-length'] || 0) > max) throw Object.assign(new Error('too_large'), { status: 413 });
@@ -75,31 +132,63 @@ async function body(req, max = 100000) {
   }
   return Buffer.concat(parts);
 }
-async function fileResponse(filename, status = 200, {readonlyMosque = false} = {}) {
+function canonicalPath(pathname) {
+  const normalized = pathname === '/index.html' ? '/' : pathname.replace(/\.html$/, '') || '/';
+  return new Map([['/learn', '/library'], ['/participate', '/contact']]).get(normalized) || normalized;
+}
+function publicHead(pathname) {
+  const canonical = canonicalPath(pathname);
+  const [title, description] = pageMetadata.get(canonical) || ['Dragon Dawwa', 'Published visitor content from Dragon Dawwa.'];
+  const escape = value => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+  return `<meta name="dd-public-page" content="true"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="${PUBLIC_ORIGIN}${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:url" content="${PUBLIC_ORIGIN}${canonical}"><meta property="og:site_name" content="Dragon Dawwa"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escape(title)}"><meta name="twitter:description" content="${escape(description)}">`;
+}
+async function fileResponse(filename, status = 200, {readonlyMosque = false, publicPage = false, publicAsset = false, pathname = '/'} = {}) {
   if (!/^[a-zA-Z0-9_./-]+$/.test(filename) || filename.includes('..') || filename.startsWith('/')) return simple('Not found', 404);
   try {
     const bytes = await readFile(path.join(root, filename));
     let content = bytes;
     if (filename.endsWith('.html')) {
-      let html = bytes.toString('utf8').replace(/<head>/i, '<head><meta name="robots" content="noindex,nofollow"><script src="/frame-guard.js"></script>');
+      let html = bytes.toString('utf8').replace(/<head>/i, `<head>${publicPage ? publicHead(pathname) : '<meta name="robots" content="noindex,nofollow">'}<script src="/frame-guard.js"></script>`);
       if (readonlyMosque && filename === 'mosque.html') {
         html = html.replace(/<section class="community-section" id="correction">[\s\S]*?<\/section>/,
-          '<section class="community-section" id="correction"><p lang="en">Correction intake is limited to invited reviewers in this read-only phase. No public submission is stored.</p></section>');
+          '<section class="community-section" id="correction"><p lang="en">Public correction intake is not enabled. The cited government record remains available through its original source; no public submission is stored here.</p></section>');
       }
       content = Buffer.from(html);
     }
-    return new Response(content, { status, headers: { 'Content-Type': types[path.extname(filename)] || 'application/octet-stream', 'Cache-Control': 'private, no-store' } });
+    return new Response(content, { status, headers: {
+      'Content-Type': types[path.extname(filename)] || 'application/octet-stream',
+      'Cache-Control': publicPage ? 'public, max-age=0, must-revalidate' : publicAsset ? 'public, max-age=3600' : 'private, no-store',
+      ...(publicPage ? {'X-DD-Public-Page': '1'} : {}),
+    } });
   } catch (error) { if (error.code === 'ENOENT') return simple('Not found', 404); throw error; }
 }
 export async function handle(req) {
   const url = new URL(req.url || '/', origin);
   const pathname = url.pathname;
+  const publicLaunch = publicReadEnabled(process.env);
   if (pathname === '/healthz') {
     if (googleMode) await database().prepare('SELECT 1 AS ok').first();
     return simple('ready', 200);
   }
   if (googleMode && !canonicalGoogleHost(req.headers.host, origin)) return simple('Unknown host.', 421);
-  if (pathname === '/robots.txt') return simple('User-agent: *\nDisallow: /\n', 200);
+  if (pathname.length > 1 && pathname.endsWith('/') && ['GET', 'HEAD'].includes(req.method)) {
+    const slashless = pathname.replace(/\/+$/, '');
+    if (publicReadingAllowed(req.method, slashless, process.env))
+      return new Response(null, { status: 308, headers: { Location: slashless + url.search, 'Cache-Control': 'public, max-age=0, must-revalidate' } });
+  }
+  if (pathname === '/robots.txt') {
+    const text = publicLaunch
+      ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nDisallow: /staff\nDisallow: /operations\nDisallow: /member\nDisallow: /study\nDisallow: /auth/\nDisallow: /login\nDisallow: /recover\nDisallow: /signed-out\nSitemap: ${PUBLIC_ORIGIN}/sitemap.xml\n`
+      : 'User-agent: *\nDisallow: /\n';
+    return simple(text, 200, {'Content-Type': 'text/plain; charset=utf-8'});
+  }
+  if (pathname === '/sitemap.xml') {
+    if (!publicLaunch || !['GET', 'HEAD'].includes(req.method)) return simple('Not found', 404);
+    const entries = sitemapPaths.map(route => `<url><loc>${PUBLIC_ORIGIN}${route}</loc></url>`).join('');
+    return new Response(req.method === 'HEAD' ? null : `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries}</urlset>`, {
+      headers: {'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=0, must-revalidate'},
+    });
+  }
   if (pathname === '/login' && googleMode) {
     if (!['GET', 'HEAD'].includes(req.method)) return simple('Method not allowed', 405);
     return publicLoginPage();
@@ -142,16 +231,18 @@ export async function handle(req) {
   if (tailnetMode && pathname === '/api/review/identity' && req.method === 'GET' && serveIdentity)
     return Response.json({ id: serveIdentity.id, name: serveIdentity.name }, { headers: { 'Cache-Control': 'private, no-store' } });
   const verifiedActor = user ? await resolveActor(user, process.env) : null;
-  const visitorRead = !tailnetMode && !googleMode && !verifiedActor && publicReadingAllowed(req.method, pathname, process.env);
+  const visitorRead = !tailnetMode && !verifiedActor && publicReadingAllowed(req.method, pathname, process.env);
   if (!verifiedActor && !visitorRead) {
     if (user) return simple('Access revoked', 403);
     return pathname.startsWith('/api/') ? Response.json({ error: 'sign_in_required' }, { status: 401 }) : new Response(null, { status: 302, headers: { Location: googleMode ? '/login' : '/auth/login', 'Cache-Control': 'no-store' } });
   }
-  const actor = visitorRead ? { id: 'anonymous-visitor', role: 'visitor', name: '' } : verifiedActor;
+  const visitorIdentity = visitorRead ? anonymousRateIdentity(req, process.env) : null;
+  const actor = visitorRead ? { id: visitorIdentity.id, role: 'visitor', name: '' } : verifiedActor;
   if (['/admin', '/admin.html', '/operations', '/operations.html', '/staff', '/staff.html'].includes(pathname) && actor.role === 'reader')
     return simple('Staff access only', 403);
   if (pathname.startsWith('/api/')) {
-    if (limited(actor.id + ':' + pathname.split('/').slice(0, 3).join('/'), pathname === '/api/participation' || pathname === '/api/corrections' ? 8 : 120))
+    const limit = pathname === '/api/participation' || pathname === '/api/corrections' ? 8 : visitorRead && !visitorIdentity.seeded ? 24 : 120;
+    if (rateLimited(actor.id + ':' + pathname.split('/').slice(0, 3).join('/'), limit))
       return Response.json({ error: 'rate_limited' }, { status: 429, headers: { 'Retry-After': '60' } });
     const headers = new Headers(req.headers);
     for (const name of ['oai-authenticated-user-id', 'oai-authenticated-user-email', 'oai-authenticated-user-full-name', 'x-review-role']) headers.delete(name);
@@ -203,14 +294,23 @@ export async function handle(req) {
     return Response.json({ error: 'not_found' }, { status: 404 });
   }
   if (!['GET', 'HEAD'].includes(req.method)) return simple('Method not allowed', 405);
-  if (pathname.length > 1 && pathname.endsWith('/')) return new Response(null, { status: 308, headers: { Location: pathname.replace(/\/+$/, '') } });
   let filename = pages.get(pathname);
   if (/^\/library\/[a-zA-Z0-9-]{1,64}$/.test(pathname)) filename = 'library.html';
   if (/^\/mosques\/[a-zA-Z0-9-]{1,64}$/.test(pathname)) filename = 'mosques.html';
   if (/^\/events\/[a-zA-Z0-9-]{1,64}$/.test(pathname)) filename = 'events.html';
   if (!filename && /^\/(?:assets|data)\/[a-zA-Z0-9_./-]+$/.test(pathname)) filename = pathname.slice(1);
   if (!filename && /^\/[a-zA-Z0-9_-]+\.(?:js|css|svg|png)$/.test(pathname)) filename = pathname.slice(1);
-  return filename ? fileResponse(filename, 200, {readonlyMosque: visitorRead}) : simple('Not found', 404);
+  if (!filename) return simple('Not found', 404);
+  const publicRoute = publicReadingAllowed('GET', pathname, process.env);
+  const response = await fileResponse(filename, 200, {
+    readonlyMosque: publicRoute && filename === 'mosque.html',
+    publicPage: publicRoute && filename.endsWith('.html'),
+    publicAsset: publicRoute && !filename.endsWith('.html'),
+    pathname,
+  });
+  if (visitorIdentity && !visitorIdentity.seeded && req.method === 'GET' && publicRoute && filename.endsWith('.html'))
+    response.headers.append('Set-Cookie', anonymousRateCookie(process.env));
+  return response;
 }
 
 // Importing the handler for local denial tests never opens a listener or runs
@@ -220,7 +320,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const server = http.createServer(async (req, res) => {
     try {
       const response = await handle(req);
-      const headers = { ...Object.fromEntries(response.headers), ...secureHeaders };
+      const indexable = response.headers.get('X-DD-Public-Page') === '1';
+      response.headers.delete('X-DD-Public-Page');
+      const headers = { ...Object.fromEntries(response.headers), ...secureHeaders(indexable) };
       const cookies = response.headers.getSetCookie?.();
       if (cookies?.length) headers['set-cookie'] = cookies;
       res.writeHead(response.status, headers);
@@ -228,7 +330,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     } catch (error) {
       // Never log raw query strings, request bodies, database DSNs, session cookies or PII.
       console.error('[review] request failure', { type: error.name || 'Error', status: error.status || 503 });
-      res.writeHead(error.status === 413 ? 413 : 503, { ...secureHeaders, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.writeHead(error.status === 413 ? 413 : 503, { ...secureHeaders(false), 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
       res.end(JSON.stringify({ error: error.status === 413 ? 'too_large' : 'temporarily_unavailable' }));
     }
   });

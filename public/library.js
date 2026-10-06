@@ -61,10 +61,10 @@
     if(meta.topics?.length)container.append(node('p',`${t('topics')}: ${meta.topics.join(', ')}`,'editorial-note'));
   }
   function memberSaveButton(item){
-    const button=node('button',memberRegistered?(savedEditorial.has(item.id)?t('removeSave'):t('save')):t('joinToSave'),'library-save');
-    button.type='button';button.setAttribute('aria-pressed',String(memberRegistered&&savedEditorial.has(item.id)));
+    if(!memberRegistered)return null;
+    const button=node('button',savedEditorial.has(item.id)?t('removeSave'):t('save'),'library-save');
+    button.type='button';button.setAttribute('aria-pressed',String(savedEditorial.has(item.id)));
     button.addEventListener('click',async()=>{
-      if(!memberRegistered){location.href='/member';return;}
       const action=savedEditorial.has(item.id)?'remove':'add';button.disabled=true;
       try{
         const response=await fetch('/api/member/save',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,kind:'editorial',id:item.id})});
@@ -79,13 +79,13 @@
     setCopy();$('library-status').textContent=state?t(state):'';$('library-status').classList.toggle('error',state==='error');$('retry-library').hidden=state!=='error';$('library-items').replaceChildren();
     if(state)return;
     const visible=visibleItems();if(!visible.length){$('library-items').append(node('p',filtersActive()?t('filteredEmpty'):t('empty'),'empty-library'));return;}
-    visible.forEach(item=>{const rendition=item.content.translations[lang],card=node('article',undefined,'editorial-panel library-card');card.append(node('h2',rendition.title));addBadges(card,item);card.append(node('p',rendition.summary),node('p',t('credit')+': '+rendition.contributor,'library-credit'));const read=link('/library/'+encodeURIComponent(item.id),t('read'));read.className='library-read';card.append(read,memberSaveButton(item));$('library-items').append(card);});
+    visible.forEach(item=>{const rendition=item.content.translations[lang],card=node('article',undefined,'editorial-panel library-card');card.append(node('h2',rendition.title));addBadges(card,item);card.append(node('p',rendition.summary),node('p',t('credit')+': '+rendition.contributor,'library-credit'));const read=link('/library/'+encodeURIComponent(item.id),t('read'));read.className='library-read';card.append(read);const save=memberSaveButton(item);if(save)card.append(save);$('library-items').append(card);});
   }
   function renderDetail(item,show=true){
     openItem=item;const container=$('reading-content');container.replaceChildren();const rendition=item?.content?.translations?.[lang];
     if(!rendition){container.append(node('p',t('missingLanguage'),'empty-library'));$('reading-title').textContent=t('title');if(show&&!$('reading-dialog').open)$('reading-dialog').showModal();return;}
     $('reading-title').textContent=rendition.title;addBadges(container,item);const meta=metadata(item);if(meta.clarity)container.append(node('p',`${t('clarity')}: ${meta.clarity}`,'editorial-note'));
-    const section=node('article');section.lang=lang;section.append(node('p',rendition.summary),node('p',rendition.body,'library-body'),node('p',t('credit')+': '+rendition.contributor,'library-credit'),node('h3',t('sources')));appendSources(section,item.content.sources);container.append(section,memberSaveButton(item));
+    const section=node('article');section.lang=lang;section.append(node('p',rendition.summary),node('p',rendition.body,'library-body'),node('p',t('credit')+': '+rendition.contributor,'library-credit'),node('h3',t('sources')));appendSources(section,item.content.sources);container.append(section);const save=memberSaveButton(item);if(save)container.append(save);
     const review=item.content.review;if(review?.languages?.length){const names=review.languages.map(code=>({en:'English',ta:'Tamil',si:'Sinhala'}[code]||code)).join(', ');container.append(node('p',`${t('review')}: ${names} checked for submitted revision ${review.reviewedRevision}.`,'library-credit'),node('p',t('reviewIdentityMissing'),'editorial-note'),node('p',t('reviewCaveat'),'editorial-note'));}
     if(show&&!$('reading-dialog').open)$('reading-dialog').showModal();
   }

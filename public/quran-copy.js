@@ -20,6 +20,7 @@ resume:['Return to saved ayah','சேமித்த வசனத்திற�
 listen:['Listen to ayah','வசனத்தின் ஓதலைக் கேட்க','ආයතයට සවන් දෙන්න'],
 page:['Page','பக்கம்','පිටුව'],of:['of','/','/'],
 error:['The reader could not load right now. Please try again, or use the Quran.com source link below.','தற்போது வாசிப்புப் பகுதியைப் பெற முடியவில்லை. மீண்டும் முயலுங்கள் அல்லது கீழே உள்ள Quran.com இணைப்பைப் பயன்படுத்துங்கள்.','මේ මොහොතේ කියවීමේ කොටස ලබාගත නොහැකි විය. නැවත උත්සාහ කරන්න හෝ පහත Quran.com සබැඳිය භාවිත කරන්න.'],
+notConfigured:['The Qur’an reader is currently unavailable because its source credentials have not been configured. You can continue on Quran.com.','மூல அணுகல் சான்றுகள் இன்னும் அமைக்கப்படாததால் அல்குர்ஆன் வாசிப்புப் பகுதி தற்போது கிடைக்கவில்லை. Quran.com இல் தொடரலாம்.','මූලාශ්‍ර ප්‍රවේශ අක්තපත්‍ර තවම සකසා නොමැති නිසා අල් කුර්ආන් කියවනය දැනට ලබාගත නොහැක. Quran.com ඔස්සේ ඉදිරියට යා හැක.'],
 access:['This content needs additional Quran Foundation access. You can continue reading on Quran.com.','இந்த உள்ளடக்கத்திற்கு Quran Foundation இன் கூடுதல் அணுகல் தேவை. Quran.com இல் தொடர்ந்து வாசிக்கலாம்.','මෙම අන්තර්ගතයට අමතර Quran Foundation ප්‍රවේශය අවශ්‍යයි. Quran.com ඔස්සේ කියවිය හැක.'],
 rate:['The provider is receiving too many requests. Please wait a moment before trying again.','சேவை வழங்குநருக்கு அதிக கோரிக்கைகள் வந்துள்ளன. சிறிது நேரம் கழித்து மீண்டும் முயலுங்கள்.','සේවාවට ඉල්ලීම් වැඩි වී ඇත. මඳ වේලාවකින් නැවත උත්සාහ කරන්න.'],
 empty:['No verses are available on this page in the connected catalogue.','இணைக்கப்பட்ட தொகுப்பில் இந்தப் பக்கத்திற்கான வசனங்கள் இல்லை.','සම්බන්ධිත එකතුවේ මෙම පිටුව සඳහා ආයත් නොමැත.'],
@@ -58,6 +59,7 @@ window.DD_QURAN_COPY.privacyNote=['Reading loads content through our server from
   }
   function refreshLabels(root) { root.querySelectorAll('[data-study-ayah]').forEach(link => { link.textContent = label(); }); }
   function setup() {
+    if (document.querySelector('meta[name="dd-public-page"]')) return;
     const root = document.getElementById('verses');
     if (!root) return;
     root.querySelectorAll('.verse-card').forEach(addStudyLink);

@@ -69,7 +69,7 @@
   function itemIsSaved(item) { return state.saved.has(item.id); }
   async function save(item, feedback, button) {
     if (item.saveEligible !== true) { feedback.textContent = take().saveUnavailable || words.en.saveUnavailable; return; }
-    if (!state.registered) { location.href = '/member'; return; }
+    if (!state.registered) { feedback.textContent = take().saveUnavailable || words.en.saveUnavailable; return; }
     const action = itemIsSaved(item) ? 'remove' : 'add';
     button.disabled = true;
     try {
@@ -92,7 +92,7 @@
     card.append(add('p','resource-summary',item.summary));
     if (language() !== 'en') card.append(add('p','resource-language-note',copy.languageNotice));
     card.append(add('p','resource-meta',`${item.publisher} · ${item.format} · ${(item.languages || []).join(', ')}`));
-    card.append(add('p','resource-eligibility',item.saveEligible === true ? (copy.saveEligible || words.en.saveEligible) : (copy.saveUnavailable || words.en.saveUnavailable)));
+    if (state.registered) card.append(add('p','resource-eligibility',item.saveEligible === true ? (copy.saveEligible || words.en.saveEligible) : (copy.saveUnavailable || words.en.saveUnavailable)));
     card.append(add('p','resource-rights',copy.rights));
     const row = add('div','resource-actions');
     const external = add('a','',copy.source);
@@ -100,16 +100,18 @@
     external.target = '_blank';
     external.rel = 'noopener noreferrer';
     row.append(external);
-    const button = add('button','',state.registered ? (itemIsSaved(item) ? copy.remove : copy.save) : copy.register);
-    button.type = 'button';
-    button.disabled = item.saveEligible !== true;
-    button.setAttribute('aria-label',`${button.textContent}: ${item.title}`);
-    button.setAttribute('aria-pressed',String(state.registered && itemIsSaved(item)));
-    const feedback = add('p','resource-feedback');
-    feedback.setAttribute('role','status');
-    button.addEventListener('click', () => save(item, feedback, button));
-    row.append(button);
-    card.append(row,feedback);
+    if (state.registered) {
+      const button = add('button','',itemIsSaved(item) ? copy.remove : copy.save);
+      button.type = 'button';
+      button.disabled = item.saveEligible !== true;
+      button.setAttribute('aria-label',`${button.textContent}: ${item.title}`);
+      button.setAttribute('aria-pressed',String(itemIsSaved(item)));
+      const feedback = add('p','resource-feedback');
+      feedback.setAttribute('role','status');
+      button.addEventListener('click', () => save(item, feedback, button));
+      row.append(button);
+      card.append(row,feedback);
+    } else card.append(row);
     return card;
   }
   function render() {

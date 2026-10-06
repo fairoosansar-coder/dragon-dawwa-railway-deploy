@@ -3,16 +3,17 @@
 
   const languages = ['en', 'ta', 'si'];
   const copy = {
-    en: { home: 'Home', quran: 'Qur’an', study: 'Study', learn: 'Learn', resources: 'Resources', member: 'My learning', mosque: 'Mosques', research: 'Research', events: 'Events', about: 'About', participate: 'Contact / participate', menuOpen: 'Open navigation', menuClose: 'Close navigation', mainNavigation: 'Main navigation', mobileNavigation: 'Mobile navigation', chooseLanguage: 'Choose language' },
-    ta: { home: 'முகப்பு', quran: 'அல்குர்ஆன்', study: 'படிப்பு', learn: 'கற்றல்', resources: 'வளங்கள்', member: 'என் கற்றல்', mosque: 'பள்ளிவாசல்கள்', research: 'ஆய்வு', events: 'நிகழ்வுகள்', about: 'எங்களைப் பற்றி', participate: 'தொடர்பு / பங்கேற்பு', menuOpen: 'வழிசெலுத்தலைத் திறக்கவும்', menuClose: 'வழிசெலுத்தலை மூடவும்', mainNavigation: 'முதன்மை வழிசெலுத்தல்', mobileNavigation: 'கைபேசி வழிசெலுத்தல்', chooseLanguage: 'மொழியைத் தேர்ந்தெடுக்கவும்' },
-    si: { home: 'මුල් පිටුව', quran: 'අල් කුර්ආනය', study: 'අධ්‍යයනය', learn: 'ඉගෙනුම', resources: 'සම්පත්', member: 'මගේ ඉගෙනුම', mosque: 'පල්ලි', research: 'පර්යේෂණ', events: 'සිදුවීම්', about: 'අප ගැන', participate: 'සම්බන්ධ වන්න / සහභාගී වන්න', menuOpen: 'සංචාලනය විවෘත කරන්න', menuClose: 'සංචාලනය වසන්න', mainNavigation: 'ප්‍රධාන සංචාලනය', mobileNavigation: 'ජංගම සංචාලනය', chooseLanguage: 'භාෂාව තෝරන්න' }
+    en: { home: 'Home', quran: 'Qur’an', study: 'Study', learn: 'Learn', resources: 'Resources', member: 'My learning', mosque: 'Mosques', research: 'Research', events: 'Events', about: 'About', participate: 'Contact', menuOpen: 'Open navigation', menuClose: 'Close navigation', mainNavigation: 'Main navigation', mobileNavigation: 'Mobile navigation', chooseLanguage: 'Choose language' },
+    ta: { home: 'முகப்பு', quran: 'அல்குர்ஆன்', study: 'படிப்பு', learn: 'கற்றல்', resources: 'வளங்கள்', member: 'என் கற்றல்', mosque: 'பள்ளிவாசல்கள்', research: 'ஆய்வு', events: 'நிகழ்வுகள்', about: 'எங்களைப் பற்றி', participate: 'தொடர்பு', menuOpen: 'வழிசெலுத்தலைத் திறக்கவும்', menuClose: 'வழிசெலுத்தலை மூடவும்', mainNavigation: 'முதன்மை வழிசெலுத்தல்', mobileNavigation: 'கைபேசி வழிசெலுத்தல்', chooseLanguage: 'மொழியைத் தேர்ந்தெடுக்கவும்' },
+    si: { home: 'මුල් පිටුව', quran: 'අල් කුර්ආනය', study: 'අධ්‍යයනය', learn: 'ඉගෙනුම', resources: 'සම්පත්', member: 'මගේ ඉගෙනුම', mosque: 'පල්ලි', research: 'පර්යේෂණ', events: 'සිදුවීම්', about: 'අප ගැන', participate: 'සම්බන්ධ වන්න', menuOpen: 'සංචාලනය විවෘත කරන්න', menuClose: 'සංචාලනය වසන්න', mainNavigation: 'ප්‍රධාන සංචාලනය', mobileNavigation: 'ජංගම සංචාලනය', chooseLanguage: 'භාෂාව තෝරන්න' }
   };
 
-  // The version-8 visitor pages share this controller but ship separate HTML navs.
-  // Insert the new destinations once before menu listeners bind to mobile links.
+  // Public pages retain the multilingual visitor navigation but do not advertise
+  // private study or account routes as public destinations.
+  const publicPage = Boolean(document.querySelector('meta[name="dd-public-page"]'));
   document.querySelectorAll('[data-shared-nav-label]').forEach(nav => {
     const quran = nav.querySelector('[data-nav="quran"]');
-    if (quran && !nav.querySelector('[data-nav="study"]')) {
+    if (!publicPage && quran && !nav.querySelector('[data-nav="study"]')) {
       const link = document.createElement('a');
       link.href = '/study'; link.dataset.nav = 'study';
       quran.after(link);
@@ -25,7 +26,7 @@
       link.href = '/resources'; link.dataset.nav = 'resources';
       learn.after(link);
     }
-    if (!nav.querySelector('[data-nav="member"]')) {
+    if (!publicPage && !nav.querySelector('[data-nav="member"]')) {
       const link = document.createElement('a');
       link.href = '/member'; link.dataset.nav = 'member';
       nav.append(link);

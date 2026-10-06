@@ -110,12 +110,14 @@ test('Google mode accepts only the exact private Railway project and canonical H
     { REVIEW_PUBLIC_ORIGIN: 'https://dragondawwa.org:8443' },
     { REVIEW_PUBLIC_ORIGIN: 'https://dragondawwa.org/study' },
     { REVIEW_BIND_HOST: '127.0.0.1' }, { REVIEW_DB_ROLE: 'migrator' },
-    { DD_PUBLIC_READ_MODE: 'approved-public-readonly' }, { EDITORIAL_OWNER_ID: 'other' },
+    { DD_PUBLIC_READ_MODE: 'unsupported-mode' }, { EDITORIAL_OWNER_ID: 'other' },
     { GOOGLE_OIDC_ISSUER: 'https://evil.test' }, { REVIEW_SESSION_SECRET: 'short' },
     { MANUS_WEBDEV_PROJECT_ID: 'review-project' },
     { DD_DELETION_AUDIT_SECRET: '' }, { STUDY_USAGE_SECRET: '' },
     { QURAN_CLIENT_ID: '' }, { QURAN_CLIENT_SECRET: '' }, { QURAN_ENVIRONMENT: 'staging' },
   ]) assert.throws(() => googleModeConfig({ ...config, ...patch }), /not safely configured/);
+  assert.equal(googleModeConfig({ ...config, DD_PUBLIC_READ_MODE: 'approved-public-readonly' }).origin, origin);
+  assert.equal(googleModeConfig({ ...config, DD_PUBLIC_READ_MODE: 'private' }).origin, origin);
 });
 test('missing separate Quran credentials do not block owner login or serve substituted Quran content', async () => {
   const authOnly = { ...config, QURAN_CLIENT_ID: '', QURAN_CLIENT_SECRET: '' };
@@ -166,17 +168,17 @@ test('anonymous login page contains no private content or external assets', asyn
   assert.doesNotMatch(html, /quran\.html|member_profiles|src="\//);
 });
 
-test('only static legal notices can be read without an invitation on the canonical Google Host', async () => {
+test('public legal notices remain content-only and do not expose protected records', async () => {
   for (const page of ['/privacy', '/terms']) {
     const response = publicPolicyPage(page);
     assert.equal(response.status, 200);
-    assert.match(response.headers.get('cache-control'), /no-store/);
+    assert.match(response.headers.get('cache-control'), /public/);
     assert.match(response.headers.get('content-type'), /text\/html/);
     const html = await response.text();
-    assert.match(html, /noindex,nofollow/);
-    assert.match(html, /Private review/i);
-    assert.match(html, /Google|privacy notice/i);
-    assert.doesNotMatch(html, /<script|<link|<img|src="\/|member_profiles|review_roles/);
+    assert.match(html, /index,follow/);
+    assert.match(html, /Public browsing does not create an account/i);
+    assert.match(html, /Dragon Dawwa|public routes/i);
+    assert.doesNotMatch(html, /<script|<img|src="\/|member_profiles|review_roles/);
     const head = publicPolicyPage(page, 'HEAD');
     assert.equal(head.status, 200);
     assert.equal(await head.text(), '');
@@ -184,8 +186,8 @@ test('only static legal notices can be read without an invitation on the canonic
   }
   const privacy = await publicPolicyPage('/privacy').text();
   assert.match(privacy, /openid email profile/);
-  assert.match(privacy, /email is checked for validity but is not used as your invitation key/);
-  assert.match(privacy, /no automatic expiry/);
+  assert.match(privacy, /email is checked for validity but is not used as an invitation key/);
+  assert.match(privacy, /Public browsing does not store a member profile/);
   for (const route of ['/quran', '/member', '/assets/mark.svg', '/data/starter-resources.json', '/api/review/session'])
     assert.equal(publicPolicyPage(route).status, 404);
   const source = await readFile(new URL('../server/index.mjs', import.meta.url), 'utf8');
@@ -378,7 +380,7 @@ test('server startup and protected routes are structurally bounded to the Google
   assert.match(source, /if \(googleMode\) googleModeConfig\(process\.env\)/);
   assert.match(source, /if \(pathname === '\/login' && googleMode\)/);
   assert.match(source, /googleMode \? '\/login' : '\/auth\/login'/);
-  assert.match(source, /!tailnetMode && !googleMode && !verifiedActor/);
+  assert.match(source, /!tailnetMode && !verifiedActor/);
   assert.match(source, /if \(!verifiedActor && !visitorRead\)/);
   const docker = await readFile(new URL('../deploy/railway/Dockerfile.https', import.meta.url), 'utf8');
   assert.match(docker, /^EXPOSE 3000$/m);
@@ -391,7 +393,7 @@ test('server startup and protected routes are structurally bounded to the Google
   assert.doesNotMatch(result.stderr, /synthetic-only|synthetic-session/);
 });
 
-test('actual router permits only login and two legal notices to anonymous canonical-Host requests', () => {
+test('actual router permits public visitor routes while preserving the canonical-host and private-route boundary', () => {
   const script = `
     import { handle } from './server/index.mjs';
     const cases = [
@@ -423,8 +425,8 @@ test('actual router permits only login and two legal notices to anonymous canoni
   });
   assert.equal(result.status, 0, result.stderr.replace(/synthetic-[^\s]*/g, '[redacted]'));
   const outcomes = JSON.parse(result.stdout.trim().split('\n').at(-1));
-  assert.deepEqual(outcomes.map(value => value.status), [200, 200, 200, 405, 200, 200, 405, 302, 302, 302, 302, 401, 421, 421, 421]);
-  for (const value of outcomes.slice(7, 11)) assert.equal(value.location, '/login');
+  assert.deepEqual(outcomes.map(value => value.status), [200, 200, 200, 405, 200, 200, 405, 200, 200, 200, 302, 401, 421, 421, 421]);
+  assert.equal(outcomes[10].location, '/login');
   for (const value of [outcomes[1], outcomes[2], outcomes[4], outcomes[5]]) assert.match(value.type, /text\/html/);
 });
 
