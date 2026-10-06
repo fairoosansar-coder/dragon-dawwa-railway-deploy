@@ -33,6 +33,7 @@ const port = Number(process.env.PORT || 3000);
 const pages = new Map([
   ['/', 'index.html'], ['/index.html', 'index.html'],
   ['/quran', 'quran.html'], ['/quran.html', 'quran.html'],
+  ['/quran/study', 'quran-study.html'],
   ['/study', 'study.html'], ['/study.html', 'study.html'],
   ['/research', 'research.html'], ['/research.html', 'research.html'],
   ['/mosques', 'mosques.html'], ['/mosques.html', 'mosques.html'],
@@ -58,6 +59,7 @@ const pageMetadata = new Map([
   ['/', ['Dragon Dawwa · Knowledge with humility', 'A source-aware multilingual space for careful learning, public records, and published resources.']],
   ['/about', ['About Dragon Dawwa', 'Learn how Dragon Dawwa distinguishes sources, interpretation, and editorial review.']],
   ['/quran', ['Qur’an reader · Dragon Dawwa', 'Read Quran content from the configured Quran Foundation source when it is available.']],
+  ['/quran/study', ['Study a Quranic ayah · Dragon Dawwa', 'Study a selected Quranic ayah with named source translations, footnotes, tafsir and recitation when available.']],
   ['/library', ['Published library · Dragon Dawwa', 'Source-linked readings published through the Dragon Dawwa editorial workflow.']],
   ['/resources', ['Curated resources · Dragon Dawwa', 'Verified outbound learning resources from their original publishers.']],
   ['/research', ['Research · Dragon Dawwa', 'Source-limited public research and government-directory context for Anuradhapura.']],
@@ -140,6 +142,9 @@ function publicHead(pathname) {
   const canonical = canonicalPath(pathname);
   const [title, description] = pageMetadata.get(canonical) || ['Dragon Dawwa', 'Published visitor content from Dragon Dawwa.'];
   const escape = value => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+  // This query-specific client-rendered study view has no server-rendered verse;
+  // never index an empty shell as though it were a distinct ayah document.
+  if (canonical === '/quran/study') return `<meta name="dd-public-page" content="true"><meta name="robots" content="noindex,follow"><link rel="canonical" href="${PUBLIC_ORIGIN}/quran"><meta property="og:type" content="website"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}">`;
   return `<meta name="dd-public-page" content="true"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="${PUBLIC_ORIGIN}${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:url" content="${PUBLIC_ORIGIN}${canonical}"><meta property="og:site_name" content="Dragon Dawwa"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escape(title)}"><meta name="twitter:description" content="${escape(description)}">`;
 }
 async function fileResponse(filename, status = 200, {readonlyMosque = false, publicPage = false, publicAsset = false, pathname = '/'} = {}) {

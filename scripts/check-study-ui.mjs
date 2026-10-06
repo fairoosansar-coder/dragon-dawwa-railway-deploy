@@ -89,12 +89,14 @@ test('study styles cover narrow access, visible focus, and reduced motion', () =
   assert.match(css, /\.study-provider-note/);
 });
 
-test('Quran reader receives delegated Study this ayah links without editing quran.js', () => {
-  const quranCopy = read('public/quran-copy.js');
-  assert.match(quranCopy, /data-study-ayah/);
-  assert.match(quranCopy, /root\.addEventListener\('click'/);
-  assert.match(quranCopy, /\/study\?verse=/);
-  assert.doesNotMatch(read('public/quran.js'), /data-study-ayah/);
+test('Quran reader studies its selected ayah inside Quran, not private Gemini Study', () => {
+  const reader = read('public/quran.js');
+  const page = read('public/quran.html');
+  assert.match(reader, /data-study-ayah/);
+  assert.match(reader, /\/quran\/study\?/);
+  assert.doesNotMatch(reader + read('public/quran-copy.js'), /\/study\?verse=/);
+  assert.match(page, /<details class="quran-source-note">/);
+  assert.doesNotMatch(page, /Continue studying on Quran\.com/);
 });
 
 test('mosque default uses a transparent ambiguous-name group and retains source records', () => {

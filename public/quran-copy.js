@@ -19,62 +19,24 @@ save:['Save place','இடத்தைச் சேமிக்க','ස්ථ�
 resume:['Return to saved ayah','சேமித்த வசனத்திற்குச் செல்ல','සුරැකි ආයතයට යන්න'],source:['View source ↗','மூலத்தைப் பார்க்க ↗','මූලාශ්‍රය බලන්න ↗'],
 listen:['Listen to ayah','வசனத்தின் ஓதலைக் கேட்க','ආයතයට සවන් දෙන්න'],
 page:['Page','பக்கம்','පිටුව'],of:['of','/','/'],
-error:['The reader could not load right now. Please try again, or use the Quran.com source link below.','தற்போது வாசிப்புப் பகுதியைப் பெற முடியவில்லை. மீண்டும் முயலுங்கள் அல்லது கீழே உள்ள Quran.com இணைப்பைப் பயன்படுத்துங்கள்.','මේ මොහොතේ කියවීමේ කොටස ලබාගත නොහැකි විය. නැවත උත්සාහ කරන්න හෝ පහත Quran.com සබැඳිය භාවිත කරන්න.'],
-notConfigured:['The Qur’an reader is currently unavailable because its source credentials have not been configured. You can continue on Quran.com.','மூல அணுகல் சான்றுகள் இன்னும் அமைக்கப்படாததால் அல்குர்ஆன் வாசிப்புப் பகுதி தற்போது கிடைக்கவில்லை. Quran.com இல் தொடரலாம்.','මූලාශ්‍ර ප්‍රවේශ අක්තපත්‍ර තවම සකසා නොමැති නිසා අල් කුර්ආන් කියවනය දැනට ලබාගත නොහැක. Quran.com ඔස්සේ ඉදිරියට යා හැක.'],
-access:['This content needs additional Quran Foundation access. You can continue reading on Quran.com.','இந்த உள்ளடக்கத்திற்கு Quran Foundation இன் கூடுதல் அணுகல் தேவை. Quran.com இல் தொடர்ந்து வாசிக்கலாம்.','මෙම අන්තර්ගතයට අමතර Quran Foundation ප්‍රවේශය අවශ්‍යයි. Quran.com ඔස්සේ කියවිය හැක.'],
+error:['The reader could not load right now. Try again here.','வாசிப்புப் பகுதி இப்போது கிடைக்கவில்லை. இங்கே மீண்டும் முயலுங்கள்.','කියවනය දැන් පූරණය කළ නොහැක. මෙහි නැවත උත්සාහ කරන්න.'],
+notConfigured:['The Quran Foundation source is not configured; this reader is temporarily unavailable.','Quran Foundation மூலம் அமைக்கப்படவில்லை; வாசிப்புப் பகுதி தற்காலிகமாக கிடைக்கவில்லை.','Quran Foundation මූලාශ්‍රය සකසා නැත; කියවනය තාවකාලිකව ලබාගත නොහැක.'],
+access:['This material needs additional Quran Foundation access. Please try again later.','இந்த உள்ளடக்கத்திற்கு Quran Foundation இன் கூடுதல் அணுகல் தேவை. பிறகு முயலுங்கள்.','මෙම අන්තර්ගතයට අමතර Quran Foundation ප්‍රවේශය අවශ්‍යයි. පසුව නැවත උත්සාහ කරන්න.'],
 rate:['The provider is receiving too many requests. Please wait a moment before trying again.','சேவை வழங்குநருக்கு அதிக கோரிக்கைகள் வந்துள்ளன. சிறிது நேரம் கழித்து மீண்டும் முயலுங்கள்.','සේවාවට ඉල්ලීම් වැඩි වී ඇත. මඳ වේලාවකින් නැවත උත්සාහ කරන්න.'],
 empty:['No verses are available on this page in the connected catalogue.','இணைக்கப்பட்ட தொகுப்பில் இந்தப் பக்கத்திற்கான வசனங்கள் இல்லை.','සම්බන්ධිත එකතුවේ මෙම පිටුව සඳහා ආයත් නොමැත.'],
-sourceTitle:['A clear source. A careful reading.','தெளிவான மூலம். கவனமான வாசிப்பு.','පැහැදිලි මූලාශ්‍රයක්. සැලකිලිමත් කියවීමක්.'],
+sourceTitle:['Sources and how this works','மூலங்களும் இது செயல்படும் விதமும்','මූලාශ්‍ර සහ මෙය ක්‍රියා කරන ආකාරය'],
 sourceNote:['Arabic text and available translations are retrieved from Quran Foundation. A translation conveys an interpretation of meaning; it is not the Arabic Qur’an itself. This reader does not generate religious answers.','அரபு மூலமும் கிடைக்கும் மொழிபெயர்ப்புகளும் Quran Foundation இலிருந்து பெறப்படுகின்றன. மொழிபெயர்ப்பு என்பது பொருளின் விளக்கம்; அது அரபு அல்குர்ஆன் மூலத்திற்கு இணையானதல்ல. இந்த வாசிப்புப் பகுதி சமயப் பதில்களை உருவாக்குவதில்லை.','අරාබි පාඨය සහ පරිවර්තන Quran Foundation වෙතින් ලබාගනී. පරිවර්තනයක් අර්ථය පැහැදිලි කරයි; එය අරාබි අල් කුර්ආනයම නොවේ. මෙම කියවීමේ කොටස ආගමික පිළිතුරු ජනනය නොකරයි.'],
-notesNote:['For translation footnotes and further study, follow the source beside each ayah. An invited member profile syncs saved places across devices; without a profile they remain in this browser.','மொழிபெயர்ப்பு அடிக்குறிப்புகளுக்கு ஒவ்வொரு வசனத்தின் மூல இணைப்பைப் பாருங்கள். அழைக்கப்பட்ட உறுப்பினர் சுயவிவரத்தில் சேமித்த இடங்கள் சாதனங்களுக்கிடையே ஒத்திசையும்; சுயவிவரம் இல்லையெனில் இந்த உலாவியில் மட்டுமே இருக்கும்.','පරිවර්තන පාදසටහන් සඳහා සෑම ආයතයකම මූලාශ්‍ර සබැඳිය බලන්න. ආරාධිත සාමාජික පැතිකඩක් ඇත්නම් සුරැකි ස්ථාන උපාංග අතර සමමුහුර්ත වේ; එසේ නැත්නම් මෙම බ්‍රවුසරයේ පමණක් පවතී.'],
+notesNote:['Where supplied, translation footnotes and named tafsir appear on the internal ayah-study page. An invited member profile syncs the saved place; otherwise it stays in this browser.','கிடைக்கும் இடங்களில் மொழிபெயர்ப்பு அடிக்குறிப்புகளும் பெயரிடப்பட்ட தஃப்ஸீரும் ஆயத் பக்கத்தில் காட்டப்படும். உறுப்பினர் சுயவிவரம் சேமித்த இடத்தை ஒத்திசைக்கும்; இல்லையெனில் அது இந்த உலாவியில் மட்டுமே இருக்கும்.','ලබා දී ඇති විට පරිවර්තන පාදසටහන් සහ නම් කළ තෆ්සීර් අභ්‍යන්තර ආයත් පිටුවේ පෙන්වයි. සාමාජික පැතිකඩක සුරැකි ස්ථානය සමමුහුර්ත වේ; නැතහොත් එය මෙම බ්‍රවුසරයේ පමණක් රැඳේ.'],
 syncAccount:['Reading place saved to your private member profile.','வாசிப்பு இடம் உங்கள் தனியார் உறுப்பினர் சுயவிவரத்தில் சேமிக்கப்பட்டது.','කියවීමේ ස්ථානය ඔබේ පුද්ගලික සාමාජික පැතිකඩට සුරැකිණි.'],
 syncLocal:['Reading place saved only in this browser. Create a member profile to sync between devices.','வாசிப்பு இடம் இந்த உலாவியில் மட்டுமே சேமிக்கப்பட்டது. சாதன ஒத்திசைவுக்கு உறுப்பினர் சுயவிவரம் உருவாக்கவும்.','කියවීමේ ස්ථානය මෙම බ්‍රවුසරයේ පමණක් සුරැකිණි. උපාංග අතර සමමුහුර්ත වීමට සාමාජික පැතිකඩක් සාදන්න.'],
 syncError:['Account save failed. Your reading place was not changed; retry when the service is available.','கணக்கில் சேமிக்க முடியவில்லை. வாசிப்பு இடம் மாறவில்லை; சேவை கிடைக்கும்போது மீண்டும் முயலுங்கள்.','ගිණුමේ සුරැකීම අසාර්ථකයි. කියවීමේ ස්ථානය වෙනස් නොවීය; සේවාව ලැබෙන විට නැවත උත්සාහ කරන්න.'],
-sourceLink:['Continue studying on Quran.com ↗','Quran.com இல் தொடர்ந்து கற்க ↗','Quran.com ඔස්සේ තවදුරටත් ඉගෙන ගන්න ↗'],
+sourceLink:['Study this ayah','இந்த ஆயத்தைப் படியுங்கள்','මෙම ආයතය අධ්‍යයනය කරන්න'],
+exploreSurah:['Explore this surah','இந்த ஸூராவை ஆராயுங்கள்','මෙම සූරාව විමසන්න'],
+findLabel:['Find on this page or enter an ayah reference','இந்தப் பக்கத்தில் தேடவும் அல்லது ஆயத் எண்ணை இடவும்','මෙම පිටුවේ සොයන්න හෝ ආයත් අංකයක් ඇතුළත් කරන්න'],
+find:['Find','தேடு','සොයන්න'],
+findCount:['Matches on this page','இந்தப் பக்கத்தில் பொருந்தியவை','මෙම පිටුවේ ගැළපීම්'],
+findNone:['No matches on this page; try another page or an ayah reference.','இந்தப் பக்கத்தில் பொருத்தம் இல்லை; வேறு பக்கம் அல்லது ஆயத் எண்ணை முயலுங்கள்.','මෙම පිටුවේ ගැළපීම් නැත; වෙනත් පිටුවක් හෝ ආයත් අංකයක් උත්සාහ කරන්න.'],
 footer:['May what we learn bring goodness to the way we live.','நாம் கற்பவை நம் வாழ்வில் நன்மையைக் கொண்டுவரட்டும்.','අප ඉගෙනගන්නා දේ අපගේ ජීවිතයට යහපතක් ගෙන ඒවා.']
 };
 
 window.DD_QURAN_COPY.privacyNote=['Reading loads content through our server from Quran Foundation. Playing audio connects your browser to the recitation delivery service. Saved places are not sent to Quran Foundation.','வாசிக்கும்போது எங்கள் சேவையகம் வழியாக Quran Foundation இலிருந்து உள்ளடக்கம் பெறப்படும். ஒலியை இயக்கும்போது உங்கள் உலாவி ஓதல் ஒலிச் சேவையுடன் இணையும். சேமித்த இடங்கள் Quran Foundation க்கு அனுப்பப்படுவதில்லை.','කියවීමේදී අපගේ සේවාදායකය හරහා Quran Foundation වෙතින් අන්තර්ගතය ලබාගනී. හඬ වාදනය කරන විට ඔබේ බ්‍රවුසරය පාරායන සේවාවට සම්බන්ධ වේ. සුරැකි ස්ථාන Quran Foundation වෙත යවන්නේ නැත.'];
-
-// quran.js remains the reader owner. This small observer adds an ordinary link to
-// cards it renders, and one delegated handler keeps the dynamic links keyboard-safe.
-(() => {
-  'use strict';
-  const labels = ['Study this ayah', 'இந்த ஆயத்தைப் படியுங்கள்', 'මෙම ආයතය අධ්‍යයනය කරන්න'];
-  const languageIndex = () => {
-    try { return ['en', 'ta', 'si'].indexOf(JSON.parse(localStorage.getItem('dd-language'))); } catch { return 0; }
-  };
-  const label = () => labels[Math.max(0, languageIndex())];
-  const validKey = key => /^\d{1,3}:\d{1,3}$/.test(key);
-  function addStudyLink(card) {
-    if (card.querySelector('[data-study-ayah]')) return;
-    const key = card.querySelector('.verse-key')?.textContent?.trim();
-    const actions = card.querySelector('.verse-actions');
-    if (!actions || !validKey(key)) return;
-    const link = document.createElement('a');
-    link.dataset.studyAyah = 'true';
-    link.href = '/study?verse=' + encodeURIComponent(key);
-    link.textContent = label();
-    actions.append(link);
-  }
-  function refreshLabels(root) { root.querySelectorAll('[data-study-ayah]').forEach(link => { link.textContent = label(); }); }
-  function setup() {
-    if (document.querySelector('meta[name="dd-public-page"]')) return;
-    const root = document.getElementById('verses');
-    if (!root) return;
-    root.querySelectorAll('.verse-card').forEach(addStudyLink);
-    new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(node => {
-      if (node.nodeType !== Node.ELEMENT_NODE) return;
-      if (node.matches('.verse-card')) addStudyLink(node);
-      node.querySelectorAll?.('.verse-card').forEach(addStudyLink);
-    }))).observe(root, { childList:true, subtree:true });
-    root.addEventListener('click', event => {
-      const link = event.target.closest('a[data-study-ayah]');
-      if (!link || !root.contains(link) || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      event.preventDefault();
-      window.location.assign(link.href);
-    });
-    document.addEventListener('dd:languagechange', () => refreshLabels(root));
-  }
-  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') document.addEventListener('DOMContentLoaded', setup);
-})();

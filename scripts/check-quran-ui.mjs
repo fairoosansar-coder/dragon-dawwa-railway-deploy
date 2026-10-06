@@ -20,6 +20,7 @@ function reader(fetch) {
   const context = vm.createContext({
     fetch, URLSearchParams, AbortController, setTimeout, clearTimeout,
     localStorage: { getItem: () => null, setItem() {} }, window: {},
+    location: { search: '', assign() {} },
     document: {
       documentElement: {}, body: { classList: { add() {}, remove() {} } },
       getElementById: id => elements.get(id), querySelectorAll: () => [],

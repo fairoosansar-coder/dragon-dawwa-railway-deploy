@@ -3,6 +3,7 @@
     {"path":"/","title":"Home"},
     {"path":"/about","title":"About"},
     {"path":"/quran","title":"Qur’an reader"},
+    {"path":"/quran/study","title":"Study a Quranic ayah"},
     {"path":"/study","title":"Source-grounded study"},
     {"path":"/learn","title":"Learning library"},
     {"path":"/library","title":"Learning library"},

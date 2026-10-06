@@ -3,7 +3,7 @@
 // session. It never expands the member, staff, review, study, or operational API.
 const PUBLIC_ORIGIN = 'https://dragondawwa.org';
 const pages = new Set([
-  '/', '/index.html', '/about', '/about.html', '/quran', '/quran.html',
+  '/', '/index.html', '/about', '/about.html', '/quran', '/quran.html', '/quran/study',
   '/learn', '/library', '/library.html', '/resources', '/resources.html',
   '/research', '/research.html', '/mosque', '/mosque.html', '/mosques', '/mosques.html',
   '/events', '/events.html', '/participate', '/participate.html', '/contact',
@@ -11,13 +11,13 @@ const pages = new Set([
 ]);
 const readApis = new Set([
   '/api/content', '/api/events', '/api/quran/bootstrap',
-  '/api/quran/verses', '/api/resources', '/api/mosques',
+  '/api/quran/verses', '/api/quran/ayah', '/api/resources', '/api/mosques',
 ]);
 const publicAssets = new Set([
   '/assets/mark.svg', '/assets/garden-arch.png',
   '/styles.css', '/community.css', '/editorial.css', '/mosques.css', '/quran.css', '/research.css', '/resources.css',
   '/app.js', '/home-review-copy.js', '/shared-nav.js', '/pages.js', '/library.js', '/mosques.js',
-  '/quran.js', '/quran-copy.js', '/research.js', '/research-copy.js', '/resources.js', '/frame-guard.js',
+  '/quran.js', '/quran-copy.js', '/quran-study.js', '/research.js', '/research-copy.js', '/resources.js', '/frame-guard.js',
   '/data/mosques-anuradhapura.json', '/data/population.json', '/data/provenance.json',
 ]);
 

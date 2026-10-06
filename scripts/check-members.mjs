@@ -101,6 +101,7 @@ function fixture() {
         if (marker.chapter === 2 && marker.key === '2:255') return {chapter: 2, page: 13, key: '2:255'};
         const error = new Error('invalid_marker'); error.code = 'invalid_marker'; error.status = 400; throw error;
       },
+      validateQuranBookmark: async id => id === '1_1' || id === '2_255',
     };
     const response = await memberResponse(new Request(`https://member.test${path}`, {method, headers, body: body === undefined ? undefined : JSON.stringify(body)}), env, actor);
     return {status: response.status, data: await response.json(), headers: response.headers};
@@ -130,6 +131,22 @@ test('invited members have self-only profiles, saves, and reading places', async
   assert.equal(other.data.place, null);
   assert.equal(JSON.stringify(other.data).includes('First synthetic member'), false);
   assert.equal(JSON.stringify(other.data).includes('Fixture city'), true, 'self responses retain only the caller’s own private profile');
+});
+
+test('Quran bookmarks reuse existing private member saves without schema changes or cross-account visibility', async () => {
+  const f = fixture();
+  assert.equal((await f.request('/api/member/save', memberOne, {action:'add',kind:'quran',id:'1_1'})).status, 409);
+  await f.request('/api/member/register', memberOne, profile('Quran reader one'));
+  await f.request('/api/member/register', memberTwo, profile('Quran reader two'));
+  for (const id of ['1_1','2_255']) assert.equal((await f.request('/api/member/save', memberOne, {action:'add',kind:'quran',id})).status, 200);
+  assert.deepEqual((await f.request('/api/member/me', memberOne)).data.saves.filter(item=>item.kind==='quran').map(item=>item.id).sort(), ['1_1','2_255']);
+  assert.deepEqual((await f.request('/api/member/me', memberTwo)).data.saves.filter(item=>item.kind==='quran'), []);
+  for (const id of ['1:1','01_1','1_8','2_256','114_999','../../staff'])
+    assert.equal((await f.request('/api/member/save', memberOne, {action:'add',kind:'quran',id})).status, 400, id);
+  assert.equal((await f.request('/api/member/save', memberTwo, {action:'remove',kind:'quran',id:'1_1'})).status, 200);
+  assert.equal((await f.request('/api/member/me', memberOne)).data.saves.filter(item=>item.kind==='quran').length, 2);
+  assert.equal((await f.request('/api/member/save', memberOne, {action:'remove',kind:'quran',id:'1_1'})).status, 200);
+  assert.deepEqual((await f.request('/api/member/me', memberOne)).data.saves.filter(item=>item.kind==='quran').map(item=>item.id), ['2_255']);
 });
 
 test('legacy bookmark import is explicit, bounded to home IDs, and does not add arbitrary saves', async () => {

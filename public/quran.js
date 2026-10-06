@@ -6,6 +6,8 @@
   let language = ['en','ta','si'].includes(read('dd-language')) ? read('dd-language') : 'en';
   let catalogue, chapter = 1, page = 1, result, requestId = 0, saved = null, activeAudio = null;
   let statusKey = 'loading', placeStatusKey = '', memberState = 'unknown';
+  const deepLink = new URLSearchParams(location.search);
+  const initialAyah = /^([1-9]\d{0,2}):([1-9]\d{0,2})$/.test(deepLink.get('ayah') || '') ? deepLink.get('ayah') : null;
   function validPlace(place) {
     return place && Number.isInteger(place.chapter) && place.chapter >= 1 && place.chapter <= 114 &&
       Number.isInteger(place.page) && place.page >= 1 && place.page <= 15 &&
@@ -95,7 +97,15 @@
   }
   async function start() {
     setStatus('loading'); $('retry-reader').hidden = true;
-    try { await restoreMemberPlace(); catalogue = await api('bootstrap'); chapter = catalogue.chapters[0].id; fillChoices(false); notices(); await load(); }
+    try {
+      await restoreMemberPlace(); catalogue = await api('bootstrap');
+      const requested = Number(deepLink.get('chapter'));
+      chapter = catalogue.chapters.some(c => c.id === requested) ? requested : catalogue.chapters[0].id;
+      const requestedPage = Number(deepLink.get('page'));
+      page = Number.isInteger(requestedPage) && requestedPage >= 1 && requestedPage <= Math.ceil((catalogue.chapters.find(c => c.id === chapter)?.verses || 1) / 20) ? requestedPage : 1;
+      fillChoices(false); notices(); await load();
+      if (initialAyah?.startsWith(chapter + ':')) $('ayah-' + initialAyah.replace(':','-'))?.scrollIntoView({block:'center'});
+    }
     catch (e) { error(e); }
   }
   async function load() {
@@ -123,12 +133,29 @@
     }
     const out = document.createDocumentFragment(); for (const child of doc.body.childNodes) out.appendChild(clean(child)); return out;
   }
+  function studyHref(key) {
+    const params = new URLSearchParams({ayah:key});
+    if ($('translation-select').value) params.set('translation', $('translation-select').value);
+    if ($('reciter-select').value) params.set('recitation', $('reciter-select').value);
+    return '/quran/study?' + params;
+  }
+  function filterVisiblePage() {
+    const query = $('quran-find-input').value.trim().toLocaleLowerCase();
+    let shown = 0;
+    document.querySelectorAll('#verses .verse-card').forEach(card => {
+      const match = !query || card.textContent.toLocaleLowerCase().includes(query);
+      card.hidden = !match;
+      if (match) shown++;
+      else card.querySelector('audio')?.pause();
+    });
+    $('quran-find-status').textContent = query ? (shown ? t('findCount') + ': ' + shown : t('findNone')) : '';
+  }
   function render() {
     $('verses').replaceChildren(); $('verses').setAttribute('aria-busy','false'); setStatus(result.verses.length ? '' : 'empty');
     const translation = catalogue.translations.find(x => x.id === result.translation);
     for (const verse of result.verses) {
       const card = document.createElement('article'); card.className = 'verse-card'; card.id = 'ayah-' + verse.key.replace(':','-');
-      card.innerHTML = '<div class="verse-heading"><span class="verse-key">' + escape(verse.key) + '</span><div class="verse-actions"><button class="save-place" type="button"></button><a href="https://quran.com/' + verse.key.replace(':','/') + '" target="_blank" rel="noopener noreferrer">' + t('source') + '</a></div></div><p class="verse-arabic notranslate" lang="ar" dir="rtl" translate="no"></p><div class="verse-translation notranslate" translate="no"></div>';
+      card.innerHTML = '<div class="verse-heading"><span class="verse-key">' + escape(verse.key) + '</span><div class="verse-actions"><button class="save-place" type="button"></button><a data-study-ayah href="' + escape(studyHref(verse.key)) + '">' + t('sourceLink') + '</a><a href="https://quran.com/' + verse.key.replace(':','/') + '" target="_blank" rel="noopener noreferrer">' + t('source') + '</a></div></div><p class="verse-arabic notranslate" lang="ar" dir="rtl" translate="no"></p><div class="verse-translation notranslate" translate="no"></div>';
       card.querySelector('.verse-arabic').textContent = verse.arabic;
       const translated = card.querySelector('.verse-translation');
       if (translation) translated.lang = ({english:'en',tamil:'ta',sinhala:'si',sinhalese:'si'})[translation.language.toLowerCase()] || 'en';
@@ -175,6 +202,9 @@
     const p = result.pagination;
     $('reader-pagination').hidden = p.total <= 1; $('verses-prev').disabled = p.current <= 1; $('verses-next').disabled = !p.next;
     $('reader-page').textContent = t('page') + ' ' + p.current + ' ' + t('of') + ' ' + p.total;
+    $('study-current').hidden = !result.verses.length;
+    if (result.verses.length) $('study-current').href = studyHref(result.verses[0].key);
+    filterVisiblePage();
   }
   $('quran-language').addEventListener('change',e=>{language=e.target.value;write('dd-language',language);setLanguage();});
   $('surah-select').addEventListener('change',e=>{chapter=Number(e.target.value);page=1;load();});
@@ -183,5 +213,12 @@
   $('verses-next').addEventListener('click',()=>{if(result?.pagination.next){page=result.pagination.next;load();}});
   $('retry-reader').addEventListener('click',()=>catalogue?load():start());
   $('resume-reading').addEventListener('click',async()=>{if(!saved)return;chapter=saved.chapter;page=saved.page;$('surah-select').value=String(chapter);await load();document.getElementById('ayah-'+saved.key.replace(':','-'))?.scrollIntoView({block:'center'});});
+  $('quran-find').addEventListener('submit', event => {
+    event.preventDefault();
+    const query = $('quran-find-input').value.trim();
+    if (/^[1-9]\d{0,2}:[1-9]\d{0,2}$/.test(query)) { location.assign(studyHref(query)); return; }
+    filterVisiblePage();
+  });
+  $('quran-find-input').addEventListener('input', filterVisiblePage);
   setLanguage(); start();
 })();

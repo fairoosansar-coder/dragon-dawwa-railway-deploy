@@ -8,7 +8,7 @@ const PROFILE_ROLES = new Set(['reader', 'author', 'reviewer', 'publisher', 'own
 const LANGUAGES = new Set(['en', 'ta', 'si']);
 const AVATARS = new Set(['none', 'rosette', 'leaf', 'book']);
 const CONTACT_PREFERENCES = new Set(['none', 'email', 'phone']);
-const SAVE_KINDS = new Set(['external', 'editorial', 'home']);
+const SAVE_KINDS = new Set(['external', 'editorial', 'home', 'quran']);
 const HOME_IDS = new Set(['ask', 'wisdom', 'authenticity', 'context']);
 const MAX_BODY_BYTES = 32_768;
 const MAX_SAVES = 500;
@@ -226,6 +226,16 @@ async function validateSaveTarget(db, kind, id, env) {
       ? await env.resourceSaveEligibility(db, id)
       : await resourceSaveEligibility(db, id);
     if (!check?.eligible) fail(400, 'invalid_save');
+    return;
+  }
+  if (kind === 'quran') {
+    const match = /^([1-9]\d{0,2})_([1-9]\d{0,2})$/.exec(id);
+    if (!match) fail(400, 'invalid_save');
+    const permitted = typeof env?.validateQuranBookmark === 'function'
+      ? await env.validateQuranBookmark(id)
+      : (await quranClient(env).bootstrap()).chapters.some(chapter =>
+          chapter.id === Number(match[1]) && Number(match[2]) <= chapter.verses);
+    if (!permitted) fail(400, 'invalid_save');
     return;
   }
   const document = await db.prepare('SELECT id FROM editorial_documents WHERE id=? AND published IS NOT NULL').bind(id).first();

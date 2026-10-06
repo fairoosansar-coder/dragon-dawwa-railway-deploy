@@ -29,12 +29,12 @@ const config = {
 };
 
 test('public policy exposes only visitor pages, published-read endpoints, and required assets', () => {
-  for (const route of ['/', '/about', '/quran', '/library', '/library/published-reading', '/resources', '/research', '/mosque', '/mosques', '/mosques/97', '/events', '/events/published-event', '/contact', '/privacy', '/terms', '/sources', '/accessibility', '/api/content', '/api/content/published-reading', '/api/events', '/api/resources', '/api/mosques', '/api/quran/bootstrap', '/api/quran/verses', '/assets/mark.svg', '/library.js'])
+  for (const route of ['/', '/about', '/quran', '/quran/study', '/library', '/library/published-reading', '/resources', '/research', '/mosque', '/mosques', '/mosques/97', '/events', '/events/published-event', '/contact', '/privacy', '/terms', '/sources', '/accessibility', '/api/content', '/api/content/published-reading', '/api/events', '/api/resources', '/api/mosques', '/api/quran/bootstrap', '/api/quran/verses', '/api/quran/ayah', '/assets/mark.svg', '/library.js', '/quran-study.js'])
     assert.equal(publicReadingAllowed('GET', route, config), true, route);
   for (const route of ['/admin', '/staff', '/operations', '/member', '/study', '/api/review/session', '/api/admin/dashboard', '/api/member/me', '/api/study/history', '/api/participation', '/api/corrections', '/admin.js', '/staff.js', '/data/starter-resources.json'])
     assert.equal(publicReadingAllowed('GET', route, config), false, route);
   assert.equal(publicReadingAllowed('GET', '/api/study/availability', config), false);
-  for (const route of ['/api/content', '/api/events', '/api/resources', '/api/quran/bootstrap'])
+  for (const route of ['/api/content', '/api/events', '/api/resources', '/api/quran/bootstrap', '/api/quran/ayah'])
     assert.equal(publicReadingAllowed('POST', route, config), false, route);
 });
 
@@ -67,7 +67,7 @@ test('signed anonymous rate tokens isolate public reader quotas without trusting
 test('signed-out canonical-host responses serve public HTML and keep private routes inaccessible', () => {
   const script = `
     import { handle } from './server/index.mjs';
-    const cases = ['/', '/about', '/quran', '/library', '/learn', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/participate', '/privacy', '/terms', '/sources', '/accessibility', '/about/', '/quran/', '/library/', '/resources/', '/research/', '/mosque/', '/mosques/', '/events/', '/contact/', '/participate/?via=nav', '/privacy/', '/terms/', '/sources/', '/accessibility/', '/learn/', '/assets/mark.svg', '/admin.js', '/staff', '/admin', '/member', '/study', '/api/member/me', '/api/admin/dashboard', '/robots.txt', '/sitemap.xml'];
+    const cases = ['/', '/about', '/quran', '/quran/study?ayah=1%3A1', '/library', '/learn', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/participate', '/privacy', '/terms', '/sources', '/accessibility', '/about/', '/quran/', '/library/', '/resources/', '/research/', '/mosque/', '/mosques/', '/events/', '/contact/', '/participate/?via=nav', '/privacy/', '/terms/', '/sources/', '/accessibility/', '/learn/', '/assets/mark.svg', '/admin.js', '/staff', '/admin', '/member', '/study', '/api/member/me', '/api/admin/dashboard', '/robots.txt', '/sitemap.xml'];
     const output = [];
     for (const path of cases) {
       const response = await handle({ method: 'GET', url: path, headers: { host: 'dragondawwa.org' }, socket: { remoteAddress: '127.0.0.1' } });
@@ -96,6 +96,9 @@ test('signed-out canonical-host responses serve public HTML and keep private rou
   assert.match(byPath['/participate'].body, /<link rel="canonical" href="https:\/\/dragondawwa\.org\/contact">/);
   assert.match(byPath['/'].body, /<meta name="robots" content="index,follow,max-image-preview:large">/);
   assert.doesNotMatch(byPath['/'].body, /content="noindex,nofollow"/);
+  assert.equal(byPath['/quran/study?ayah=1%3A1'].status, 200);
+  assert.match(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="noindex,follow">/);
+  assert.doesNotMatch(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="index,follow/);
   assert.match(byPath['/contact'].body, /No public form is available/);
   assert.doesNotMatch(byPath['/contact'].body, /participation-form/);
   assert.doesNotMatch(byPath['/mosque'].body, /correction-form/);
