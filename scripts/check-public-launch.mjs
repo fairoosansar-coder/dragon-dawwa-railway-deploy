@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { publicReadingAllowed } from '../server/public-read.mjs';
 import { anonymousRateCookie, anonymousRateIdentity, rateLimited } from '../server/index.mjs';
@@ -35,6 +36,12 @@ test('public policy exposes only visitor pages, published-read endpoints, and re
   assert.equal(publicReadingAllowed('GET', '/api/study/availability', config), false);
   for (const route of ['/api/content', '/api/events', '/api/resources', '/api/quran/bootstrap'])
     assert.equal(publicReadingAllowed('POST', route, config), false, route);
+});
+
+test('public library footer points to public source attribution, not private administration', () => {
+  const html = readFileSync(new URL('../public/library.html', import.meta.url), 'utf8');
+  assert.match(html, /href="\/sources"/);
+  assert.doesNotMatch(html, /href="\/(?:admin|staff|operations|member|study)"/);
 });
 
 test('Quran reader reports a clear source-configuration failure instead of blocking public pages', async () => {
