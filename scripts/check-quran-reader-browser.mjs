@@ -20,6 +20,7 @@ try {
   const page = await context.newPage();
   const requested = [], failures = [];
   let malformedTajweed = false, delayedChapter = 0, releaseDelayed = () => {}, rejectChapter = 0;
+  let chapterInfoUnavailable = false, memberMode = 'guest';
   page.on('pageerror',error=>failures.push(error.message));
   await page.route('**/*',async route=>{
     const url = new URL(route.request().url()); requested.push(url.pathname);
@@ -27,7 +28,9 @@ try {
     if (['/quran.js','/quran-copy.js','/shared-nav.js'].includes(url.pathname)) return route.fulfill({status:200,contentType:'text/javascript',body:await file(url.pathname.slice(1))});
     if (url.pathname.endsWith('.css') && url.hostname === 'dragondawwa.org') return route.fulfill({status:200,contentType:'text/css',body:await file(url.pathname.slice(1))});
     if (url.pathname === '/assets/mark.svg') return route.fulfill({status:200,contentType:'image/svg+xml',body:await file('assets/mark.svg')});
-    if (url.pathname === '/api/member/me') return route.fulfill({status:401,contentType:'application/json',body:'{"error":"sign_in_required"}'});
+    if (url.pathname === '/api/member/me') return memberMode === 'guest'
+      ? route.fulfill({status:401,contentType:'application/json',body:'{"error":"sign_in_required"}'})
+      : route.fulfill({status:200,contentType:'application/json',body:'{"registered":false,"place":null,"saves":[]}'});
     if (url.pathname === '/api/quran/bootstrap') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(catalog)});
     if (url.pathname === '/api/quran/verses') {
       const script = url.searchParams.get('script'), withWords = url.searchParams.get('words') === '1';
@@ -43,7 +46,9 @@ try {
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({chapter,translation:85,recitation:7,script,wordsAvailable:withWords,
         verses:chapter===1?[verse('1:1'),verse('1:2')]:[verse('2:1')], pagination:{current:1,next:null,total:1,count:chapter===1?2:1}})});
     }
-    if (url.pathname === '/api/quran/chapter') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({chapter:Number(url.searchParams.get('chapter')),description:'Named provider chapter context <img src=x onerror="window.infoInjected=true">',source:'Named edition',available:true})});
+    if (url.pathname === '/api/quran/chapter') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(chapterInfoUnavailable
+      ? {chapter:Number(url.searchParams.get('chapter')),description:null,source:null,available:false}
+      : {chapter:Number(url.searchParams.get('chapter')),description:'Named provider chapter context <img src=x onerror="window.infoInjected=true">',source:'Named edition',available:true})});
     if (url.pathname === '/api/quran/chapter-audio') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({audio:'https://download.quranicaudio.com/qdc/example/1.mp3',reciter:catalog.chapterReciters[0],available:true})});
     if (url.pathname === '/api/quran/navigate') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({key:'1:1',chapter:1,page:1,unit:url.searchParams.get('unit'),number:Number(url.searchParams.get('number'))})});
     if (['verses.quran.com','audio.qurancdn.com','download.quranicaudio.com'].includes(url.hostname)) return route.fulfill({status:404,body:''});
@@ -87,9 +92,17 @@ try {
   assert.match(await page.evaluate(()=>navigator.clipboard.readText()),/1:1[\s\S]*Quran data provided by Quran Foundation/);
   await page.locator('#ayah-1-1 .share-ayah').click();
   assert.match(await page.evaluate(()=>navigator.clipboard.readText()),/^https:\/\/dragondawwa\.org\/quran\/study\?ayah=1%3A1/);
+  await page.locator('#ayah-1-1 .save-place').click();
+  assert.equal(await page.locator('#resume-reading').isVisible(),true);
   await page.locator('#chapter-info-toggle').click();
   await page.waitForFunction(()=>document.querySelector('#chapter-info-credit')?.textContent?.includes('Named edition'));
   assert.equal(await page.evaluate(()=>Boolean(window.infoInjected)),false);
+  chapterInfoUnavailable = true;
+  await page.locator('#chapter-info-toggle').click();
+  await page.locator('#chapter-info-toggle').click();
+  await page.waitForFunction(()=>document.querySelector('#chapter-info-credit')?.textContent?.includes('chapter catalogue'));
+  assert.match(await page.locator('#chapter-info-content').innerText(),/The Opening.*7 verses.*makkah/);
+  assert.doesNotMatch(await page.locator('#chapter-info-content').innerText(),/Named provider chapter context/);
   await page.locator('#chapter-listen').click();
   await page.waitForFunction(()=>document.querySelector('#chapter-audio')?.getAttribute('src')?.includes('download.quranicaudio.com'));
   await page.locator('#chapter-repeat').check();
@@ -109,6 +122,12 @@ try {
   assert.equal(await page.locator('#chapter-audio-area').isVisible(),false);
   await page.locator('[data-mode=arabic]').click();
   assert.match(await page.locator('#reading-flow').innerText(),/2:1/);
+  await page.evaluate(()=>{Element.prototype.scrollIntoView=function(){window.resumeTarget=this.id;};});
+  await page.locator('#resume-reading').click();
+  await page.waitForFunction(()=>window.resumeTarget === 'reading-1-1');
+  assert.equal(await page.locator('#reading-1-1').isVisible(),true);
+  await page.locator('#surah-select').selectOption('2');
+  await page.locator('#reading-2-1').waitFor({state:'visible'});
   delayedChapter = 1;
   await page.locator('#surah-select').selectOption('1');
   assert.equal(await page.locator('#chapter-title').innerText(),'Al-Fatihah');
@@ -126,6 +145,14 @@ try {
   await page.waitForURL(/\/quran\?chapter=1&page=1&ayah=1%3A1/);
   await page.locator('#reading-1-1').waitFor({state:'visible'});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth+3),true,'390-pixel reader must not overflow');
+  memberMode = 'unregistered';
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#reading-1-1').waitFor({state:'visible'});
+  assert.equal(await page.locator('#resume-reading').isVisible(),false,'signed-in account must not inherit guest saved place');
+  await page.locator('[data-mode=verse]').click();
+  await page.locator('#ayah-1-1 .save-place').click();
+  assert.match(await page.locator('#place-sync-status').innerText(),/Create an invited member profile/);
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('dd-quran-place')).key),'1:1');
   assert(!requested.some(path=>path.startsWith('/api/study/') || path === '/study' || path.startsWith('/api/member/save')),'guest control cannot call private Gemini or member-write APIs');
   assert.deepEqual(failures,[],'no browser page errors');
   console.log('PASS synthetic 390px Chromium: chapter context/audio, verse/continuous modes, script/word display, attributed copy/share, guest bookmark and private API isolation');

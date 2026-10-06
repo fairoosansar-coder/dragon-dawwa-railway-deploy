@@ -31,7 +31,9 @@
       if (!response.ok) throw new Error('member_unavailable');
       const account = await response.json();
       memberState = account.registered ? 'registered' : 'unregistered';
-      saved = validPlace(account.registered ? account.place : read('dd-quran-place'));
+      // A signed-in account without a profile must not inherit a prior guest's
+      // browser-local reading place, even on a shared device.
+      saved = account.registered ? validPlace(account.place) : null;
       bookmarks = account.registered ? (account.saves || []).filter(item => item.kind === 'quran' && /^[1-9]\d{0,2}_[1-9]\d{0,2}$/.test(item.id)).map(item => item.id) : [];
     } catch {
       // Do not display another browser user's local reading marker when account status is unknown.
@@ -325,14 +327,17 @@
             if (!response.ok || !validPlace(accountResult?.place) || accountResult.place.key !== marker.key) throw new Error('account_save_failed');
             saved = accountResult.place;
             placeStatusKey = 'syncAccount';
-          } else {
-            write('dd-quran-place', marker);
+          } else if (memberState === 'guest') {
+            localStorage.setItem('dd-quran-place', JSON.stringify(marker));
+            if (validPlace(read('dd-quran-place'))?.key !== marker.key) throw new Error('local_save_failed');
             saved = marker;
             placeStatusKey = 'syncLocal';
+          } else {
+            throw new Error('profile_required');
           }
           document.querySelectorAll('.save-place').forEach(b=>{b.textContent=t('save');b.setAttribute('aria-pressed','false');});
           button.textContent=t('saved');button.setAttribute('aria-pressed','true');notices();
-        } catch { placeStatusKey = 'syncError'; }
+        } catch (saveError) { placeStatusKey = saveError.message === 'profile_required' ? 'placeProfile' : 'syncError'; }
         finally { button.disabled = false; $('place-sync-status').textContent=t(placeStatusKey); }
       });
       if (verse.audio) {
@@ -373,9 +378,20 @@
       const data = await api('chapter?chapter=' + selected);
       if (id !== chapterInfoRequest || selected !== chapter) return;
       const text = new DOMParser().parseFromString(data.description || '', 'text/html').body.textContent?.trim() || '';
-      $('chapter-info-content').textContent = data.available && text ? text : t('chapterInfoUnavailable');
-      $('chapter-info-credit').textContent = data.available ? [data.source,'Quran Foundation'].filter(Boolean).join(' · ') : '';
-    } catch { if (id === chapterInfoRequest) $('chapter-info-content').textContent = t('chapterInfoUnavailable'); }
+      if (data.available && text) {
+        $('chapter-info-content').textContent = text;
+        $('chapter-info-credit').textContent = [data.source,'Quran Foundation'].filter(Boolean).join(' · ');
+      } else {
+        showChapterCatalogueInfo(selected);
+      }
+    } catch { if (id === chapterInfoRequest && selected === chapter) showChapterCatalogueInfo(selected); }
+  }
+  function showChapterCatalogueInfo(selected) {
+    const source = catalogue.chapters.find(item => item.id === selected);
+    const facts = [source?.translatedName, source?.verses ? source.verses + ' ' + t('chapterVerses') : '',
+      source?.revelationPlace ? t('revelationPlace') + ': ' + source.revelationPlace : ''].filter(Boolean);
+    $('chapter-info-content').textContent = [t('chapterInfoUnavailable'), ...facts].join(' · ');
+    $('chapter-info-credit').textContent = facts.length ? t('chapterCatalogueCredit') : '';
   }
   async function loadChapterAudio() {
     const reciter = $('chapter-reciter-select').value;
@@ -432,7 +448,7 @@
   $('verses-prev').addEventListener('click',()=>{if(page>1){page--;load();}});
   $('verses-next').addEventListener('click',()=>{if(result?.pagination.next){page=result.pagination.next;load();}});
   $('retry-reader').addEventListener('click',()=>catalogue?load():start());
-  $('resume-reading').addEventListener('click',async()=>{if(!saved)return;chapter=saved.chapter;page=saved.page;$('surah-select').value=String(chapter);await load();document.getElementById('ayah-'+saved.key.replace(':','-'))?.scrollIntoView({block:'center'});});
+  $('resume-reading').addEventListener('click',async()=>{if(!saved)return;chapter=saved.chapter;page=saved.page;$('surah-select').value=String(chapter);await load();document.getElementById((viewMode === 'verse' ? 'ayah-' : 'reading-')+saved.key.replace(':','-'))?.scrollIntoView({block:'center'});});
   $('quran-find').addEventListener('submit', event => {
     event.preventDefault();
     const query = $('quran-find-input').value.trim();

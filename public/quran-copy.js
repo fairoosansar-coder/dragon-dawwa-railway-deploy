@@ -97,3 +97,9 @@ Object.assign(window.DD_QURAN_COPY, {
 Object.assign(window.DD_QURAN_COPY, {
   firstShownAyah:['First displayed ayah','முதலில் காட்டப்படும் ஆயத்','මුලින් පෙන්වන ආයතය']
 });
+
+Object.assign(window.DD_QURAN_COPY, {
+  revelationPlace:['Revelation place','வெளிப்பட்ட இடம்','පහළ වූ ස්ථානය'],
+  chapterCatalogueCredit:['Quran Foundation chapter catalogue; no named chapter description was supplied.','Quran Foundation ஸூரா பட்டியல்; பெயரிடப்பட்ட விளக்கம் வழங்கப்படவில்லை.','Quran Foundation සූරා නාමාවලිය; නම් කළ විස්තරයක් ලබා දී නැත.'],
+  placeProfile:['Create an invited member profile before saving an account reading place.','கணக்கில் வாசிப்பு இடத்தைச் சேமிக்க, அழைக்கப்பட்ட உறுப்பினர் சுயவிவரத்தை உருவாக்கவும்.','ගිණුමේ කියවීමේ ස්ථානය සුරැකීමට ආරාධිත සාමාජික පැතිකඩක් සාදන්න.']
+});
