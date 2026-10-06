@@ -120,7 +120,20 @@ export async function handle(req) {
     if (tailnetMode) return tailnetAuthResponse(incoming, process.env, { db: database(), remoteAddress: req.socket.remoteAddress });
     if (googleMode) {
       if (pathname === '/auth/login' || pathname === '/auth/callback') return googleAuthResponse(incoming, process.env, { db: database() });
-      return authResponse(incoming, process.env, { db: database() });
+      const response = await authResponse(incoming, process.env, { db: database() });
+      if (req.method === 'POST' && response.status === 403 &&
+          (pathname === '/auth/logout' || pathname === '/auth/logout-all')) {
+        // Temporary transport diagnostic: only categories, never headers or identity values.
+        const supplied = req.headers.origin;
+        const site = req.headers['sec-fetch-site'];
+        console.warn('[review] logout transport denied', {
+          origin: supplied === undefined ? 'absent' : supplied === origin ? 'canonical' : 'other',
+          fetchSite: ['same-origin', 'same-site', 'cross-site', 'none'].includes(site) ? site : 'absent-or-other',
+          referer: req.headers.referer === undefined ? 'absent' : 'present',
+          fetchMode: req.headers['sec-fetch-mode'] === 'navigate' ? 'navigate' : 'other',
+        });
+      }
+      return response;
     }
     return authResponse(incoming, process.env, { db: database(), previewProxyOrigin: `http://127.0.0.1:${port}` });
   }
