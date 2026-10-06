@@ -154,6 +154,12 @@ async function fileResponse(filename, status = 200, {readonlyMosque = false, pub
     let content = bytes;
     if (filename.endsWith('.html')) {
       let html = bytes.toString('utf8').replace(/<head>/i, `<head>${publicPage ? publicHead(pathname) : '<meta name="robots" content="noindex,nofollow">'}<script src="/frame-guard.js"></script>`);
+      if (publicPage && (filename === 'quran.html' || filename === 'quran-study.html')) {
+        // These non-fingerprinted files were previously cached for one hour.
+        // A fresh page must not combine the new footnote API with stale browser JS.
+        html = html.replace(/(src|href)="\/?(quran(?:-copy|-study)?\.js|quran\.css)"/g,
+          '$1="/$2?v=20261007-footnotes"');
+      }
       if (readonlyMosque && filename === 'mosque.html') {
         html = html.replace(/<section class="community-section" id="correction">[\s\S]*?<\/section>/,
           '<section class="community-section" id="correction"><p lang="en">Public correction intake is not enabled. The cited government record remains available through its original source; no public submission is stored here.</p></section>');
@@ -162,7 +168,8 @@ async function fileResponse(filename, status = 200, {readonlyMosque = false, pub
     }
     return new Response(content, { status, headers: {
       'Content-Type': types[path.extname(filename)] || 'application/octet-stream',
-      'Cache-Control': publicPage ? 'public, max-age=0, must-revalidate' : publicAsset ? 'public, max-age=3600' : 'private, no-store',
+      'Cache-Control': publicPage || publicAsset && /\.(?:js|css)$/.test(filename)
+        ? 'public, max-age=0, must-revalidate' : publicAsset ? 'public, max-age=3600' : 'private, no-store',
       ...(publicPage ? {'X-DD-Public-Page': '1'} : {}),
     } });
   } catch (error) { if (error.code === 'ENOENT') return simple('Not found', 404); throw error; }

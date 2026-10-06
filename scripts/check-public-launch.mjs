@@ -67,11 +67,11 @@ test('signed anonymous rate tokens isolate public reader quotas without trusting
 test('signed-out canonical-host responses serve public HTML and keep private routes inaccessible', () => {
   const script = `
     import { handle } from './server/index.mjs';
-    const cases = ['/', '/about', '/quran', '/quran/study?ayah=1%3A1', '/library', '/learn', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/participate', '/privacy', '/terms', '/sources', '/accessibility', '/about/', '/quran/', '/library/', '/resources/', '/research/', '/mosque/', '/mosques/', '/events/', '/contact/', '/participate/?via=nav', '/privacy/', '/terms/', '/sources/', '/accessibility/', '/learn/', '/assets/mark.svg', '/admin.js', '/staff', '/admin', '/member', '/study', '/api/member/me', '/api/admin/dashboard', '/robots.txt', '/sitemap.xml'];
+    const cases = ['/', '/about', '/quran', '/quran/study?ayah=1%3A1', '/quran-study.js', '/quran.css', '/library', '/learn', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/participate', '/privacy', '/terms', '/sources', '/accessibility', '/about/', '/quran/', '/library/', '/resources/', '/research/', '/mosque/', '/mosques/', '/events/', '/contact/', '/participate/?via=nav', '/privacy/', '/terms/', '/sources/', '/accessibility/', '/learn/', '/assets/mark.svg', '/admin.js', '/staff', '/admin', '/member', '/study', '/api/member/me', '/api/admin/dashboard', '/robots.txt', '/sitemap.xml'];
     const output = [];
     for (const path of cases) {
       const response = await handle({ method: 'GET', url: path, headers: { host: 'dragondawwa.org' }, socket: { remoteAddress: '127.0.0.1' } });
-      output.push({ path, status: response.status, location: response.headers.get('location'), cookie: response.headers.get('set-cookie'), type: response.headers.get('content-type'), body: await response.text() });
+      output.push({ path, status: response.status, location: response.headers.get('location'), cookie: response.headers.get('set-cookie'), type: response.headers.get('content-type'), cache: response.headers.get('cache-control'), body: await response.text() });
     }
     console.log(JSON.stringify(output));
   `;
@@ -99,6 +99,12 @@ test('signed-out canonical-host responses serve public HTML and keep private rou
   assert.equal(byPath['/quran/study?ayah=1%3A1'].status, 200);
   assert.match(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="noindex,follow">/);
   assert.doesNotMatch(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="index,follow/);
+  assert.match(byPath['/quran/study?ayah=1%3A1'].body, /src="\/quran-study\.js\?v=20261007-footnotes"/);
+  assert.match(byPath['/quran'].body, /src="\/quran\.js\?v=20261007-footnotes"/);
+  for (const asset of ['/quran-study.js','/quran.css']) {
+    assert.equal(byPath[asset].status, 200, asset);
+    assert.equal(byPath[asset].cache, 'public, max-age=0, must-revalidate', asset);
+  }
   assert.match(byPath['/contact'].body, /No public form is available/);
   assert.doesNotMatch(byPath['/contact'].body, /participation-form/);
   assert.doesNotMatch(byPath['/mosque'].body, /correction-form/);
