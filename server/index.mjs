@@ -116,29 +116,16 @@ export async function handle(req) {
   }
   if (pathname.startsWith('/auth/')) {
     if (!['GET', 'POST'].includes(req.method)) return simple('Method not allowed', 405);
-    const incoming = new Request(origin + req.url, { method: req.method, headers: req.headers });
+    const logoutPost = req.method === 'POST' && (pathname === '/auth/logout' || pathname === '/auth/logout-all');
+    const formBytes = logoutPost ? await body(req, 2048) : null;
+    const incoming = new Request(origin + req.url, {
+      method: req.method, headers: req.headers,
+      body: formBytes?.length ? formBytes : undefined,
+    });
     if (tailnetMode) return tailnetAuthResponse(incoming, process.env, { db: database(), remoteAddress: req.socket.remoteAddress });
     if (googleMode) {
       if (pathname === '/auth/login' || pathname === '/auth/callback') return googleAuthResponse(incoming, process.env, { db: database() });
-      const response = await authResponse(incoming, process.env, { db: database() });
-      if (req.method === 'POST' && response.status === 403 &&
-          (pathname === '/auth/logout' || pathname === '/auth/logout-all')) {
-        // Temporary transport diagnostic: only categories, never headers or identity values.
-        const supplied = req.headers.origin;
-        const site = req.headers['sec-fetch-site'];
-        const parsed = supplied && URL.canParse(supplied) ? new URL(supplied) : null;
-        console.warn('[review] logout transport denied', {
-          origin: supplied === undefined ? 'absent' : supplied === origin ? 'canonical' :
-            supplied === 'null' ? 'opaque-null' : supplied === '' ? 'empty' :
-            parsed?.origin === origin ? 'canonical-url-variant' :
-            ['localhost', '127.0.0.1'].includes(parsed?.hostname) ? 'loopback' :
-            parsed?.hostname?.endsWith('.railway.internal') ? 'railway-internal' : 'external-or-invalid',
-          fetchSite: ['same-origin', 'same-site', 'cross-site', 'none'].includes(site) ? site : 'absent-or-other',
-          referer: req.headers.referer === undefined ? 'absent' : 'present',
-          fetchMode: req.headers['sec-fetch-mode'] === 'navigate' ? 'navigate' : 'other',
-        });
-      }
-      return response;
+      return authResponse(incoming, process.env, { db: database() });
     }
     return authResponse(incoming, process.env, { db: database(), previewProxyOrigin: `http://127.0.0.1:${port}` });
   }

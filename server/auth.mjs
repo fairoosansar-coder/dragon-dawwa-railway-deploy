@@ -101,16 +101,37 @@ function publicOrigin(config) {
 function redirect(location, headers = {}) { return new Response(null, { status: 302, headers: { Location: location, 'Cache-Control': 'no-store', ...headers } }); }
 function failure(message, status) { return new Response(message, { status, headers: { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain; charset=utf-8' } }); }
 
-function sameOriginPost(request, origin, previewProxyOrigin, googleMode = false) {
+export function logoutFormToken(request, config) {
+  if (config.AUTH_PROVIDER !== 'google-oidc') return null;
+  const token = applicationSession(request, config);
+  if (!sessionDetails(token, config)) return null;
+  return createHmac('sha256', config.REVIEW_SESSION_SECRET)
+    .update('dragon-dawwa-logout-form-v1\0').update(token).digest('base64url');
+}
+
+async function validLogoutFormProof(request, config) {
+  if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/x-www-form-urlencoded') ||
+      Number(request.headers.get('content-length') || 0) > 2048) return false;
+  const text = await request.text();
+  if (text.length > 2048) return false;
+  const values = new URLSearchParams(text).getAll('logout_csrf');
+  const expected = logoutFormToken(request, config);
+  if (values.length !== 1 || !/^[A-Za-z0-9_-]{43}$/.test(values[0]) || !expected) return false;
+  return timingSafeEqual(Buffer.from(values[0]), Buffer.from(expected));
+}
+
+async function sameOriginPost(request, origin, previewProxyOrigin, config) {
   const supplied = request.headers.get('origin');
   const fetchSite = request.headers.get('sec-fetch-site');
   const previewRewritten = previewProxyOrigin && supplied === previewProxyOrigin && fetchSite === 'same-origin';
-  // A browser form submission may reach Railway without Origin. A browser's
-  // non-forgeable Fetch Metadata may authenticate that narrow first-party case;
-  // never use this fallback for a supplied wrong/null Origin or older browsers
-  // without Sec-Fetch-Site. SameSite=Lax also excludes cross-site POST cookies.
-  const firstPartyForm = googleMode && supplied === null && fetchSite === 'same-origin';
-  return (supplied === origin || previewRewritten || firstPartyForm) && fetchSite !== 'cross-site';
+  if (fetchSite === 'cross-site') return false;
+  if (supplied === origin || previewRewritten) return true;
+  // Some first-party browser form navigations arrive at Railway with Origin:
+  // null. Fetch Metadata alone is insufficient: require a proof bound to this
+  // exact HttpOnly session, delivered only by the protected session endpoint.
+  if (config.AUTH_PROVIDER !== 'google-oidc' || ![null, 'null'].includes(supplied) ||
+      fetchSite !== 'same-origin' || request.headers.get('sec-fetch-mode') !== 'navigate') return false;
+  return validLogoutFormProof(request, config);
 }
 
 function signedOutResponse(origin, config) {
@@ -133,7 +154,7 @@ export async function authResponse(request, config, { db = null, previewProxyOri
     return failure('Sign-in is not configured for this review environment.', 503);
   if (path === '/auth/logout' || path === '/auth/logout-all') {
     if (request.method !== 'POST') return failure('Method not allowed', 405);
-    if (!sameOriginPost(request, origin, googleMode ? null : previewProxyOrigin, googleMode)) return failure('Same-origin request required.', 403);
+    if (!await sameOriginPost(request, origin, googleMode ? null : previewProxyOrigin, config)) return failure('Same-origin request required.', 403);
     const details = sessionDetails(applicationSession(request, config), config, now());
     if (!details || details.expiresAt <= now()) return signedOutResponse(origin, config);
     if (!db) return failure('Session logout is temporarily unavailable. Please retry.', 503);

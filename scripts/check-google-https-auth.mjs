@@ -5,8 +5,8 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { googleAuthResponse, googleModeConfig, googleSubjectId, canonicalGoogleHost, publicLoginPage } from '../server/google-auth.mjs';
 import { publicPolicyPage } from '../server/public-policies.mjs';
-import { authResponse, verifiedRequestUser } from '../server/auth.mjs';
-import { changeRole } from '../server/access.mjs';
+import { authResponse, logoutFormToken, verifiedRequestUser } from '../server/auth.mjs';
+import { accessResponse, changeRole } from '../server/access.mjs';
 import { deletionAuditSecret } from '../server/member.mjs';
 import { usageSecret } from '../server/study.mjs';
 import { sessionTokenHash } from '../server/session.mjs';
@@ -81,8 +81,8 @@ function db(role = 'owner') {
     },
   };
 }
-function request(path, { cookie = '', method = 'GET', headers = {} } = {}) {
-  return new Request(origin + path, { method, headers: { ...(cookie ? { cookie } : {}), ...headers } });
+function request(path, { cookie = '', method = 'GET', headers = {}, body } = {}) {
+  return new Request(origin + path, { method, headers: { ...(cookie ? { cookie } : {}), ...headers }, body });
 }
 function headerCookies(response) { return response.headers.getSetCookie(); }
 function getCookie(response, name) { return headerCookies(response).find(value => value.startsWith(name + '='))?.split(';')[0]; }
@@ -280,21 +280,39 @@ test('invited login becomes an eight-hour secure cookie with DB-backed immediate
   assert.notEqual(sessionTokenHash(session.split('=')[1]), null);
 });
 
-test('Google form logout-all accepts missing Origin only with same-origin Fetch Metadata', async () => {
+test('Google null-Origin logout requires a session-bound proof plus first-party form metadata', async () => {
   const database = db('owner');
   const session = getCookie(await finish(await start(), database), 'webdev_app_session');
-  const post = headers => authResponse(request('/auth/logout-all', { cookie: session, method: 'POST', headers }),
+  const proof = logoutFormToken(request('/', { cookie: session }), config);
+  assert.match(proof, /^[A-Za-z0-9_-]{43}$/);
+  const sessionPayload = await accessResponse(request('/api/review/session', { cookie: session }), { id, role: 'owner' }, config);
+  assert.equal((await sessionPayload.json()).logoutCsrfToken, proof);
+  assert.equal(logoutFormToken(request('/', { cookie: session + '; ' + session }), config), null);
+  const encoded = value => new URLSearchParams({ logout_csrf: value }).toString();
+  const form = { 'content-type': 'application/x-www-form-urlencoded', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate' };
+  const post = (headers, body = encoded(proof)) => authResponse(request('/auth/logout-all', { cookie: session, method: 'POST', headers, body }),
     config, { db: database, now: () => now });
-  for (const headers of [
-    {}, { 'sec-fetch-site': 'cross-site' },
-    { origin: '', 'sec-fetch-site': 'same-origin' },
-    { origin: 'null', 'sec-fetch-site': 'same-origin' },
-    { origin: 'https://attacker.test', 'sec-fetch-site': 'same-origin' },
-    { origin, 'sec-fetch-site': 'cross-site' },
-  ]) assert.equal((await post(headers)).status, 403);
+  for (const [headers, body] of [
+    [{}, encoded(proof)], [{ ...form, origin: 'null', 'sec-fetch-site': 'cross-site' }, encoded(proof)],
+    [{ ...form, origin: 'null', 'sec-fetch-mode': 'cors' }, encoded(proof)],
+    [{ ...form, origin: 'null' }, ''],
+    [{ ...form, origin: 'null' }, encoded('a'.repeat(43))],
+    [{ ...form, origin: 'null' }, `logout_csrf=${proof}&logout_csrf=${proof}`],
+    [{ ...form, origin: '' }, encoded(proof)],
+    [{ ...form, origin: 'https://attacker.test' }, encoded(proof)],
+    [{ ...form, origin, 'sec-fetch-site': 'cross-site' }, encoded(proof)],
+  ]) assert.equal((await post(headers, body)).status, 403);
   assert.equal((await verifiedRequestUser(request('/', { cookie: session }), config, database, { now: () => now }))?.id, id);
-  assert.equal((await post({ 'sec-fetch-site': 'same-origin' })).status, 303);
+  assert.equal((await post({ ...form, origin: 'null' })).status, 303);
   assert.equal(await verifiedRequestUser(request('/', { cookie: session }), config, database, { now: () => now + 1 }), null);
+  const secondDatabase = db('owner');
+  const secondSession = getCookie(await finish(await start(), secondDatabase), 'webdev_app_session');
+  const secondProof = logoutFormToken(request('/', { cookie: secondSession }), config);
+  const withoutOrigin = await authResponse(request('/auth/logout-all', {
+    cookie: secondSession, method: 'POST', headers: form, body: encoded(secondProof),
+  }), config, { db: secondDatabase, now: () => now });
+  assert.equal(withoutOrigin.status, 303);
+  assert.equal(await verifiedRequestUser(request('/', { cookie: secondSession }), config, secondDatabase, { now: () => now + 1 }), null);
 });
 
 test('an owner role revocation commits the session epoch atomically and invalidates a copied Google cookie', async () => {

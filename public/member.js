@@ -251,9 +251,26 @@
   function showSignedOut(message) {
     state = null; setHidden('#signed-out', false); setHidden('#not-registered', true); setHidden('#registration', true); setHidden('#member-content', true); setHidden('#signed-in-actions', true); status(message, 'error');
   }
+  function installLogoutProof(session) {
+    if (!Object.hasOwn(session, 'logoutCsrfToken')) return;
+    if (!/^[A-Za-z0-9_-]{43}$/.test(session.logoutCsrfToken || '')) throw new Error('logout_proof_unavailable');
+    for (const form of document.querySelectorAll('#signed-in-actions form')) {
+      let input = form.querySelector('input[name="logout_csrf"]');
+      if (!input) {
+        input = document.createElement('input');
+        input.type = 'hidden'; input.name = 'logout_csrf';
+        form.append(input);
+      }
+      input.value = session.logoutCsrfToken;
+    }
+  }
   async function load() {
     status(t('loading'));
-    try { showMember(await api('/api/member/me')); }
+    try {
+      const member = await api('/api/member/me');
+      installLogoutProof(await api('/api/review/session'));
+      showMember(member);
+    }
     catch (error) { showSignedOut(error.status === 401 ? t('signInRequired') : errorMessage(error.message)); }
   }
   function handleProfileSubmit() {

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { database, getPool } from './db.mjs';
+import { logoutFormToken } from './auth.mjs';
 import { assertLastActiveOwnerProtected, revokeAllSessions, LastOwnerError } from './session.mjs';
 
 const ROLES = new Set(['reader', 'author', 'reviewer', 'publisher']);
@@ -80,7 +81,8 @@ export async function changeRole(actor, input, { pool = null, now = Date.now } =
 export async function accessResponse(request, actor, config) {
   const url = new URL(request.url);
   if (url.pathname === '/api/review/session' && request.method === 'GET')
-    return send({ user: actor, configured: actor?.role === 'owner' || !!(config.EDITORIAL_OWNER_ID || config.REVIEW_OWNER_ID) });
+    return send({ user: actor, configured: actor?.role === 'owner' || !!(config.EDITORIAL_OWNER_ID || config.REVIEW_OWNER_ID),
+      ...(config.AUTH_PROVIDER === 'google-oidc' ? { logoutCsrfToken: logoutFormToken(request, config) } : {}) });
   if (!actor || actor.role !== 'owner') return send({ error: 'forbidden' }, 403);
   if (url.pathname === '/api/admin/roles' && request.method === 'GET') return listRoles(url);
   if (url.pathname === '/api/admin/roles' && request.method === 'POST') {

@@ -22,23 +22,25 @@
     if (className) element.className = className;
     return element;
   };
-
-  function signOutForm() {
+  function signOutForm(proof) {
     const form = make('form', undefined, 'staff-nav-logout');
     form.method = 'post';
     form.action = '/auth/logout';
+    if (proof) {
+      const input = make('input');
+      input.type = 'hidden'; input.name = 'logout_csrf'; input.value = proof;
+      form.append(input);
+    }
     const button = make('button', 'Sign out', 'staff-nav-signout');
     button.type = 'submit';
     form.append(button);
     return form;
   }
-
   function errorText(status) {
     if (status === 401) return 'Sign in is required for staff navigation.';
     if (status === 403) return '403: this verified account does not have a staff role.';
     return 'Staff navigation is temporarily unavailable.';
   }
-
   async function session() {
     let response;
     try { response = await fetch('/api/review/session', {credentials:'same-origin', headers:{Accept:'application/json'}}); }
@@ -46,17 +48,19 @@
     if (!response.ok) return {role:null, message:errorText(response.status)};
     const data = await response.json().catch(() => ({}));
     const role = data.user?.role || null;
-    return {role, message:staffRoles.has(role) ? `Verified staff role: ${role}.` : '403: your verified access does not include a staff role.'};
+    const proof = data.logoutCsrfToken;
+    if (Object.hasOwn(data, 'logoutCsrfToken') && !/^[A-Za-z0-9_-]{43}$/.test(proof || ''))
+      return {role:null, message:'Staff sign-out is temporarily unavailable.'};
+    return {role, proof, message:staffRoles.has(role) ? `Verified staff role: ${role}.` : '403: your verified access does not include a staff role.'};
   }
-
-  function render(host, role, message, index) {
+  function render(host, role, message, index, proof = null) {
     host.replaceChildren();
     const shell = make('div', undefined, 'staff-nav');
     const label = make('p', message, 'staff-nav-access');
     label.setAttribute('role', 'status');
     shell.append(label);
     if (!staffRoles.has(role)) {
-      shell.append(signOutForm());
+      if (message !== 'Checking staff access…') shell.append(signOutForm(proof));
       host.append(shell);
       return;
     }
@@ -80,7 +84,7 @@
     const site = make('a', 'View site');
     site.href = '/';
     menu.append(site);
-    menu.append(signOutForm());
+    menu.append(signOutForm(proof));
     toggle.addEventListener('click', () => {
       const open = toggle.getAttribute('aria-expanded') !== 'true';
       toggle.setAttribute('aria-expanded', String(open));
@@ -94,5 +98,5 @@
 
   const hosts = [...document.querySelectorAll('[data-staff-nav]')];
   hosts.forEach((host, index) => render(host, null, 'Checking staff access…', index));
-  session().then(({role, message}) => hosts.forEach((host, index) => render(host, role, message, index)));
+  session().then(({role, message, proof}) => hosts.forEach((host, index) => render(host, role, message, index, proof)));
 })();
