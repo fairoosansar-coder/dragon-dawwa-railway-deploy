@@ -1,5 +1,6 @@
 // This is the only point where the later Hadith Research Agents implementation may bind
-// podcast work to report revisions. It intentionally contains no report-table guesses.
+// podcast work to report revisions. It implements the supplied getApprovedRevision contract
+// without guessing report tables. Withdrawn or superseded revisions must return null.
 export class PodcastReportAdapterError extends Error {
   constructor(code) { super(code); this.code = code; }
 }

@@ -1,5 +1,7 @@
--- Disabled podcast foundation. Apply only through the explicit backed-up review migration flow.
--- It contains no provider secret, no BLOB audio, no public URL, no seed generation, and no worker DDL.
+-- PENDING phase-two podcast foundation. Do NOT move this into migrations/ until the Hadith
+-- Research Agents feature supplies its required 008_hadith.sql migration and the owner permits
+-- that implementation. It contains no provider secret, no BLOB audio, no public URL, no seed
+-- generation, and no worker DDL.
 
 CREATE TABLE IF NOT EXISTS podcast_voices (
   language VARCHAR(2) NOT NULL,

@@ -1,6 +1,6 @@
 # Dragon Dawwa — automated podcast pipeline foundation
 
-**State:** implemented in source as a **disabled foundation** on 7 October 2026. It is not connected to a Hadith report, a worker, private object storage, ElevenLabs generation, staff asset import, or a member-facing player. No provider audio was generated and no credits were spent.
+**State:** implemented in source as a **disabled foundation** on 7 October 2026. It is not connected to a Hadith report, a worker, private object storage, ElevenLabs generation, staff asset import, or a member-facing player. No provider audio was generated and no credits were spent. The current podcast migration is intentionally held outside the executable migration ledger until the prerequisite Hadith implementation owns `008_hadith.sql`.
 
 ## Non-negotiable activation gates
 
@@ -16,7 +16,7 @@ Neither mode is enabled in `.env.example`, and no key name/value is added there.
 
 ## Upstream contract required from Hadith Research Agents
 
-The current source tree has no Hadith Research Agents feature. The future integration must implement `getApprovedRevision({reportRevisionId})` and return exactly:
+The supplied Hadith Research Agents brief specifies the contract; its feature is not yet implemented in this source tree. The future integration must implement `getApprovedRevision({reportRevisionId})` and return exactly:
 
 ```js
 {
@@ -32,9 +32,13 @@ The pipeline rejects absent/mismatched revisions, unapproved reports, malformed 
 
 The foundation requires a claim ID on every spoken line. This is intentionally stricter than the brief because code cannot reliably classify arbitrary prose as factual without using another AI judgment layer, which would weaken the rule.
 
+### Podcast brief precedence
+
+The owner has ruled that the Automated Podcast Pipeline brief controls where it conflicts with the Hadith brief on podcast behavior. Agent 6's two-voice draft is therefore **not** a direct render input: every renderable script must use all six database-approved cast seats, remain confined to the report's accepted claims, and complete the Pipeline brief's separate review and listen gates. See [the reconciliation record](PODCAST_BRIEF_RECONCILIATION.md).
+
 ## Implemented controls
 
-- Strict JSON script validation: six database-provided cast IDs, fixed tone-tag allowlist, explicit whisper rejection, no Arabic Unicode in AI TTS text, abbreviated-honorific rejection, maximum line/SFX/reaction bounds, valid recitation slot and exact claim membership.
+- Strict JSON script validation: exactly six database-provided cast IDs **and all six must speak**, fixed tone-tag allowlist, explicit whisper rejection, no Arabic Unicode in AI TTS text, abbreviated-honorific rejection, maximum line/SFX/reaction bounds, valid recitation slot and exact claim membership.
 - Separate durable fields for script review, language review, recitation state, line cache QA, mix QA and listen approval.
 - Server-only ElevenLabs client contracts: `POST /v1/text-to-speech/{voice_id}` with `eleven_v4`, `POST /v1/music` with **`music_v2_5`**, `POST /v1/sound-generation` with `eleven_text_to_sound_v2`, and `POST /v1/speech-to-text` with **`scribe_v2`**. The earlier brief’s `eleven_music_v2_5` and `scribe_v1` identifiers are not used.
 - Hash cache key over language, speaker, voice ID, model ID and exact text; no text/audio/key enters job metadata or logs.
@@ -68,12 +72,12 @@ The brief itself prohibits spending before the owner approves a measured cost. T
 
 - ElevenLabs documentation currently confirms `/v1/text-to-speech/{voice_id}`, `/v1/music`, `/v1/sound-generation`, `/v1/speech-to-text` and `GET /v1/models` request contracts.
 - Safe read-only workspace checks found `eleven_v4` with Tamil and English listed, and the six stated Tamil IDs plus English Sarah available. No music, sound or transcription request was made.
-- The repository’s prerequisite Hadith report workflow is absent; the addendum supplied on 7 October repeated the podcast requirements but did not supply that report/claim contract.
+- The Hadith brief is now supplied and its adapter shape is implemented, but its phase-two reference library, qualified-reviewer attestation, report workflow and background worker are absent.
 - The current repository Docker base has no approved separate ffmpeg-6 worker image. The mix module refuses an older runtime.
 
 ## What must happen next
 
-1. Supply the actual Hadith Research Agents brief or merge its implementation, including report/claim/review APIs.
+1. Implement the supplied Hadith Research Agents feature first: licensed separate reference library, `008_hadith.sql`, qualified-reviewer attestation, report/claim/review APIs and its one-at-a-time worker.
 2. Approve one private object-store option and narrow credentials; then implement its adapter and authenticated episode endpoint.
 3. Import/approve the existing canvas asset pack and human recitation(s) as private assets.
 4. Build and validate the isolated ffmpeg 6+ one-at-a-time worker.

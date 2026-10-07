@@ -13,6 +13,7 @@ const ARABIC = /[\u0600-\u06FF\uFDF0-\uFDFF]/u;
 const HONORIFIC_ABBREVIATION = /(?:\(ஸல்\)|\(ரலி\)|\(ரஹ்\)|ﷺ|\(\s*p\.?\s*b\.?\s*u\.?\s*h\.?\s*\))/iu;
 const IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,139}$/;
 const LINE_IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$/;
+const REQUIRED_CAST_SIZE = 6;
 
 export class PodcastValidationError extends Error {
   constructor(code) { super(code); this.code = code; }
@@ -35,7 +36,7 @@ function identifier(value, expression, code) {
 
 function castSet(castIds) {
   const out = castIds instanceof Set ? castIds : new Set(castIds || []);
-  if (!out.size || [...out].some(value => !/^[a-z][a-z0-9_]{1,31}$/.test(value))) invalid('invalid_cast_configuration');
+  if (out.size !== REQUIRED_CAST_SIZE || [...out].some(value => !/^[a-z][a-z0-9_]{1,31}$/.test(value))) invalid('invalid_cast_configuration');
   return out;
 }
 
@@ -93,6 +94,7 @@ export function validatePodcastScript(script, {castIds, approvedClaimIds} = {}) 
 
   const lineIds = new Set();
   const segmentIds = new Set();
+  const speakersUsed = new Set();
   let sfxCount = 0;
   let reactionCount = 0;
   for (const segment of script.segments) {
@@ -107,6 +109,7 @@ export function validatePodcastScript(script, {castIds, approvedClaimIds} = {}) 
       if (lineIds.has(line.id)) invalid('duplicate_line_id');
       lineIds.add(line.id);
       if (typeof line.speaker !== 'string' || !cast.has(line.speaker)) invalid('unknown_speaker');
+      speakersUsed.add(line.speaker);
       validateText(line.text);
       if (typeof line.overlap_prev !== 'boolean') invalid('invalid_overlap');
       if (line.sfx_before !== undefined) {
@@ -123,6 +126,9 @@ export function validatePodcastScript(script, {castIds, approvedClaimIds} = {}) 
       reactionCount += line.reactions === undefined ? 0 : validateReaction(line.reactions, cast);
     }
   }
+  // Pipeline precedence: a research two-voice draft is never a direct render script. Every
+  // renderable script must use all six database-approved cast seats.
+  if (speakersUsed.size !== REQUIRED_CAST_SIZE) invalid('six_voice_cast_required');
   if (sfxCount > 4) invalid('too_many_sfx');
   if (typeof script.recitation_after_line !== 'string' || !lineIds.has(script.recitation_after_line)) invalid('invalid_recitation_slot');
   return Object.freeze({lineCount: lineIds.size, sfxCount, reactionCount, lineIds: new Set(lineIds)});

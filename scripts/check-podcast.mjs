@@ -17,10 +17,14 @@ const claims = new Set(['claim-source-6306', 'claim-chain-6306']);
 
 function script() {
   return {
-    episode_id: 'bukhari-6306-ta', report_revision_id: 'report-revision-6306', language: 'ta', title: 'Synthetic Tamil fixture', recitation_after_line: 's1-02',
+    episode_id: 'bukhari-6306-ta', report_revision_id: 'report-revision-6306', language: 'ta', title: 'Synthetic Tamil fixture', recitation_after_line: 's1-04',
     segments: [{id: 's1', lines: [
       {id: 's1-01', speaker: 'yusuf', text: '[confidently] Synthetic sourced opening.', overlap_prev: false, sfx_before: 'page_turn', reactions: [{speaker: 'maryam', clip: 'oh', at: 0.7}], claim_ids: ['claim-source-6306']},
       {id: 's1-02', speaker: 'amina', text: '[calmly] Synthetic sourced response.', overlap_prev: false, claim_ids: ['claim-chain-6306']},
+      {id: 's1-03', speaker: 'hana', text: '[curious] Synthetic sourced question.', overlap_prev: false, claim_ids: ['claim-source-6306']},
+      {id: 's1-04', speaker: 'ibrahim', text: '[seriously] Synthetic sourced evidence.', overlap_prev: false, claim_ids: ['claim-chain-6306']},
+      {id: 's1-05', speaker: 'maryam', text: '[warmly] Synthetic sourced clarification.', overlap_prev: false, claim_ids: ['claim-source-6306']},
+      {id: 's1-06', speaker: 'khalid', text: '[calmly] Synthetic sourced close.', overlap_prev: false, claim_ids: ['claim-chain-6306']},
     ]}],
   };
 }
@@ -32,7 +36,7 @@ function invalidation(mutator, expected) {
 
 test('podcast script accepts a fully cited permitted fixture and rejects every required forbidden condition before rendering', () => {
   const valid = validatePodcastScript(script(), {castIds: cast, approvedClaimIds: claims});
-  assert.deepEqual({lineCount: valid.lineCount, sfxCount: valid.sfxCount, reactionCount: valid.reactionCount}, {lineCount: 2, sfxCount: 1, reactionCount: 1});
+  assert.deepEqual({lineCount: valid.lineCount, sfxCount: valid.sfxCount, reactionCount: valid.reactionCount}, {lineCount: 6, sfxCount: 1, reactionCount: 1});
   invalidation(value => { value.segments[0].lines[0].text = '[whispering] prohibited'; }, 'whisper_tag_rejected');
   invalidation(value => { value.segments[0].lines[0].text = 'Arabic \u0627 is prohibited'; }, 'arabic_tts_rejected');
   invalidation(value => { value.segments[0].lines[0].text = 'Abbreviation (pbuh) is prohibited'; }, 'abbreviated_honorific_rejected');
@@ -41,6 +45,7 @@ test('podcast script accepts a fully cited permitted fixture and rejects every r
   invalidation(value => { value.segments[0].lines[0].claim_ids = []; }, 'missing_claim_id');
   invalidation(value => { value.segments[0].lines[0].sfx_before = 'drum'; }, 'invalid_sfx');
   invalidation(value => { value.recitation_after_line = 'missing-line'; }, 'invalid_recitation_slot');
+  invalidation(value => { value.segments[0].lines = value.segments[0].lines.slice(0, 2); value.recitation_after_line = 's1-02'; }, 'six_voice_cast_required');
 });
 
 test('line transcript QA uses tag-free text and enforces the 85 percent threshold', () => {
@@ -69,7 +74,7 @@ test('preflight binds the script to an approved report and separate human gates 
   const episode = {id: 'bukhari-6306-ta', reportRevisionId: 'report-revision-6306', language: 'ta', scriptJson: JSON.stringify(script()), status: 'script_approved', languageReviewRequired: true, languageReviewerId: 'language-reviewer', recitationStatus: 'waived', recitationAssetId: null};
   const adapter = {async getApprovedRevision({reportRevisionId}) { return {id: reportRevisionId, status: 'approved', claimIds: [...claims], qualifiedReviewerId: 'hadith-reviewer', approvedAt: '2030-01-01T00:00:00.000Z'}; }};
   const result = await preflightPodcastEpisode({episode, reportAdapter: adapter, castIds: cast});
-  assert.equal(result.validation.lineCount, 2);
+  assert.equal(result.validation.lineCount, 6);
   await assert.rejects(preflightPodcastEpisode({episode: {...episode, status: 'script_validated'}, reportAdapter: adapter, castIds: cast}), error => error instanceof PodcastWorkerError && error.code === 'script_not_approved');
   await assert.rejects(preflightPodcastEpisode({episode: {...episode, recitationStatus: 'ready'}, reportAdapter: adapter, castIds: cast}), error => error.code === 'recitation_asset_missing');
 });
@@ -105,15 +110,15 @@ test('private storage has opaque keys only and cannot fall back to a public URL'
   assert.equal(response.headers.get('cache-control'), 'private, no-store');
   await assert.rejects(unavailablePrivateAudioStore().get({key: 'podcasts/episodes/bukhari-6306-ta/final.mp3'}), error => error instanceof PodcastStorageError && error.code === 'private_storage_not_configured');
   await assert.rejects(store.get({key: 'https://public.invalid/podcast.mp3'}), error => error.code === 'invalid_storage_key');
-  const migration = fs.readFileSync(new URL('../migrations/008_podcast_foundation.sql', import.meta.url), 'utf8');
+  const migration = fs.readFileSync(new URL('../migrations/pending/009_podcast_foundation.sql', import.meta.url), 'utf8');
   assert.equal(/audio_bytes\s+(?:MEDIUM)?BLOB/i.test(migration), false);
 });
 
-test('podcast migration creates metadata-only durable tables in an isolated SQLite rehearsal', () => {
+test('pending podcast migration creates metadata-only durable tables in an isolated SQLite rehearsal', () => {
   const sql = new DatabaseSync(':memory:');
   try {
     sql.exec('PRAGMA foreign_keys=ON');
-    for (const name of ['001_core.sql', '003_members.sql', '008_podcast_foundation.sql']) {
+    for (const name of ['001_core.sql', '003_members.sql', 'pending/009_podcast_foundation.sql']) {
       const source = fs.readFileSync(new URL(`../migrations/${name}`, import.meta.url), 'utf8')
         .split('\n').filter(line => !line.trimStart().startsWith('--')).join('\n');
       sql.exec(source);
@@ -137,7 +142,7 @@ test('podcast usage reserves a global daily cap before a call and records conten
     return statement;
   }};
   try {
-    for (const name of ['001_core.sql', '003_members.sql', '008_podcast_foundation.sql']) sql.exec(fs.readFileSync(new URL(`../migrations/${name}`, import.meta.url), 'utf8').split('\n').filter(line => !line.trimStart().startsWith('--')).join('\n'));
+    for (const name of ['001_core.sql', '003_members.sql', 'pending/009_podcast_foundation.sql']) sql.exec(fs.readFileSync(new URL(`../migrations/${name}`, import.meta.url), 'utf8').split('\n').filter(line => !line.trimStart().startsWith('--')).join('\n'));
     sql.prepare('INSERT INTO podcast_episodes (id,report_revision_id,language,title,script_json,script_hash,status,recitation_status,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
       .run('bukhari-6306-ta', 'report-revision-6306', 'ta', 'Synthetic fixture', '{}', 'a'.repeat(64), 'script_approved', 'ready', 'owner', '2030-01-01T00:00:00.000Z', '2030-01-01T00:00:00.000Z');
     const reservation = await reservePodcastCredits(db, {dailyCreditCap: 20, operation: 'tts', characterCount: 100, estimatedCredits: 12, date: '2030-01-01'});
@@ -152,8 +157,8 @@ test('podcast usage reserves a global daily cap before a call and records conten
 });
 
 test('timeline preserves a dry recitation lane and QA parsers reject non-broadcast output', async () => {
-  const files = {assets: {intro: 'intro.mp3', sting: 'sting.mp3', page_turn: 'page.mp3'}, lines: {'s1-01': 'one.mp3', 's1-02': 'two.mp3'}, reactions: {maryam: {oh: 'reaction.mp3'}}, recitation: 'human-recitation.mp3'};
-  const times = new Map(Object.entries({ 'intro.mp3': 20, 'sting.mp3': 4, 'page.mp3': 1, 'one.mp3': 4, 'two.mp3': 5, 'reaction.mp3': 1, 'human-recitation.mp3': 7}));
+  const files = {assets: {intro: 'intro.mp3', sting: 'sting.mp3', page_turn: 'page.mp3'}, lines: {'s1-01': 'one.mp3', 's1-02': 'two.mp3', 's1-03': 'three.mp3', 's1-04': 'four.mp3', 's1-05': 'five.mp3', 's1-06': 'six.mp3'}, reactions: {maryam: {oh: 'reaction.mp3'}}, recitation: 'human-recitation.mp3'};
+  const times = new Map(Object.entries({ 'intro.mp3': 20, 'sting.mp3': 4, 'page.mp3': 1, 'one.mp3': 4, 'two.mp3': 5, 'three.mp3': 4, 'four.mp3': 5, 'five.mp3': 4, 'six.mp3': 5, 'reaction.mp3': 1, 'human-recitation.mp3': 7}));
   const timeline = await buildTimeline(script(), files, {amina: 0, yusuf: -0.25, maryam: 0.25}, async file => times.get(file));
   assert.ok(timeline.items.some(item => item.kind === 'recitation' && item.file === 'human-recitation.mp3'));
   assert.doesNotThrow(() => assertBroadcastLoudness(parseEbur128('Integrated loudness: -16.0 LUFS\nTrue peak: -1.2 dBTP')));
