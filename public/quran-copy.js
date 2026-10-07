@@ -3,7 +3,7 @@ skip:['Skip to content','உள்ளடக்கத்திற்குச் 
 brandSub:['KNOWLEDGE WITH HUMILITY','பணிவுடன் அறிவைத் தேடுவோம்','නිහතමානීව දැනුම සොයමු'],
 home:['Home','முகப்பு','මුල් පිටුව'],research:['Research','சமூக ஆய்வு','ප්‍රජා තොරතුරු'],
 eyebrow:['READ · LISTEN · REFLECT','வாசிப்போம் · செவிமடுப்போம் · சிந்திப்போம்','කියවන්න · සවන් දෙන්න · සිතා බලන්න'],
-title:['The Qur’an,<br>closer to heart.','அல்குர்ஆன்,<br>மனதிற்கு நெருக்கமாக.','අල් කුර්ආනය,<br>හදවතට සමීපව.'],
+title:['The Qur’an, closer to heart.','அல்குர்ஆன், மனதிற்கு நெருக்கமாக.','අල් කුර්ආනය, හදවතට සමීපව.'],
 intro:['Arabic text, named translations and recitation — at your own pace.','அரபு மூலப் பாடம், பெயரிடப்பட்ட மொழிபெயர்ப்பு, ஓதல் — உங்கள் வேகத்தில்.','අරාබි පාඨය, නම් සඳහන් පරිවර්තන සහ පාරායනය — ඔබේ වේගයෙන්.'],
 reader:['Qur’an reader','அல்குர்ஆன் வாசிப்பு','අල් කුර්ආන් කියවීම'],
 surah:['Surah','ஸூரா','සූරාව'],translation:['Translation','மொழிபெயர்ப்பு','පරිවර්තනය'],reciter:['Reciter','ஓதுபவர்','පාරායනය කරන්නා'],

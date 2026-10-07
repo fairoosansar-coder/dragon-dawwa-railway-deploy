@@ -246,3 +246,29 @@
 .quran-page #verses .verse-more-items{position:absolute;top:calc(100% + 6px);right:0;min-width:168px;display:grid;gap:2px;padding:6px;border:1px solid #c9b98e;border-radius:7px;background:#fffdf6;box-shadow:0 15px 30px #1c35232c}
 .quran-page #verses .verse-more-items a,.quran-page #verses .verse-more-items button{width:100%;display:flex;justify-content:flex-start;text-align:left;font-size:12px;padding:9px 10px;white-space:normal}
 @media(max-width:650px){.quran-page #verses .verse-more summary{min-height:31px;font-size:10px;padding:5px 7px}.quran-page #verses .verse-more-items{left:auto;right:0}}
+
+/* Original image-only illumination replaces the misaligned banner lettering; live copy stays accessible below it. */
+.quran-page:not(.quran-study-page) .quran-intro{display:block;min-height:0;margin:25px 0 22px;padding:0;overflow:visible;border:0;border-radius:0;background:none;box-shadow:none;color:var(--mushaf-ink)}
+.quran-page:not(.quran-study-page) .quran-intro::before,.quran-page:not(.quran-study-page) .quran-intro::after{content:none}
+.quran-banner-art{display:block;overflow:hidden;border:1px solid #b69a62;border-radius:13px;background:#11362c;box-shadow:0 15px 39px #0c30232b}
+.quran-banner-art img{display:block;width:100%;height:clamp(245px,27vw,330px);object-fit:cover;object-position:center}
+.quran-banner-caption{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:20px 2px 18px;border-bottom:1px solid #d7c8a7}
+.quran-page:not(.quran-study-page) .quran-intro-copy{flex:1;min-width:0}
+.quran-page:not(.quran-study-page) .quran-intro .eyebrow{margin:0 0 7px;color:#816534;font-size:10px;letter-spacing:.18em}
+.quran-page:not(.quran-study-page) .quran-intro h1{max-width:none;margin:0 0 5px;font:500 clamp(34px,3.7vw,48px)/1.13 var(--serif,Georgia,serif);letter-spacing:-.025em;color:#15392e}
+.quran-page:not(.quran-study-page) .quran-intro .lead{max-width:700px;margin:0;color:#526451;font-size:13px;line-height:1.55}
+.quran-page:not(.quran-study-page) .quran-hero-actions{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin:0}
+.quran-page:not(.quran-study-page) .quran-hero-primary{min-height:46px;padding:12px 18px;background:#164535;color:#fff9e9!important;box-shadow:0 5px 12px #123b2c24}
+.quran-page:not(.quran-study-page) .quran-hero-primary:hover{background:#0e3829;box-shadow:0 8px 18px #123b2c31}
+.quran-page:not(.quran-study-page) .quran-hero-caption{color:#866d40;font-size:9px}
+.quran-page.lang-ta:not(.quran-study-page) .quran-intro h1,.quran-page.lang-si:not(.quran-study-page) .quran-intro h1{font-family:var(--sans,system-ui,sans-serif);font-size:clamp(26px,3vw,38px);line-height:1.42;letter-spacing:0}
+@media(max-width:650px){
+  .quran-page:not(.quran-study-page) .quran-intro{margin:14px 0 18px;padding:0}
+  .quran-banner-art{border-radius:10px}
+  .quran-banner-art img{height:clamp(190px,58vw,252px);object-position:center 48%}
+  .quran-banner-caption{align-items:flex-start;flex-direction:column;gap:13px;padding:17px 2px 14px}
+  .quran-page:not(.quran-study-page) .quran-intro h1{font-size:clamp(31px,8vw,38px);line-height:1.17}
+  .quran-page.lang-ta:not(.quran-study-page) .quran-intro h1,.quran-page.lang-si:not(.quran-study-page) .quran-intro h1{font-size:clamp(25px,6.7vw,32px);line-height:1.46}
+  .quran-page:not(.quran-study-page) .quran-hero-actions{width:100%;flex-direction:row;align-items:center;justify-content:space-between;gap:9px}
+  .quran-page:not(.quran-study-page) .quran-hero-caption{white-space:nowrap;font-size:8px}
+}

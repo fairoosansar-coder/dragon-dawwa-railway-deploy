@@ -28,6 +28,7 @@ try {
     if (['/quran.js','/quran-copy.js','/shared-nav.js'].includes(url.pathname)) return route.fulfill({status:200,contentType:'text/javascript',body:await file(url.pathname.slice(1))});
     if (url.pathname.endsWith('.css') && url.hostname === 'dragondawwa.org') return route.fulfill({status:200,contentType:'text/css',body:await file(url.pathname.slice(1))});
     if (url.pathname === '/assets/mark.svg') return route.fulfill({status:200,contentType:'image/svg+xml',body:await file('assets/mark.svg')});
+    if (/^\/assets\/quran-banner-illumination-(wide|mobile)\.webp$/.test(url.pathname)) return route.fulfill({status:200,contentType:'image/webp',body:await file(url.pathname.slice(1))});
     if (url.pathname === '/api/member/me') return memberMode === 'guest'
       ? route.fulfill({status:401,contentType:'application/json',body:'{"error":"sign_in_required"}'})
       : route.fulfill({status:200,contentType:'application/json',body:'{"registered":false,"place":null,"saves":[]}'});
@@ -57,6 +58,14 @@ try {
   });
   await page.goto('https://dragondawwa.org/quran',{waitUntil:'domcontentloaded'});
   await page.locator('#ayah-1-1').waitFor({state:'visible'});
+  assert.equal(await page.locator('.quran-banner-art').innerText(),'','generated banner artwork must contain no HTML lettering');
+  assert.equal(await page.locator('.quran-banner-art img').getAttribute('alt'),'','decorative artwork must not replace the accessible page title');
+  assert.equal(await page.locator('.quran-banner-caption h1').count(),1);
+  assert.equal(await page.locator('.quran-banner-caption h1 br').count(),0,'hero heading must wrap naturally outside the image');
+  assert.equal(await page.locator('.quran-banner-caption .quran-hero-primary').getAttribute('href'),'#mushaf-page');
+  await page.waitForFunction(()=>document.querySelector('.quran-banner-art img')?.naturalWidth > 0);
+  await page.locator('.quran-banner-art img').evaluate(image=>image.decode());
+  assert.match(await page.locator('.quran-banner-art img').evaluate(img=>img.currentSrc),/quran-banner-illumination-mobile\.webp$/);
   assert.equal(await page.locator('#ayah-1-1 .verse-arabic').innerText(),'بِسْمِ ٱللَّهِ');
   assert.match(await page.locator('#chapter-meta').innerText(),/MUSHAF PAGE 1.*JUZ 1.*HIZB 1/i);
   assert.match(await page.locator('#ayah-1-1 .translation-credit').innerText(),/Named translator.*Quran Foundation/);
@@ -169,8 +178,11 @@ try {
     memberMode = 'guest';
     await page.goto('https://dragondawwa.org/quran',{waitUntil:'domcontentloaded'});
     await page.locator('#ayah-1-1').waitFor({state:'visible'});
+    await page.locator('.quran-banner-art img').evaluate(image=>image.decode());
     await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-mobile.png'});
     await page.setViewportSize({width:1440,height:950});
+    await page.waitForFunction(()=>document.querySelector('.quran-banner-art img')?.currentSrc.endsWith('quran-banner-illumination-wide.webp') && document.querySelector('.quran-banner-art img')?.naturalWidth > 0);
+    await page.locator('.quran-banner-art img').evaluate(image=>image.decode());
     await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-desktop.png'});
     await page.locator('#ayah-1-1').scrollIntoViewIfNeeded();
     await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-reading-desktop.png'});
@@ -180,6 +192,7 @@ try {
   }
   for (const locale of ['ta','si']) {
     await page.locator('#quran-language').selectOption(locale);
+    assert.equal(await page.locator('.quran-banner-caption h1 br').count(),0,locale+' hero must not force a line break');
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth + 1),true,locale+' reader must not overflow its phone viewport');
     if (process.env.DD_QURAN_VISUAL_DIR) {
       await page.evaluate(()=>scrollTo(0,0));
