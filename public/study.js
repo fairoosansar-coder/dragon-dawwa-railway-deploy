@@ -223,7 +223,11 @@
 
   function pauseOtherAudio() {
     document.querySelectorAll('audio').forEach(item => { if (item !== audio) { try { item.pause(); } catch {} } });
+    if (typeof document.dispatchEvent === 'function' && typeof CustomEvent === 'function')
+      document.dispatchEvent(new CustomEvent('dd:audio-start',{detail:{source:'study',audio}}));
   }
+  if (typeof document.addEventListener === 'function')
+    document.addEventListener('dd:audio-start',event=>{ if(event.detail?.source!=='study') { try { audio.pause(); } catch {} } });
 
   $('narrate-button').addEventListener('click', async () => {
     if (!responseId) return;

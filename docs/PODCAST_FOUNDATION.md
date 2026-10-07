@@ -1,6 +1,6 @@
 # Dragon Dawwa — automated podcast pipeline foundation
 
-**State:** implemented in source as a **disabled foundation** on 7 October 2026. It is not connected to a Hadith report, a worker, private object storage, ElevenLabs generation, staff asset import, or a member-facing player. No provider audio was generated and no credits were spent. The current podcast migration is intentionally held outside the executable migration ledger until the prerequisite Hadith implementation owns `008_hadith.sql`.
+**State:** implemented in source as a **disabled foundation** on 7 October 2026. A staged reviewer-authored `008_hadith.sql`, private staff report form, fixture-only member player and non-operative staff production board now exist, but they are not deployed or enabled. Nothing is connected to private object storage, ElevenLabs generation, staff asset import, a human recitation, or a real member episode. No provider audio was generated and no credits were spent. Both 008 and 009 remain outside the executable migration ledger pending the Phase 1 backed-up operator path.
 
 ## Non-negotiable activation gates
 
@@ -14,9 +14,9 @@
 
 Neither mode is enabled in `.env.example`, and no key name/value is added there.
 
-## Upstream contract required from Hadith Research Agents
+## Upstream contract provided by Phase 2a
 
-The supplied Hadith Research Agents brief specifies the contract; its feature is not yet implemented in this source tree. The future integration must implement `getApprovedRevision({reportRevisionId})` and return exactly:
+The supplied Hadith Research Agents brief specifies the contract. Phase 2a now provides a staged, human-only `createHadithReportAdapter({db})` implementation that returns exactly:
 
 ```js
 {
@@ -72,13 +72,13 @@ The brief itself prohibits spending before the owner approves a measured cost. T
 
 - ElevenLabs documentation currently confirms `/v1/text-to-speech/{voice_id}`, `/v1/music`, `/v1/sound-generation`, `/v1/speech-to-text` and `GET /v1/models` request contracts.
 - Safe read-only workspace checks found `eleven_v4` with Tamil and English listed, and the six stated Tamil IDs plus English Sarah available. No music, sound or transcription request was made.
-- The Hadith brief is now supplied and its adapter shape is implemented, but its phase-two reference library, qualified-reviewer attestation, report workflow and background worker are absent.
+- Phase 2a stages qualified-reviewer attestation, immutable human-authored report/claim records, an exact approved-revision adapter and a disabled staff report surface. The licensed reference library and six research agents remain Phase 2b and are not implemented.
 - The current repository Docker base has no approved separate ffmpeg-6 worker image. The mix module refuses an older runtime.
 
 ## What must happen next
 
-1. Implement the supplied Hadith Research Agents feature first: licensed separate reference library, `008_hadith.sql`, qualified-reviewer attestation, report/claim/review APIs and its one-at-a-time worker.
-2. Approve one private object-store option and narrow credentials; then implement its adapter and authenticated episode endpoint.
+1. Close Phase 1 backup-alert/freshness gates, then use the existing backed-up operator path to apply staged 008 before moving staged 009 into the executable migration ledger.
+2. Create the approved private R2 bucket and narrow credentials at the authorized storage milestone; then implement its adapter and authenticated episode endpoint.
 3. Import/approve the existing canvas asset pack and human recitation(s) as private assets.
 4. Build and validate the isolated ffmpeg 6+ one-at-a-time worker.
-5. Approve one bounded Bukhari 6306 Tamil cost-measurement run; then report observed provider credits/cost and cache behavior before deciding production enablement.
+5. Approve one bounded Bukhari 6306 Tamil cost-measurement run only after all human, storage and script gates are green; then report observed provider credits/cost and cache behavior before deciding production enablement.

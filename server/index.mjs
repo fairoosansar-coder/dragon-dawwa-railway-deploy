@@ -14,6 +14,7 @@ import { manageResponse, validateSafeSetting } from './manage.mjs';
 import { studyResponse, configUsageLimits } from './study.mjs';
 import { GEMINI_LIMITS } from './gemini-study.mjs';
 import { podcastAdminResponse } from './podcast/api.mjs';
+import { hadithResponse } from './hadith.mjs';
 import { publicReadingAllowed, publicReadEnabled } from './public-read.mjs';
 import { quranResponse } from '../lib/quran.mjs';
 import { editorialResponse } from '../lib/editorial.mjs';
@@ -41,7 +42,10 @@ const pages = new Map([
   ['/learn', 'library.html'], ['/library', 'library.html'], ['/library.html', 'library.html'],
   ['/resources', 'resources.html'], ['/resources.html', 'resources.html'],
   ['/member', 'member.html'], ['/member.html', 'member.html'],
+  ['/podcasts', 'podcasts.html'], ['/podcasts.html', 'podcasts.html'],
   ['/staff', 'staff.html'], ['/staff.html', 'staff.html'],
+  ['/hadith-reports', 'hadith-reports.html'], ['/hadith-reports.html', 'hadith-reports.html'],
+  ['/podcast-production', 'podcast-production.html'], ['/podcast-production.html', 'podcast-production.html'],
   ['/admin', 'admin.html'], ['/admin.html', 'admin.html'],
   ['/operations', 'operations.html'], ['/operations.html', 'operations.html'],
   ['/mosque', 'mosque.html'], ['/mosque.html', 'mosque.html'],
@@ -251,7 +255,7 @@ export async function handle(req) {
   }
   const visitorIdentity = visitorRead ? anonymousRateIdentity(req, process.env) : null;
   const actor = visitorRead ? { id: visitorIdentity.id, role: 'visitor', name: '' } : verifiedActor;
-  if (['/admin', '/admin.html', '/operations', '/operations.html', '/staff', '/staff.html'].includes(pathname) && actor.role === 'reader')
+  if (['/admin', '/admin.html', '/operations', '/operations.html', '/staff', '/staff.html', '/hadith-reports', '/hadith-reports.html', '/podcast-production', '/podcast-production.html'].includes(pathname) && actor.role === 'reader')
     return simple('Staff access only', 403);
   if (pathname.startsWith('/api/')) {
     const limit = pathname === '/api/participation' || pathname === '/api/corrections' ? 8 : visitorRead && !visitorIdentity.seeded ? 24 : 120;
@@ -280,6 +284,8 @@ export async function handle(req) {
     if (pathname.startsWith('/api/member/') || pathname === '/api/admin/members' || pathname === '/api/admin/member-audit')
       return memberResponse(request, { ...process.env, DB: database() }, actor);
     if (pathname === '/api/admin/podcast/availability') return podcastAdminResponse(request, process.env, actor);
+    if (pathname === '/api/admin/hadith-reports' || pathname.startsWith('/api/admin/hadith-reports/') || pathname === '/api/admin/hadith-reviewers')
+      return hadithResponse(request, {...process.env, DB: database()}, actor);
     if (pathname === '/api/resources' || pathname === '/api/mosques' || pathname === '/api/mosque-overlays' ||
         pathname === '/api/admin/dashboard' || pathname === '/api/admin/audit' ||
         pathname === '/api/admin/resources' || pathname.startsWith('/api/admin/resources/') ||
@@ -309,6 +315,7 @@ export async function handle(req) {
   }
   if (!['GET', 'HEAD'].includes(req.method)) return simple('Method not allowed', 405);
   let filename = pages.get(pathname);
+  if (!filename && /^\/podcasts\/[A-Za-z0-9][A-Za-z0-9_-]{0,95}$/.test(pathname)) filename = 'podcasts.html';
   if (/^\/library\/[a-zA-Z0-9-]{1,64}$/.test(pathname)) filename = 'library.html';
   if (/^\/mosques\/[a-zA-Z0-9-]{1,64}$/.test(pathname)) filename = 'mosques.html';
   if (/^\/events\/[a-zA-Z0-9-]{1,64}$/.test(pathname)) filename = 'events.html';

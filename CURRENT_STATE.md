@@ -44,3 +44,11 @@ Hosted site `https://dragon-dawwa.feroz1890.chatgpt.site` returned 401 on 5 Octo
 ## Editorial migration, if authorized later
 
 Export D1 or review MySQL separately, encrypted, with owner approval. Do not place that dump inside this source archive. Restore only into the new review database after a snapshot. Startup in this tree verifies schema; it should not silently migrate production.
+
+
+## 7 October 2026 staged Phase 2a addendum
+
+- Source now includes disabled, pending-only `008_hadith.sql` for human-authored immutable reports, checked claims and owner-granted reviewer attestations; no reference corpus or AI research agent is included.
+- `009_podcast_foundation.sql` remains parked behind 008 and now reserves metadata-only transcript timing, chapters and per-member resume progress for a future private player.
+- Private staff/member podcast and report UI surfaces are fixture-only and non-operative. There is no applied Railway DDL, R2 bucket, asset import, human recitation, ElevenLabs request, real Hadith report or published episode.
+- Phase 1 release gates remain the operational priority; the staged sources must not be treated as a deployed Phase 2 feature.

@@ -118,16 +118,21 @@ test('pending podcast migration creates metadata-only durable tables in an isola
   const sql = new DatabaseSync(':memory:');
   try {
     sql.exec('PRAGMA foreign_keys=ON');
-    for (const name of ['001_core.sql', '003_members.sql', 'pending/009_podcast_foundation.sql']) {
+    for (const name of ['001_core.sql', '003_members.sql', 'pending/008_hadith.sql', 'pending/009_podcast_foundation.sql']) {
       const source = fs.readFileSync(new URL(`../migrations/${name}`, import.meta.url), 'utf8')
         .split('\n').filter(line => !line.trimStart().startsWith('--')).join('\n');
       sql.exec(source);
     }
     const tables = sql.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'podcast_%' ORDER BY name").all().map(row => row.name);
-    assert.deepEqual(tables, ['podcast_assets', 'podcast_episodes', 'podcast_jobs', 'podcast_line_cache', 'podcast_runtime_locks', 'podcast_usage_daily', 'podcast_voices']);
+    assert.deepEqual(tables, ['podcast_assets', 'podcast_episode_chapters', 'podcast_episodes', 'podcast_jobs', 'podcast_line_cache', 'podcast_member_progress', 'podcast_runtime_locks', 'podcast_transcript_claim_links', 'podcast_transcript_lines', 'podcast_usage_daily', 'podcast_voices']);
     const episodeColumns = sql.prepare('PRAGMA table_info(podcast_episodes)').all().map(row => row.name);
     assert.equal(episodeColumns.includes('final_storage_key'), true);
     assert.equal(episodeColumns.includes('audio_bytes'), false);
+    const transcriptColumns = sql.prepare('PRAGMA table_info(podcast_transcript_lines)').all().map(row => row.name);
+    assert.equal(transcriptColumns.includes('start_seconds'), true);
+    assert.equal(transcriptColumns.includes('end_seconds'), true);
+    assert.equal(transcriptColumns.includes('claim_ids_json'), false);
+    assert.equal(sql.prepare('PRAGMA table_info(podcast_transcript_claim_links)').all().some(row => row.name === 'claim_id'), true);
   } finally { sql.close(); }
 });
 
@@ -142,7 +147,9 @@ test('podcast usage reserves a global daily cap before a call and records conten
     return statement;
   }};
   try {
-    for (const name of ['001_core.sql', '003_members.sql', 'pending/009_podcast_foundation.sql']) sql.exec(fs.readFileSync(new URL(`../migrations/${name}`, import.meta.url), 'utf8').split('\n').filter(line => !line.trimStart().startsWith('--')).join('\n'));
+    for (const name of ['001_core.sql', '003_members.sql', 'pending/008_hadith.sql', 'pending/009_podcast_foundation.sql']) sql.exec(fs.readFileSync(new URL(`../migrations/${name}`, import.meta.url), 'utf8').split('\n').filter(line => !line.trimStart().startsWith('--')).join('\n'));
+    sql.prepare('INSERT INTO hadith_reports (id,report_key,revision_number,supersedes_report_id,title,hadith_reference,language,content_digest,status,created_by,created_at,qualified_reviewer_id,reviewer_attestation_id,reviewer_stated_basis,approved_at,withdrawn_by,withdrawn_at,withdrawal_note) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+      .run('report-revision-6306', 'fixture-report', 1, null, 'Synthetic fixture report', 'Synthetic reference', 'ta', 'c'.repeat(64), 'approved', 'owner', '2030-01-01T00:00:00.000Z', 'reviewer', null, null, '2030-01-01T00:00:00.000Z', null, null, null);
     sql.prepare('INSERT INTO podcast_episodes (id,report_revision_id,language,title,script_json,script_hash,status,recitation_status,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
       .run('bukhari-6306-ta', 'report-revision-6306', 'ta', 'Synthetic fixture', '{}', 'a'.repeat(64), 'script_approved', 'ready', 'owner', '2030-01-01T00:00:00.000Z', '2030-01-01T00:00:00.000Z');
     const reservation = await reservePodcastCredits(db, {dailyCreditCap: 20, operation: 'tts', characterCount: 100, estimatedCredits: 12, date: '2030-01-01'});

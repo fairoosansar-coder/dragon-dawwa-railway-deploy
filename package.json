@@ -11,7 +11,7 @@
     "build": "node scripts/run-framework.mjs build",
     "start": "node server/index.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "test:unit": "node --test scripts/check-editorial.mjs scripts/check-community.mjs scripts/check-members.mjs scripts/check-auth-revocation.mjs scripts/check-google-https-auth.mjs scripts/check-tailnet-auth.mjs scripts/check-local-db-config.mjs scripts/check-railway-db-config.mjs scripts/check-railway-runtime.mjs scripts/check-public-read.mjs scripts/check-public-launch.mjs scripts/check-quran.mjs scripts/check-quran-ui.mjs scripts/check-manage.mjs scripts/check-study.mjs scripts/check-study-ui.mjs scripts/check-podcast.mjs",
+    "test:unit": "node --test scripts/check-editorial.mjs scripts/check-community.mjs scripts/check-members.mjs scripts/check-auth-revocation.mjs scripts/check-google-https-auth.mjs scripts/check-tailnet-auth.mjs scripts/check-local-db-config.mjs scripts/check-railway-db-config.mjs scripts/check-railway-runtime.mjs scripts/check-public-read.mjs scripts/check-public-launch.mjs scripts/check-quran.mjs scripts/check-quran-ui.mjs scripts/check-manage.mjs scripts/check-study.mjs scripts/check-study-ui.mjs scripts/check-hadith-phase2a.mjs scripts/check-podcast-ui.mjs scripts/check-podcast.mjs",
     "check:source": "node scripts/check-research.mjs && node scripts/check-resources.mjs && node scripts/check-staff-ui.mjs && node scripts/check-offhost-backup.mjs && node scripts/check-railway-r2-backup.mjs",
     "check:all": "pnpm lint && pnpm exec tsc --noEmit --incremental false && pnpm test:unit && pnpm check:source && pnpm build",
     "db:generate": "drizzle-kit generate"

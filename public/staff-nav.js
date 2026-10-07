@@ -13,6 +13,8 @@
     {key:'inbox', label:'Inbox', href:'/operations#inbox-section', roles:new Set(['owner'])},
     {key:'audit', label:'Audit History', href:'/staff#audit', roles:staffRoles},
     {key:'study', label:'Study / audio', href:'/staff#study-ops', roles:new Set(['owner'])},
+    {key:'hadith', label:'Hadith reports', href:'/hadith-reports', roles:new Set(['owner','author','reviewer'])},
+    {key:'podcasts', label:'Podcast production', href:'/podcast-production', roles:new Set(['owner','reviewer','publisher'])},
     {key:'settings', label:'Settings', href:'/staff#settings', roles:staffRoles},
   ];
 

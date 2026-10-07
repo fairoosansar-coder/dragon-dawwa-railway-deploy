@@ -10,7 +10,7 @@ const [staffHtml, staffJs, staffNav, staffCss, adminHtml, adminJs, opsHtml, opsJ
   read('public/admin.html'), read('public/admin.js'), read('public/operations.html'), read('public/operations.js'),
 ]);
 
-for (const required of ['Dashboard', 'Content', 'Reviews', 'Events', 'Mosques', 'Members', 'Team', 'Inbox', 'Audit History', 'Settings']) {
+for (const required of ['Dashboard', 'Content', 'Reviews', 'Events', 'Mosques', 'Members', 'Team', 'Inbox', 'Audit History', 'Hadith reports', 'Podcast production', 'Settings']) {
   assert.match(staffHtml, new RegExp(`>${required}<`), `staff hub must expose ${required}`);
   assert.match(staffNav, new RegExp(`label:'${required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`), `shared nav must include ${required}`);
 }

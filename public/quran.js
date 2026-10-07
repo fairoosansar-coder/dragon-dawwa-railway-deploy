@@ -147,7 +147,11 @@
   function exclusiveAudio(audio) {
     document.querySelectorAll('audio').forEach(other => { if (other !== audio) other.pause(); });
     activeAudio = audio;
+    if (typeof document.dispatchEvent === 'function' && typeof CustomEvent === 'function')
+      document.dispatchEvent(new CustomEvent('dd:audio-start',{detail:{source:'quran',audio}}));
   }
+  if (typeof document.addEventListener === 'function')
+    document.addEventListener('dd:audio-start',event=>{ if(event.detail?.source!=='quran') stopAllAudio(); });
   async function api(path) {
     const response = await fetch('/api/quran/' + path, { credentials: 'same-origin' });
     const data = await response.json();
