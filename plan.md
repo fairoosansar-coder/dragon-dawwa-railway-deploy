@@ -165,3 +165,11 @@ Phase 1 remains the deployment priority. Until the backup alert/freshness gate a
 - **Freshness path:** an enabled 30-minute Manus Trigger now performs two bounded, operationally read-only Cloudflare R2 metadata-list calls for the current and previous UTC backup prefixes. It alerts on missing, stale (>26 hours), malformed, or unreadable snapshots and sends one recovery message after a condition clears. A real dry run succeeded without firing.
 - **Credential boundary:** the owner accepted use of the existing Cloudflare connector for GET-only reads. This does not claim cryptographic bucket-level credential isolation; the code contains no credential and cannot mutate R2.
 - **Gate remains closed:** observe one natural monitor execution without error and obtain an explicit owner decision before configuring Railway's `02:15 UTC` daily backup cron.
+
+
+### 7 October — daily cron activation after Gate 1
+
+- The first natural R2 freshness-monitor execution was healthy and silent at 20:00 UTC. It satisfied the owner's explicit condition for activating the daily worker.
+- Railway production backup service now has **`15 2 * * *`**, read back by Railway as **At 02:15 (UTC)**. The settings deployment returned the service to Ready. No retention/lifecycle setting was enabled or changed.
+- A one-time verification task will run at 02:40 UTC after the first scheduled 02:15 run and the 02:30 monitor tick. It must independently confirm the worker's byte-verification log, a new R2 object with valid metadata, and a silent healthy monitor; it must make no configuration changes.
+- When that evidence passes, the next remaining phase-one gate is second-user physical-phone acceptance.

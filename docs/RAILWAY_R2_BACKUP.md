@@ -78,3 +78,10 @@ It supplies fake Node and AWS executables through `DD_NODE_BIN` and `DD_AWS_BIN`
 The failure-notification endpoint was sealed on the private Railway backup worker and proven with a controlled pre-export failure. The temporary test override was removed; the following ordinary worker deployment uploaded and byte-verified a new encrypted object.
 
 A separate [30-minute R2 freshness monitor](./BACKUP_FRESHNESS_MONITOR.md) is now enabled and its real read-only dry run succeeded. It uses no backup credentials in code, never changes R2 or Railway, and retains the daily-cron safety gate. **Do not configure `15 2 * * *` UTC until one natural monitor run is observed without error and the owner separately directs cron activation.**
+
+
+## 7 October 2026 — daily cron activation
+
+The first natural R2 freshness-monitor execution completed at `2026-10-07T20:00:18Z` without an error or alert payload. Under the owner's pre-authorized condition, Railway production service `dragon-dawwa-r2-backup` was then configured with **`15 2 * * *`**, which Railway read back as **At 02:15 (UTC)**. The settings deployment completed and the service returned to Ready.
+
+Retention/lifecycle deletion remains disabled. A one-time verification after the first scheduled run is recorded in [daily backup cron activation](./DAILY_BACKUP_CRON_ACTIVATION_2026-10-07.md); it must confirm Railway's byte-verification log, a new R2 snapshot, and a silent healthy monitor before this control is considered fully proven.

@@ -136,3 +136,11 @@
 - [x] **Enable independent freshness detection:** the ready 30-minute Manus monitor performs two bounded, operationally read-only R2 metadata lists and alerts on missing, stale (>26h), malformed, or unreadable backups; real dry run passed without firing.
 - [ ] **Observe one natural freshness-monitor execution:** inspect the first scheduled run before any Railway daily cron decision.
 - [ ] **Owner decision — daily backup cron:** keep Railway `02:15 UTC` cron disabled until the natural monitor run is clean and the owner explicitly directs activation.
+
+
+## 7 October — daily backup cron activated under Gate 1
+
+- [x] **Observe a natural freshness check:** the 20:00 UTC execution completed without error or alert payload, satisfying the owner-approved prerequisite.
+- [x] **Activate Railway daily backup cron:** production backup worker now uses `15 2 * * *`; Railway read it back as **At 02:15 (UTC)** and the settings deployment returned the service to Ready.
+- [ ] **Verify first natural daily run:** a one-time 02:40 UTC check must prove byte-verification in Railway logs, a new valid R2 snapshot, and a silent healthy 02:30 monitor execution. Retention/lifecycle deletion remains off.
+- [ ] **Second-user physical-phone acceptance:** begin immediately after first-run verification; requires a separate consenting user and their physical phone, not an emulated browser.

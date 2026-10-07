@@ -44,3 +44,10 @@ If stricter credential isolation becomes mandatory, replace this monitor with a 
 ## Remaining Gate 1 decision
 
 Observe at least one natural scheduled execution without error, then obtain an explicit owner decision before configuring Railway's daily `02:15 UTC` cron. The failure notifier and freshness monitor do not authorize retention deletion, migration execution, podcast activation, or public media delivery.
+
+
+## First natural execution
+
+The monitor's first natural scheduled execution started at **2026-10-07T20:00:04Z** and completed at **20:00:18Z**. It had no failed stage, error code, or error message; `not_pass` means it returned no alert payload, which is the intended silent result for a fresh valid snapshot. This passed the owner-defined prerequisite for enabling the Railway daily cron.
+
+The next use of this monitor as evidence is the scheduled check after the first daily `02:15 UTC` backup run. It must stay silent while the scheduled-worker log and R2 metadata independently demonstrate a new byte-verified encrypted snapshot.
