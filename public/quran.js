@@ -94,7 +94,7 @@
     $('reader-status').textContent = key ? t(key) : '';
   }
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  function setLanguage() {
+  function setLanguage(resetTranslation = false) {
     document.documentElement.lang = language; document.body.classList.remove('lang-en','lang-ta','lang-si'); document.body.classList.add('lang-' + language);
     $('quran-language').value = language;
     document.querySelectorAll('[data-q]').forEach(el => { el.innerHTML = t(el.dataset.q); });
@@ -102,11 +102,11 @@
     $('quran-language').setAttribute('aria-label', {en:'Choose language',ta:'மொழியைத் தேர்ந்தெடுக்கவும்',si:'භාෂාව තෝරන්න'}[language]);
     setStatus(statusKey);
     $('place-sync-status').textContent = placeStatusKey ? t(placeStatusKey) : '';
-    if (catalogue) { fillChoices(true); notices(); if (result) { stopAllAudio(); render(); } }
+    if (catalogue) { fillChoices(!resetTranslation, true); notices(); if (result && !resetTranslation) { stopAllAudio(); render(); } }
     applyPreferences();
   }
   function option(id, name) { return '<option value="' + escape(id) + '">' + escape(name) + '</option>'; }
-  function fillChoices(preserve) {
+  function fillChoices(preserveTranslation, preserveReciter = preserveTranslation) {
     const translation = $('translation-select').value, reciter = $('reciter-select').value;
     $('surah-select').innerHTML = catalogue.chapters.map(c => option(c.id, c.id + '. ' + c.name + ' · ' + c.arabic)).join('');
     $('surah-select').value = String(chapter);
@@ -114,11 +114,11 @@
     $('reciter-select').innerHTML = option('', t('noAudio')) + catalogue.recitations.map(x => option(x.id, x.name + (x.style ? ' · ' + x.style : ''))).join('');
     const names = {en:['english'],ta:['tamil'],si:['sinhala','sinhalese']}[language];
     const preferred = catalogue.translations.find(x => names.includes(x.language.toLowerCase())) || catalogue.translations.find(x => x.language.toLowerCase() === 'english');
-    $('translation-select').value = preserve ? translation : String(preferred?.id || '');
-    $('reciter-select').value = preserve ? reciter : String(catalogue.recitations.find(x => x.id === 7)?.id || catalogue.recitations[0]?.id || '');
+    $('translation-select').value = preserveTranslation ? translation : String(preferred?.id || '');
+    $('reciter-select').value = preserveReciter ? reciter : String(catalogue.recitations.find(x => x.id === 7)?.id || catalogue.recitations[0]?.id || '');
     const fullReciter = $('chapter-reciter-select').value;
     $('chapter-reciter-select').innerHTML = (catalogue.chapterReciters || []).map(x => option(x.id, x.name + (x.style ? ' · ' + x.style : ''))).join('');
-    $('chapter-reciter-select').value = preserve && (catalogue.chapterReciters || []).some(x => String(x.id) === fullReciter) ? fullReciter : String(catalogue.chapterReciters?.[0]?.id || '');
+    $('chapter-reciter-select').value = preserveReciter && (catalogue.chapterReciters || []).some(x => String(x.id) === fullReciter) ? fullReciter : String(catalogue.chapterReciters?.[0]?.id || '');
     for (const id of ['surah-select','translation-select','reciter-select']) $(id).disabled = false;
     $('chapter-listen').disabled = !(catalogue.chapterReciters || []).length;
     $('chapter-availability').hidden = !$('chapter-listen').disabled;
@@ -459,7 +459,11 @@
   $('chapter-audio').addEventListener('play',()=>exclusiveAudio($('chapter-audio')));
   $('word-audio').addEventListener('play',()=>exclusiveAudio($('word-audio')));
   $('chapter-audio').addEventListener('error',()=>{ $('chapter-audio-status').textContent = t('chapterAudioUnavailable'); });
-  $('quran-language').addEventListener('change',e=>{language=e.target.value;write('dd-language',language);setLanguage();});
+  $('quran-language').addEventListener('change',e=>{
+    const languageChanged = language !== e.target.value;
+    language=e.target.value; write('dd-language',language); setLanguage(languageChanged);
+    if (catalogue && languageChanged) load();
+  });
   $('surah-select').addEventListener('change',e=>{
     chapter=Number(e.target.value);page=1;chapterInfoRequest++;$('chapter-info').open=false;stopChapterAudio();load();
   });

@@ -68,6 +68,14 @@ test('Reader loading status follows language changes while a request is pending'
   assert.equal(ui.el('reader-status').textContent, ui.copy.loading[2]);
 });
 
+test('Changing the interface language replaces a prior translation with the matching provider language', () => {
+  const controller = source('quran.js');
+  assert.match(controller, /function fillChoices\(preserveTranslation, preserveReciter = preserveTranslation\)/);
+  assert.match(controller, /fillChoices\(!resetTranslation, true\)/);
+  assert.match(controller, /const languageChanged = language !== e\.target\.value;/);
+  assert.match(controller, /if \(catalogue && languageChanged\) load\(\);/);
+});
+
 for (const [code, key] of [['not_configured', 'notConfigured'], ['access_pending', 'access'], ['rate_limited', 'rate']]) {
   test(`${code} remains localized after failure and retry`, async () => {
     const ui = reader(async () => ({ ok: false, json: async () => ({ error: code }) }));

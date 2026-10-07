@@ -124,3 +124,8 @@ Google's API Services User Data Policy requires an accessible published privacy 
 ### 6 October — owner-login startup without a half-configured Quran client
 
 The approved apex now has a valid Railway certificate, but the app fails startup because a distinct Quran Foundation production client has not been issued. Allow Google-mode startup only if **both** Quran client fields are absent, while preserving every project/environment/OIDC/session/database/independent-key gate and requiring `QURAN_ENVIRONMENT=production`. A half-provisioned client must still fail startup. Existing `lib/quran.mjs` returns `503 not_configured` to an invited caller without provider credentials; an anonymous caller remains blocked at the router before Quran access. Do not copy Manus Preview credentials, substitute religious text, turn on public reading, or claim Quran/audio acceptance. This narrowly permits owner identity discovery and exact-ID bootstrap; full private product release still requires dedicated production Quran credentials and live recitation/reader verification.
+
+
+### 7 October 2026 — Quran reader interface and named translation alignment
+
+The interface-language selector must change the reader’s **named Quran Foundation translation** as well as its labels. Switching to Tamil selects the first available Quran Foundation Tamil resource and reloads the current chapter; it preserves the selected reciter. Switching to Sinhala must not substitute English content or invent a translation: the existing unavailable-language state remains visible when the provider catalogue has no Sinhala translation. A manual translation choice remains available through the translation selector until the reader interface language changes again.
