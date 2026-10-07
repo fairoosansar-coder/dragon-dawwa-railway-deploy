@@ -442,7 +442,7 @@
   .quran-page .reading-flow .flow-attribution{margin-bottom:12px;font-size:10px}
   .quran-page .reading-flow .flow-arabic{
     font-size:var(--quran-phone-flow-size,34px);
-    line-height:2.05;word-spacing:0;
+    line-height:1.82;word-spacing:0;
   }
   .quran-page #verses .verse-arabic{
     font-size:var(--quran-phone-verse-size,37px);

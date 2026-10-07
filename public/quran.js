@@ -56,8 +56,8 @@
     document.body.dataset.readerMode = viewMode;
     document.body.dataset.arabicScript = arabicScript;
     $('mushaf-page').style.setProperty('--quran-arabic-size', fontSize + 'px');
-    $('mushaf-page').style.setProperty('--quran-phone-flow-size', phoneArabicSize(fontSize,26,34,50).toFixed(2) + 'px');
-    $('mushaf-page').style.setProperty('--quran-phone-verse-size', phoneArabicSize(fontSize,28,37,54).toFixed(2) + 'px');
+    $('mushaf-page').style.setProperty('--quran-phone-flow-size', phoneArabicSize(fontSize,26,34,42).toFixed(2) + 'px');
+    $('mushaf-page').style.setProperty('--quran-phone-verse-size', phoneArabicSize(fontSize,28,37,48).toFixed(2) + 'px');
     $('arabic-size').value = String(fontSize); $('arabic-size-value').textContent = fontSize + ' px';
     $('arabic-script').value = arabicScript; $('show-words').checked = showWords;
     $('verses').hidden = viewMode !== 'verse'; $('reading-flow').hidden = viewMode === 'verse';

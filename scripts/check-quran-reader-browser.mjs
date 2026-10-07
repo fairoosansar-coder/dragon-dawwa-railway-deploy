@@ -94,9 +94,14 @@ try {
   await page.locator('#reader-settings summary').click();
   await page.locator('#arabic-size').fill('52');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('dd-quran-reader')).size),52);
-  assert.equal(await page.locator('#ayah-1-1 .verse-arabic').evaluate(element=>Math.round(parseFloat(getComputedStyle(element).fontSize))),44,'the size control must enlarge rendered Arabic even with the phone reading scale');
+  assert.equal(await page.locator('#ayah-1-1 .verse-arabic').evaluate(element=>Math.round(parseFloat(getComputedStyle(element).fontSize))),41,'the size control must enlarge rendered Arabic even with the phone reading scale');
   await page.locator('#arabic-size').fill('26');
   assert.equal(await page.locator('#ayah-1-1 .verse-arabic').evaluate(element=>Math.round(parseFloat(getComputedStyle(element).fontSize))),28,'the minimum phone size must remain legible');
+  await page.locator('#arabic-size').fill('64');
+  await page.locator('[data-mode=arabic]').click();
+  assert.equal(await page.locator('.flow-arabic').evaluate(element=>Math.round(parseFloat(getComputedStyle(element).fontSize))),42,'a saved maximal Arabic preference must not turn the phone mushaf into isolated giant words');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'a saved maximal Arabic preference must not overflow the phone');
+  await page.locator('[data-mode=verse]').click();
   await page.locator('#arabic-size').fill('52');
   await page.locator('#arabic-script').selectOption('indopak');
   await page.waitForFunction(()=>document.querySelector('#ayah-1-1 .verse-arabic')?.textContent?.includes('بِسۡمِ'));

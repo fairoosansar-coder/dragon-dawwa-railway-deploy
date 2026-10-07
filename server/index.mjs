@@ -158,7 +158,7 @@ async function fileResponse(filename, status = 200, {readonlyMosque = false, pub
         // These non-fingerprinted files were previously cached for one hour.
         // A fresh page must not combine the new footnote API with stale browser JS.
         html = html.replace(/(src|href)="\/?(quran(?:-copy|-study)?\.js|quran\.css)"/g,
-          '$1="/$2?v=20261007-phone-reading"');
+          '$1="/$2?v=20261007-phone-reading-2"');
       }
       if (readonlyMosque && filename === 'mosque.html') {
         html = html.replace(/<section class="community-section" id="correction">[\s\S]*?<\/section>/,
