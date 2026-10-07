@@ -71,3 +71,10 @@ node scripts/check-railway-r2-backup.mjs
 ```
 
 It supplies fake Node and AWS executables through `DD_NODE_BIN` and `DD_AWS_BIN`, writes only to a temporary directory, and makes no network calls. It verifies that the wrapper invokes backup then its local-rehearsal command before metadata upload, followed by metadata check and download; the fake does **not** execute the real SQLite rehearsal. It also verifies byte-comparison failure cleanup and that the wrong Railway project, R2 endpoint, database user, or root OS execution reaches neither snapshot nor AWS operations.
+
+
+## 7 October 2026 Gate 1 update
+
+The failure-notification endpoint was sealed on the private Railway backup worker and proven with a controlled pre-export failure. The temporary test override was removed; the following ordinary worker deployment uploaded and byte-verified a new encrypted object.
+
+A separate [30-minute R2 freshness monitor](./BACKUP_FRESHNESS_MONITOR.md) is now enabled and its real read-only dry run succeeded. It uses no backup credentials in code, never changes R2 or Railway, and retains the daily-cron safety gate. **Do not configure `15 2 * * *` UTC until one natural monitor run is observed without error and the owner separately directs cron activation.**
