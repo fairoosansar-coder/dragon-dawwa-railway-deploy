@@ -118,9 +118,9 @@ test('signed-out canonical-host responses serve public HTML and keep private rou
   assert.equal(byPath['/quran/study?ayah=1%3A1'].status, 200);
   assert.match(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="noindex,follow">/);
   assert.doesNotMatch(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="index,follow/);
-  assert.match(byPath['/quran/study?ayah=1%3A1'].body, /src="\/quran-study\.js\?v=20261007-chapter-art"/);
-  assert.match(byPath['/quran'].body, /src="\/quran\.js\?v=20261007-chapter-art"/);
-  assert.match(byPath['/quran'].body, /href="\/quran\.css\?v=20261007-chapter-art"/);
+  assert.match(byPath['/quran/study?ayah=1%3A1'].body, /src="\/quran-study\.js\?v=20261007-phone-reading"/);
+  assert.match(byPath['/quran'].body, /src="\/quran\.js\?v=20261007-phone-reading"/);
+  assert.match(byPath['/quran'].body, /href="\/quran\.css\?v=20261007-phone-reading"/);
   assert.match(byPath['/quran'].body, /<picture class="chapter-art" aria-hidden="true">/);
   for (const asset of ['/quran-study.js','/quran.css']) {
     assert.equal(byPath[asset].status, 200, asset);

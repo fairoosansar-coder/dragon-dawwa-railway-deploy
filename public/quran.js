@@ -48,10 +48,16 @@
   const audioText = key => audioCopy[key][['en','ta','si'].indexOf(language)] || audioCopy[key][0];
   const bookmarkId = key => key.replace(':','_');
   function savePreferences() { write('dd-quran-reader', {view:viewMode,script:arabicScript,size:fontSize,words:showWords}); }
+  function phoneArabicSize(size, small, normal, large) {
+    return size <= 44 ? small + (size - 26) * (normal - small) / 18
+      : normal + (size - 44) * (large - normal) / 20;
+  }
   function applyPreferences() {
     document.body.dataset.readerMode = viewMode;
     document.body.dataset.arabicScript = arabicScript;
     $('mushaf-page').style.setProperty('--quran-arabic-size', fontSize + 'px');
+    $('mushaf-page').style.setProperty('--quran-phone-flow-size', phoneArabicSize(fontSize,26,34,50).toFixed(2) + 'px');
+    $('mushaf-page').style.setProperty('--quran-phone-verse-size', phoneArabicSize(fontSize,28,37,54).toFixed(2) + 'px');
     $('arabic-size').value = String(fontSize); $('arabic-size-value').textContent = fontSize + ' px';
     $('arabic-script').value = arabicScript; $('show-words').checked = showWords;
     $('verses').hidden = viewMode !== 'verse'; $('reading-flow').hidden = viewMode === 'verse';
@@ -252,9 +258,9 @@
     if (viewMode === 'arabic') body.dir = 'rtl';
     body.translate = false;
     for (const verse of result.verses) {
-      const line = document.createElement('p'); line.className = 'flow-line'; line.id = 'reading-' + verse.key.replace(':','-');
+      const line = document.createElement(viewMode === 'arabic' ? 'span' : 'p'); line.className = 'flow-line'; line.id = 'reading-' + verse.key.replace(':','-');
       const link = document.createElement('a'); link.href = studyHref(verse.key); link.className = 'flow-key'; link.textContent = verse.key; link.setAttribute('aria-label',t('sourceLink') + ' ' + verse.key);
-      if (viewMode === 'arabic') { line.append(arabicNodes(verse),document.createTextNode(' '),link); }
+      if (viewMode === 'arabic') { line.append(arabicNodes(verse),document.createTextNode('\u00a0'),link,document.createTextNode(' ')); }
       else { line.append(link,document.createTextNode(' ')); for (const item of verse.translations) line.append(translationNodes(item.text)); }
       body.append(line);
     }

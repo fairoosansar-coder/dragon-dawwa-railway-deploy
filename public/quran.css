@@ -402,3 +402,53 @@
   .quran-page #verses .verse-card.has-translation .word-panel,
   .quran-page #verses .verse-card.has-translation .verse-action-status{grid-column:1/-1}
 }
+
+/* Digital reading surface: verses run together in Arabic mode; each ayah remains a deep link. */
+.quran-page .reading-flow .flow-attribution{
+  margin:0 0 20px;padding-bottom:12px;border-bottom:1px solid #e8dfcc;
+  color:#6f705f;font:500 11px/1.5 var(--sans,system-ui,sans-serif);
+  letter-spacing:.025em;text-align:start;
+}
+.quran-page .reading-flow .flow-arabic{
+  direction:rtl;text-align:center;font-family:DDUthmani,'Noto Naskh Arabic',serif;
+  font-size:var(--quran-arabic-size);line-height:2.05;
+  word-spacing:.08em;overflow-wrap:normal;word-break:normal;
+}
+.quran-page[data-arabic-script=indopak] .reading-flow .flow-arabic{
+  font-family:DDIndoPak,'Amiri Quran',serif;
+}
+.quran-page .reading-flow .flow-arabic .flow-line{
+  display:inline;border:0;padding:0;margin:0;line-height:inherit;
+}
+.quran-page .reading-flow .flow-arabic .flow-key{
+  display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;
+  min-width:31px;min-height:31px;margin-inline:4px;padding:2px 5px;
+  border:1px solid #bfaa76;border-radius:50%;background:#f5eddb;
+  color:#5f563a;font:600 11px/1.1 var(--sans,system-ui,sans-serif);
+  white-space:nowrap;text-decoration:none;direction:ltr;
+}
+.quran-page .reading-flow .flow-arabic .flow-key:hover,
+.quran-page .reading-flow .flow-arabic .flow-key:focus-visible{
+  background:#e5d7b4;outline-offset:3px;
+}
+.quran-page .reading-flow .flow-translation .flow-line{display:block}
+@media(max-width:650px){
+  .quran-page .chapter-banner{min-height:0;margin-top:14px;padding:19px 20px 20px}
+  .quran-page .chapter-banner .chapter-meta{font-size:10px;line-height:1.45}
+  .quran-page .chapter-banner .reader-toolbar h2{font-size:clamp(30px,8.5vw,38px)}
+  .quran-page .chapter-banner .chapter-actions .small-button{min-height:38px}
+  .quran-page .mushaf-page-head{padding:12px 17px 9px}
+  .quran-page .reading-flow{padding:17px 17px 29px}
+  .quran-page .reading-flow .flow-attribution{margin-bottom:12px;font-size:10px}
+  .quran-page .reading-flow .flow-arabic{
+    font-size:var(--quran-phone-flow-size,34px);
+    line-height:2.05;word-spacing:0;
+  }
+  .quran-page #verses .verse-arabic{
+    font-size:var(--quran-phone-verse-size,37px);
+    line-height:1.85;
+  }
+  .quran-page .reading-flow .flow-translation{font-size:18px;line-height:1.7}
+  .quran-page .reading-flow .flow-translation .flow-line{padding:12px 0}
+  .quran-page .reading-flow .flow-arabic .flow-key{min-width:32px;min-height:32px}
+}

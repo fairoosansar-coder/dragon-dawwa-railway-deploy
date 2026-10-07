@@ -77,15 +77,32 @@ try {
   await page.locator('[data-mode=arabic]').click();
   assert.equal(await page.locator('#reading-flow').isVisible(),true);
   assert.equal(await page.locator('#verses').isVisible(),false);
+  assert.equal(await page.locator('#reading-flow .flow-arabic .flow-line').count(),2,'each selected ayah retains an inline study reference');
+  assert.deepEqual(await page.locator('#reading-flow .flow-arabic').evaluate(body=>({
+    continuous:[...body.querySelectorAll('.flow-line')].every(line=>line.tagName==='SPAN' && getComputedStyle(line).display==='inline'),
+    phoneSize:Math.round(parseFloat(getComputedStyle(body).fontSize)),
+    markers:[...body.querySelectorAll('a.flow-key')].map(link=>link.textContent),
+  })),{continuous:true,phoneSize:34,markers:['1:1','1:2']});
+  assert.equal(await page.locator('.quran-source-note #translation-note').count(),1,'translation caveat stays available in Sources, not above the surah');
+  if (process.env.DD_QURAN_VISUAL_DIR) {
+    await page.locator('.chapter-banner').scrollIntoViewIfNeeded();
+    await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-continuous-mobile.png'});
+  }
   await page.locator('[data-mode=translation]').click();
   assert.match(await page.locator('#reading-flow').innerText(),/The named source translation/);
   await page.locator('[data-mode=verse]').click();
   await page.locator('#reader-settings summary').click();
   await page.locator('#arabic-size').fill('52');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('dd-quran-reader')).size),52);
-  assert.equal(await page.locator('#ayah-1-1 .verse-arabic').evaluate(element=>getComputedStyle(element).fontSize),'52px','the size control must resize source Arabic, not just its label');
+  assert.equal(await page.locator('#ayah-1-1 .verse-arabic').evaluate(element=>Math.round(parseFloat(getComputedStyle(element).fontSize))),44,'the size control must enlarge rendered Arabic even with the phone reading scale');
+  await page.locator('#arabic-size').fill('26');
+  assert.equal(await page.locator('#ayah-1-1 .verse-arabic').evaluate(element=>Math.round(parseFloat(getComputedStyle(element).fontSize))),28,'the minimum phone size must remain legible');
+  await page.locator('#arabic-size').fill('52');
   await page.locator('#arabic-script').selectOption('indopak');
   await page.waitForFunction(()=>document.querySelector('#ayah-1-1 .verse-arabic')?.textContent?.includes('بِسۡمِ'));
+  await page.locator('[data-mode=arabic]').click();
+  assert.match(await page.locator('.flow-arabic').evaluate(element=>getComputedStyle(element).fontFamily),/DDIndoPak/,'continuous mode must respect the selected provider script');
+  await page.locator('[data-mode=verse]').click();
   await page.locator('#arabic-script').selectOption('tajweed');
   await page.waitForFunction(()=>document.querySelector('#ayah-1-1 .verse-arabic .tajweed-ham_wasl'));
   assert.equal(await page.evaluate(()=>Boolean(window.providerInjected)),false);
