@@ -52,3 +52,11 @@ Export D1 or review MySQL separately, encrypted, with owner approval. Do not pla
 - `009_podcast_foundation.sql` remains parked behind 008 and now reserves metadata-only transcript timing, chapters and per-member resume progress for a future private player.
 - Private staff/member podcast and report UI surfaces are fixture-only and non-operative. There is no applied Railway DDL, R2 bucket, asset import, human recitation, ElevenLabs request, real Hadith report or published episode.
 - Phase 1 release gates remain the operational priority; the staged sources must not be treated as a deployed Phase 2 feature.
+
+
+## 7 October 2026 production gate update
+
+- Railway production `dragon-dawwa-r2-backup` is configured for `15 2 * * *` (daily 02:15 UTC) after a controlled sealed-notifier failure test, a restored normal byte-verified encrypted backup, and four silent healthy R2 freshness-monitor executions.
+- The first natural scheduled backup run and the following 02:30 UTC monitor execution have **not occurred yet** as of 2026-10-07T21:32Z. They are the remaining Gate 1 evidence; retention/lifecycle deletion remains off.
+- Quran Foundation is configured through protected production variables. The owner has exercised the authenticated reader path; the reader now resets to the matching Tamil provider translation when the interface language is changed to Tamil, while maintaining honest Sinhala-unavailable treatment.
+- No second consenting tester has been invited. The canonical test procedure is `docs/SECOND_USER_MOBILE_ACCEPTANCE.md`; the run-ready execution plan is `docs/SECOND_USER_PHYSICAL_PHONE_TEST_PLAN.md`.

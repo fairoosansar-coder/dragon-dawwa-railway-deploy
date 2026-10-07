@@ -144,3 +144,10 @@
 - [x] **Activate Railway daily backup cron:** production backup worker now uses `15 2 * * *`; Railway read it back as **At 02:15 (UTC)** and the settings deployment returned the service to Ready.
 - [ ] **Verify first natural daily run:** a one-time 02:40 UTC check must prove byte-verification in Railway logs, a new valid R2 snapshot, and a silent healthy 02:30 monitor execution. Retention/lifecycle deletion remains off.
 - [ ] **Second-user physical-phone acceptance:** begin immediately after first-run verification; requires a separate consenting user and their physical phone, not an emulated browser.
+
+
+## 7 October — second-user physical-phone gate prepared
+
+- [x] **Prepare the two-person physical-device plan:** documented consent, exact-reader invitation, anonymous/private-boundary, self-only data, Tamil/Sinhala honesty, resume, Quran playback, nonreligious audio, logout-all, deletion, role revocation, stop conditions, and evidence minimization.
+- [ ] **Wait for the first natural 02:15 UTC backup evidence:** no tester invitation before Railway log, R2 metadata, and post-run monitor checks all pass.
+- [ ] **Owner input required:** nominate one consenting adult tester, a bounded test period, an expiry/removal plan, and whether approved nonreligious WAV decode testing is in scope without widening any canary.

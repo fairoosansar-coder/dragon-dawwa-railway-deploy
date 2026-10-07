@@ -1,6 +1,6 @@
 # Dragon Dawwa R2 backup freshness monitor
 
-**Status:** enabled on 7 October 2026; first natural scheduled run remains to be observed.
+**Status:** enabled on 7 October 2026; four pre-backup natural scheduled reads have completed silently without an error. Railway's daily backup cron is now enabled at `02:15 UTC`; the first post-backup monitor execution remains pending.
 
 > The monitor is an independent **Manus scheduled script**. It does not run the Railway worker, query MySQL, alter R2, deploy code, or enable the daily backup cron.
 
@@ -17,7 +17,7 @@
 | Alert conditions | Missing snapshot, stale snapshot, invalid metadata/size/hash, or failed R2 read |
 | Recovery | One owner-visible recovery event after an alert state clears |
 | Alert deduplication | One alert per unchanged condition signature |
-| Daily Railway cron | **Still disabled** |
+| Daily Railway cron | **Enabled:** `15 2 * * *` / 02:15 UTC; first natural-run evidence pending |
 
 ## Validation performed
 

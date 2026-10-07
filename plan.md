@@ -173,3 +173,11 @@ Phase 1 remains the deployment priority. Until the backup alert/freshness gate a
 - Railway production backup service now has **`15 2 * * *`**, read back by Railway as **At 02:15 (UTC)**. The settings deployment returned the service to Ready. No retention/lifecycle setting was enabled or changed.
 - A one-time verification task will run at 02:40 UTC after the first scheduled 02:15 run and the 02:30 monitor tick. It must independently confirm the worker's byte-verification log, a new R2 object with valid metadata, and a silent healthy monitor; it must make no configuration changes.
 - When that evidence passes, the next remaining phase-one gate is second-user physical-phone acceptance.
+
+
+### 7 October — physical second-user acceptance preparation
+
+- The post-02:40 UTC evidence does not exist yet: current production time is 2026-10-07T21:32Z, before the first 02:15 UTC Railway cron. Four pre-run independent R2 monitor executions have completed silently without error.
+- The monitor’s alert wording and safety guidance are aligned with the now-enabled daily cron; a real read-only dry run completed successfully after that update.
+- The execution plan is ready in `docs/SECOND_USER_PHYSICAL_PHONE_TEST_PLAN.md`. It is deliberately a one-reader, consenting-adult, physical-device protocol with no credential collection, no token extraction/replay, no broad invitation, and no paid-canary expansion.
+- Do not create the test invitation until the scheduled worker’s byte-verification evidence, a new valid R2 object, and the 02:30 post-run monitor result are all recorded as healthy.

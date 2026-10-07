@@ -8,7 +8,7 @@ Phase one (sections A–H) remains the priority. The source system is feature-co
 
 ## Gate 1 — prove daily backup failure detection before scheduling
 
-**Current evidence:** one encrypted R2 upload, byte-identical R2 download, and independent target-engine MySQL restore have passed. The backup worker's emergency alert definition is **enabled, synchronized and ready**, but has **zero executions**. The worker cannot notify it until the generated endpoint is entered as its sealed `DD_BACKUP_FAILURE_WEBHOOK` variable. The endpoint must not be committed, logged, pasted into chat, or placed in a document.
+**Current evidence:** one encrypted R2 upload, byte-identical R2 download, and independent target-engine MySQL restore have passed. The sealed worker failure notifier has passed a controlled failure-path test and a following normal encrypted, byte-verified backup. The independent R2 monitor has completed four natural healthy reads without error or alert. Railway production cron is enabled as `15 2 * * *` (**02:15 UTC**). The only remaining Gate 1 proof is the first natural scheduled worker run plus its following monitor check; retention/lifecycle deletion remains off.
 
 **Owner/operator sequence:**
 
@@ -24,11 +24,11 @@ Phase one (sections A–H) remains the priority. The source system is feature-co
 
 ## Gate 2 — restore dedicated Quran Foundation access
 
-The authenticated Quran API currently returns `503 not_configured` because a dedicated production Quran Foundation client is absent. Enter the client fields only through the protected runtime configuration. Then re-run an owner-only live Quran reader check with named English/Tamil resources, honest Sinhala-unavailable state, play/pause/surah/reciter transitions and failure/retry. This is distinct from any Hadith or podcast work.
+The authenticated Quran API has a protected production Quran Foundation client and the owner-only live reader check passed with named English/Tamil resources, honest Sinhala-unavailable handling, and user-initiated playback. This is distinct from any Hadith or podcast work. The remaining language/audio evidence is a physical-device and consenting-second-user check under Gate 3, not a reason to broaden access.
 
 ## Gate 3 — witnessed second-user and physical-device acceptance
 
-After Gate 1 and Gate 2 pass, the owner selects one different consenting adult with their own Google identity and physical Android Chrome or iOS Safari device. Invite only their exact verified opaque identity with a reader role and an expiry/removal plan. Follow [`SECOND_USER_MOBILE_ACCEPTANCE.md`](SECOND_USER_MOBILE_ACCEPTANCE.md) without recording credentials, private content, Quran verses, microphone recordings or copied cookies in the evidence record.
+After Gate 1 and Gate 2 pass, the owner selects one different consenting adult with their own Google identity and physical Android Chrome or iOS Safari device. Invite only their exact verified opaque identity with a reader role and an expiry/removal plan. Follow [`SECOND_USER_MOBILE_ACCEPTANCE.md`](SECOND_USER_MOBILE_ACCEPTANCE.md) and the detailed [`SECOND_USER_PHYSICAL_PHONE_TEST_PLAN.md`](SECOND_USER_PHYSICAL_PHONE_TEST_PLAN.md) without recording credentials, private content, Quran verses, microphone recordings or copied cookies in the evidence record.
 
 The witness must prove anonymous/private-route denial, self-only profile and saves, cross-session Quran place, real Quran playback, nonreligious EN/TA/SI WAV playback, logout-all/copy-token denial, immediate role removal, and export/deletion boundaries. Native language and religious review remain human gates, not browser-test assertions.
 
