@@ -151,3 +151,10 @@
 - [x] **Prepare the two-person physical-device plan:** documented consent, exact-reader invitation, anonymous/private-boundary, self-only data, Tamil/Sinhala honesty, resume, Quran playback, nonreligious audio, logout-all, deletion, role revocation, stop conditions, and evidence minimization.
 - [ ] **Wait for the first natural 02:15 UTC backup evidence:** no tester invitation before Railway log, R2 metadata, and post-run monitor checks all pass.
 - [ ] **Owner input required:** nominate one consenting adult tester, a bounded test period, an expiry/removal plan, and whether approved nonreligious WAV decode testing is in scope without widening any canary.
+
+
+## 7 October — phase-two migration and cost readiness
+
+- [x] **Review staged 008/009:** both migrations are cleanly parked, ordered by foreign keys, metadata-only for private media, and pass isolated synthetic regression tests; no DDL was applied.
+- [x] **Refresh rate card:** verified Tamil support for `eleven_v4` and documented current official TTS/Scribe/music/SFX pricing without a provider request.
+- [ ] **Exact Bukhari 6306 cost estimate:** blocked only by the absent final Tamil script. The repository holds a synthetic 100-character fixture, not the approved episode payload; upload/enter the final claim-linked script before authorizing the capped measurement run.

@@ -181,3 +181,10 @@ Phase 1 remains the deployment priority. Until the backup alert/freshness gate a
 - The monitor’s alert wording and safety guidance are aligned with the now-enabled daily cron; a real read-only dry run completed successfully after that update.
 - The execution plan is ready in `docs/SECOND_USER_PHYSICAL_PHONE_TEST_PLAN.md`. It is deliberately a one-reader, consenting-adult, physical-device protocol with no credential collection, no token extraction/replay, no broad invitation, and no paid-canary expansion.
 - Do not create the test invitation until the scheduled worker’s byte-verification evidence, a new valid R2 object, and the 02:30 post-run monitor result are all recorded as healthy.
+
+
+### 7 October — Phase 2 migration and cost decision
+
+- `008_hadith.sql` and `009_podcast_foundation.sql` remain correctly parked. Their isolated synthetic tests passed; neither DDL file was executed against Railway.
+- The first daily Railway cron run is still in the future at the time of review. Healthy pre-run monitor executions do not replace the required worker upload/byte-verification and post-run monitor evidence.
+- `eleven_v4` currently supports Tamil. The official rate card was recorded without a provider request, but the actual Bukhari 6306 Tamil script is absent from project sources. Therefore the output is a duration proxy/rate card, not an episode measurement; retain disabled rendering and the 20,000-credit hard cap until the final reviewer-approved, claim-linked script is entered.
