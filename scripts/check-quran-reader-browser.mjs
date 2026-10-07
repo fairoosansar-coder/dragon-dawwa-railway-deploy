@@ -19,7 +19,7 @@ try {
   const context = await browser.newContext({viewport:{width:390,height:844},permissions:['clipboard-read','clipboard-write']});
   const page = await context.newPage();
   const requested = [], failures = [];
-  let malformedTajweed = false, delayedChapter = 0, releaseDelayed = () => {}, rejectChapter = 0;
+  let malformedTajweed = false, maliciousVerseKey = false, delayedChapter = 0, releaseDelayed = () => {}, rejectChapter = 0;
   let chapterInfoUnavailable = false, memberMode = 'guest';
   page.on('pageerror',error=>failures.push(error.message));
   await page.route('**/*',async route=>{
@@ -44,7 +44,7 @@ try {
         audio:'https://verses.quran.com/Alafasy/mp3/001001.mp3',
         words:withWords ? [{position:1,text:'بِسْمِ',meaning:'In the name',meaningLanguage:'english',transliteration:'bismi',audio:'https://audio.qurancdn.com/wbw/001_001_001.mp3'}] : []});
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({chapter,translation:85,recitation:7,script,wordsAvailable:withWords,
-        verses:chapter===1?[verse('1:1'),verse('1:2')]:[verse('2:1')], pagination:{current:1,next:null,total:1,count:chapter===1?2:1}})});
+        verses:chapter===1?[verse(maliciousVerseKey ? '1:1"><img src=x onerror="window.__quranKeyInjected=1">' : '1:1'),verse('1:2')]:[verse('2:1')], pagination:{current:1,next:null,total:1,count:chapter===1?2:1}})});
     }
     if (url.pathname === '/api/quran/chapter') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(chapterInfoUnavailable
       ? {chapter:Number(url.searchParams.get('chapter')),description:null,source:null,available:false}
@@ -88,6 +88,8 @@ try {
   await page.locator('#ayah-1-1 .bookmark-ayah').click();
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('dd-quran-bookmarks'))),['1_1']);
   assert.equal(await page.locator('#ayah-1-1 .bookmark-ayah').getAttribute('aria-pressed'),'true');
+  assert.equal(await page.locator('#ayah-1-1 .verse-more').getAttribute('open'),null);
+  await page.locator('#ayah-1-1 .verse-more summary').click();
   await page.locator('#ayah-1-1 .copy-ayah').click();
   assert.match(await page.evaluate(()=>navigator.clipboard.readText()),/1:1[\s\S]*Quran data provided by Quran Foundation/);
   await page.locator('#ayah-1-1 .share-ayah').click();
@@ -153,7 +155,36 @@ try {
   await page.locator('#ayah-1-1 .save-place').click();
   assert.match(await page.locator('#place-sync-status').innerText(),/Create an invited member profile/);
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('dd-quran-place')).key),'1:1');
+  maliciousVerseKey = true;
+  await page.locator('#translation-select').selectOption('');
+  await page.locator('#retry-reader').waitFor({state:'visible'});
+  assert.equal(await page.locator('#verses .verse-card').count(),0,'reject all malformed provider content');
+  assert.equal(await page.evaluate(()=>Boolean(window.__quranKeyInjected)),false,'provider key cannot execute markup');
+  maliciousVerseKey = false;
+  await page.locator('#retry-reader').click();
+  await page.locator('#ayah-1-1').waitFor({state:'visible'});
   assert(!requested.some(path=>path.startsWith('/api/study/') || path === '/study' || path.startsWith('/api/member/save')),'guest control cannot call private Gemini or member-write APIs');
   assert.deepEqual(failures,[],'no browser page errors');
+  if (process.env.DD_QURAN_VISUAL_DIR) {
+    memberMode = 'guest';
+    await page.goto('https://dragondawwa.org/quran',{waitUntil:'domcontentloaded'});
+    await page.locator('#ayah-1-1').waitFor({state:'visible'});
+    await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-mobile.png'});
+    await page.setViewportSize({width:1440,height:950});
+    await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-desktop.png'});
+    await page.locator('#ayah-1-1').scrollIntoViewIfNeeded();
+    await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-reading-desktop.png'});
+    await page.setViewportSize({width:390,height:844});
+    await page.locator('#ayah-1-1').scrollIntoViewIfNeeded();
+    await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-reading-mobile.png'});
+  }
+  for (const locale of ['ta','si']) {
+    await page.locator('#quran-language').selectOption(locale);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth + 1),true,locale+' reader must not overflow its phone viewport');
+    if (process.env.DD_QURAN_VISUAL_DIR) {
+      await page.evaluate(()=>scrollTo(0,0));
+      await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-'+locale+'-mobile.png'});
+    }
+  }
   console.log('PASS synthetic 390px Chromium: chapter context/audio, verse/continuous modes, script/word display, attributed copy/share, guest bookmark and private API isolation');
 } finally { await browser.close(); }

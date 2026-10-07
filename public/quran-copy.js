@@ -3,8 +3,8 @@ skip:['Skip to content','உள்ளடக்கத்திற்குச் 
 brandSub:['KNOWLEDGE WITH HUMILITY','பணிவுடன் அறிவைத் தேடுவோம்','නිහතමානීව දැනුම සොයමු'],
 home:['Home','முகப்பு','මුල් පිටුව'],research:['Research','சமூக ஆய்வு','ප්‍රජා තොරතුරු'],
 eyebrow:['READ · LISTEN · REFLECT','வாசிப்போம் · செவிமடுப்போம் · சிந்திப்போம்','කියවන්න · සවන් දෙන්න · සිතා බලන්න'],
-title:['A moment with<br>the Qur’an.','அல்குர்ஆனுடன்<br>சில நிமிடங்கள்.','අල් කුර්ආනය සමඟ<br>මොහොතක්.'],
-intro:['Read the Arabic, listen with care, and explore a named translation alongside each ayah.','அரபு மூலத்தை வாசியுங்கள். ஓதலைக் கவனமாகக் கேளுங்கள். ஒவ்வொரு வசனத்துடனும் மொழிபெயர்ப்பாளர் பெயரைக் கொண்ட மொழிபெயர்ப்பைப் படியுங்கள்.','අරාබි මූල පාඨය කියවන්න. පාරායනයට සවන් දෙන්න. සෑම ආයතයක් සමඟම පරිවර්තකයාගේ නම සහිත පරිවර්තනයක් කියවන්න.'],
+title:['The Qur’an,<br>closer to heart.','அல்குர்ஆன்,<br>மனதிற்கு நெருக்கமாக.','අල් කුර්ආනය,<br>හදවතට සමීපව.'],
+intro:['Arabic text, named translations and recitation — at your own pace.','அரபு மூலப் பாடம், பெயரிடப்பட்ட மொழிபெயர்ப்பு, ஓதல் — உங்கள் வேகத்தில்.','අරාබි පාඨය, නම් සඳහන් පරිවර්තන සහ පාරායනය — ඔබේ වේගයෙන්.'],
 reader:['Qur’an reader','அல்குர்ஆன் வாசிப்பு','අල් කුර්ආන් කියවීම'],
 surah:['Surah','ஸூரா','සූරාව'],translation:['Translation','மொழிபெயர்ப்பு','පරිවර්තනය'],reciter:['Reciter','ஓதுபவர்','පාරායනය කරන්නා'],
 retry:['Try again','மீண்டும் முயலுங்கள்','නැවත උත්සාහ කරන්න'],previous:['Previous','முந்தையது','පෙර'],next:['Next','அடுத்தது','ඊළඟ'],
@@ -102,4 +102,14 @@ Object.assign(window.DD_QURAN_COPY, {
   revelationPlace:['Revelation place','வெளிப்பட்ட இடம்','පහළ වූ ස්ථානය'],
   chapterCatalogueCredit:['Quran Foundation chapter catalogue; no named chapter description was supplied.','Quran Foundation ஸூரா பட்டியல்; பெயரிடப்பட்ட விளக்கம் வழங்கப்படவில்லை.','Quran Foundation සූරා නාමාවලිය; නම් කළ විස්තරයක් ලබා දී නැත.'],
   placeProfile:['Create an invited member profile before saving an account reading place.','கணக்கில் வாசிப்பு இடத்தைச் சேமிக்க, அழைக்கப்பட்ட உறுப்பினர் சுயவிவரத்தை உருவாக்கவும்.','ගිණුමේ කියවීමේ ස්ථානය සුරැකීමට ආරාධිත සාමාජික පැතිකඩක් සාදන්න.']
+});
+
+Object.assign(window.DD_QURAN_COPY, {
+  digitalLabel:['THE DIGITAL MUSHAF · READ WITH CARE','டிஜிட்டல் முஸ்ஹஃப் · கவனமாக வாசிப்போம்','ඩිජිටල් මුෂ්හෆ් · සැලකිල්ලෙන් කියවමු'],
+  openReader:['Open the reader <span aria-hidden="true">↗</span>','வாசிப்பைத் திறக்க <span aria-hidden="true">↗</span>','කියවීම අරඹන්න <span aria-hidden="true">↗</span>'],
+  readListenReflect:['READ · LISTEN · REFLECT','வாசி · கேள் · சிந்தி','කියවන්න · සවන් දෙන්න · සිතන්න'],
+  readingDesk:['YOUR READING SPACE','உங்கள் வாசிப்பு இடம்','ඔබේ කියවීමේ ඉඩ'],
+  mushafHeader:['القرآن الكريم · THE NOBLE QUR’AN','القرآن الكريم · திருக்குர்ஆன்','القرآن الكريم · ශුද්ධ වූ අල් කුර්ආනය'],
+  mushafFooter:['SOURCE TEXT VIA QURAN FOUNDATION · READ WITH HUMILITY','QURAN FOUNDATION மூல உரை · பணிவுடன் வாசிப்போம்','QURAN FOUNDATION මුල් පාඨය · නිහතමානීව කියවමු'],
+  moreActions:['More actions ▾','மேலும் செயல்கள் ▾','තවත් ක්‍රියා ▾']
 });

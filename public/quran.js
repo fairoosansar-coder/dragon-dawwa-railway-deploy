@@ -281,6 +281,18 @@
     $('quran-find-status').textContent = query ? (shown ? t('findCount') + ': ' + shown : t('findNone')) : '';
   }
   function render() {
+    const sourceChapter = catalogue.chapters.find(item => item.id === chapter);
+    if (!sourceChapter || !Array.isArray(result.verses) || result.verses.some(verse => {
+      if (typeof verse?.key !== 'string' || !/^[1-9]\d{0,2}:[1-9]\d{0,2}$/.test(verse.key)) return true;
+      const [number, ayah] = verse.key.split(':').map(Number);
+      return number !== chapter || ayah > sourceChapter?.verses;
+    })) {
+      result = null;
+      $('verses').replaceChildren(); $('reading-flow').replaceChildren();
+      $('verses').setAttribute('aria-busy','false'); $('reader-pagination').hidden = true; $('study-current').hidden = true;
+      setStatus('error'); $('retry-reader').hidden = false;
+      return;
+    }
     $('verses').replaceChildren(); $('verses').setAttribute('aria-busy','false'); setStatus(result.verses.length ? '' : 'empty');
     const translation = catalogue.translations.find(x => x.id === result.translation);
     const chapterSource = catalogue.chapters.find(c => c.id === chapter);
@@ -293,7 +305,7 @@
     }
     for (const verse of result.verses) {
       const card = document.createElement('article'); card.className = 'verse-card'; card.id = 'ayah-' + verse.key.replace(':','-');
-      card.innerHTML = '<div class="verse-heading"><span class="verse-key">' + escape(verse.key) + '</span><div class="verse-actions"><button class="save-place" type="button"></button><button class="bookmark-ayah" data-key="' + escape(verse.key) + '" type="button"></button><button class="copy-ayah" type="button">' + t('copyVerse') + '</button><button class="share-ayah" type="button">' + t('shareVerse') + '</button><a data-study-ayah href="' + escape(studyHref(verse.key)) + '">' + t('sourceLink') + '</a><a href="' + escape(studyHref(verse.key)) + '#tafsir-section">' + t('tafsir') + '</a><a href="https://quran.com/' + verse.key.replace(':','/') + '" target="_blank" rel="noopener noreferrer">' + t('source') + '</a></div></div><p class="verse-arabic notranslate" lang="ar" dir="rtl" translate="no"></p><div class="verse-translation notranslate" translate="no"></div>';
+      card.innerHTML = '<div class="verse-heading"><span class="verse-key">' + escape(verse.key) + '</span><div class="verse-actions"><button class="save-place" type="button"></button><button class="bookmark-ayah" data-key="' + escape(verse.key) + '" type="button"></button><a data-study-ayah href="' + escape(studyHref(verse.key)) + '">' + t('sourceLink') + '</a><details class="verse-more"><summary>' + t('moreActions') + '</summary><div class="verse-more-items"><button class="copy-ayah" type="button">' + t('copyVerse') + '</button><button class="share-ayah" type="button">' + t('shareVerse') + '</button><a href="' + escape(studyHref(verse.key)) + '#tafsir-section">' + t('tafsir') + '</a><a href="https://quran.com/' + escape(verse.key.replace(':','/')) + '" target="_blank" rel="noopener noreferrer">' + t('source') + '</a></div></details></div></div><p class="verse-arabic notranslate" lang="ar" dir="rtl" translate="no"></p><div class="verse-translation notranslate" translate="no"></div>';
       card.querySelector('.verse-arabic').append(arabicNodes(verse));
       const translated = card.querySelector('.verse-translation');
       if (translation) translated.lang = ({english:'en',tamil:'ta',sinhala:'si',sinhalese:'si'})[translation.language.toLowerCase()] || 'en';
