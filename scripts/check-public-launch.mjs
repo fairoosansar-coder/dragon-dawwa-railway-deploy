@@ -29,11 +29,16 @@ const config = {
 };
 
 test('public policy exposes only visitor pages, published-read endpoints, and required assets', () => {
-  for (const route of ['/', '/about', '/quran', '/quran/study', '/library', '/library/published-reading', '/resources', '/research', '/mosque', '/mosques', '/mosques/97', '/events', '/events/published-event', '/contact', '/privacy', '/terms', '/sources', '/accessibility', '/api/content', '/api/content/published-reading', '/api/events', '/api/resources', '/api/mosques', '/api/quran/bootstrap', '/api/quran/verses', '/api/quran/ayah', '/api/quran/chapter', '/api/quran/chapter-audio', '/api/quran/navigate', '/assets/mark.svg', '/library.js', '/quran-study.js'])
+  for (const route of ['/', '/about', '/quran', '/quran/study', '/library', '/library/published-reading', '/resources', '/research', '/mosque', '/mosques', '/mosques/97', '/events', '/events/published-event', '/contact', '/privacy', '/terms', '/sources', '/accessibility', '/api/content', '/api/content/published-reading', '/api/events', '/api/resources', '/api/mosques', '/api/quran/bootstrap', '/api/quran/verses', '/api/quran/ayah', '/api/quran/chapter', '/api/quran/chapter-audio', '/api/quran/navigate', '/assets/mark.svg', '/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp', '/library.js', '/quran-study.js'])
     assert.equal(publicReadingAllowed('GET', route, config), true, route);
-  for (const route of ['/admin', '/staff', '/operations', '/member', '/study', '/api/review/session', '/api/admin/dashboard', '/api/member/me', '/api/study/history', '/api/participation', '/api/corrections', '/admin.js', '/staff.js', '/data/starter-resources.json'])
+  for (const route of ['/admin', '/staff', '/operations', '/member', '/study', '/api/review/session', '/api/admin/dashboard', '/api/member/me', '/api/study/history', '/api/participation', '/api/corrections', '/admin.js', '/staff.js', '/assets/private-review.webp', '/data/starter-resources.json'])
     assert.equal(publicReadingAllowed('GET', route, config), false, route);
   assert.equal(publicReadingAllowed('GET', '/api/study/availability', config), false);
+  for (const banner of ['/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp']) {
+    assert.equal(publicReadingAllowed('HEAD', banner, config), true);
+    assert.equal(publicReadingAllowed('POST', banner, config), false);
+    assert.equal(publicReadingAllowed('GET', banner, {...config, DD_PUBLIC_READ_MODE:'private'}), false);
+  }
   for (const route of ['/api/content', '/api/events', '/api/resources', '/api/quran/bootstrap', '/api/quran/ayah', '/api/quran/chapter', '/api/quran/chapter-audio', '/api/quran/navigate'])
     assert.equal(publicReadingAllowed('POST', route, config), false, route);
 });
@@ -67,11 +72,12 @@ test('signed anonymous rate tokens isolate public reader quotas without trusting
 test('signed-out canonical-host responses serve public HTML and keep private routes inaccessible', () => {
   const script = `
     import { handle } from './server/index.mjs';
-    const cases = ['/', '/about', '/quran', '/quran/study?ayah=1%3A1', '/quran-study.js', '/quran.css', '/library', '/learn', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/participate', '/privacy', '/terms', '/sources', '/accessibility', '/about/', '/quran/', '/library/', '/resources/', '/research/', '/mosque/', '/mosques/', '/events/', '/contact/', '/participate/?via=nav', '/privacy/', '/terms/', '/sources/', '/accessibility/', '/learn/', '/assets/mark.svg', '/admin.js', '/staff', '/admin', '/member', '/study', '/api/member/me', '/api/admin/dashboard', '/robots.txt', '/sitemap.xml'];
+    const cases = ['/', '/about', '/quran', '/quran/study?ayah=1%3A1', '/quran-study.js', '/quran.css', '/library', '/learn', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/participate', '/privacy', '/terms', '/sources', '/accessibility', '/about/', '/quran/', '/library/', '/resources/', '/research/', '/mosque/', '/mosques/', '/events/', '/contact/', '/participate/?via=nav', '/privacy/', '/terms/', '/sources/', '/accessibility/', '/learn/', '/assets/mark.svg', '/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp', '/assets/private-review.webp', '/admin.js', '/staff', '/admin', '/member', '/study', '/api/member/me', '/api/admin/dashboard', '/robots.txt', '/sitemap.xml'];
     const output = [];
     for (const path of cases) {
       const response = await handle({ method: 'GET', url: path, headers: { host: 'dragondawwa.org' }, socket: { remoteAddress: '127.0.0.1' } });
-      output.push({ path, status: response.status, location: response.headers.get('location'), cookie: response.headers.get('set-cookie'), type: response.headers.get('content-type'), cache: response.headers.get('cache-control'), body: await response.text() });
+      const banner = path.startsWith('/assets/quran-banner-illumination-');
+      output.push({ path, status: response.status, location: response.headers.get('location'), cookie: response.headers.get('set-cookie'), type: response.headers.get('content-type'), cache: response.headers.get('cache-control'), body: banner ? '' : await response.text(), bytes: banner ? (await response.arrayBuffer()).byteLength : 0 });
     }
     console.log(JSON.stringify(output));
   `;
@@ -88,6 +94,12 @@ test('signed-out canonical-host responses serve public HTML and keep private rou
   for (const route of ['/admin.js', '/staff', '/admin', '/member', '/study']) {
     assert.equal(byPath[route].status, 302, route);
     assert.equal(byPath[route].location, '/login', route);
+  }
+  assert.equal(byPath['/assets/private-review.webp'].status, 302);
+  for (const banner of ['/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp']) {
+    assert.equal(byPath[banner].status, 200, banner);
+    assert.equal(byPath[banner].type, 'image/webp', banner);
+    assert(byPath[banner].bytes > 100_000, banner + ' should contain real image bytes');
   }
   for (const route of ['/api/member/me', '/api/admin/dashboard']) assert.equal(byPath[route].status, 401, route);
   assert.match(byPath['/'].body, /<link rel="canonical" href="https:\/\/dragondawwa\.org\/">/);

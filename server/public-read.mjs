@@ -15,6 +15,7 @@ const readApis = new Set([
 ]);
 const publicAssets = new Set([
   '/assets/mark.svg', '/assets/garden-arch.png',
+  '/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp',
   '/styles.css', '/community.css', '/editorial.css', '/mosques.css', '/quran.css', '/research.css', '/resources.css',
   '/app.js', '/home-review-copy.js', '/shared-nav.js', '/pages.js', '/library.js', '/mosques.js',
   '/quran.js', '/quran-copy.js', '/quran-study.js', '/research.js', '/research-copy.js', '/resources.js', '/frame-guard.js',
