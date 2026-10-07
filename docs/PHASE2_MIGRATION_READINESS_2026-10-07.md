@@ -66,10 +66,10 @@
 
 1. A named qualified Hadith reviewer, stated attestation basis, and Tamil language reviewer.
 2. The approved Bukhari 6306 report revision and a **machine-readable final Tamil script with claim IDs**. The repository currently contains no actual episode script.
-3. Owner-created dedicated private R2 bucket and two scoped credentials at the approved storage milestone.
+3. The already-approved dedicated private R2 design must be implemented at the post-009 storage/asset milestone: create the bucket and two scoped credentials before any render, but not as a prerequisite for 008/009.
 4. Owner-supplied, privately imported/approved canvas assets and human recitation.
 5. An exact script-derived cost estimate and the already-approved one-episode cost-measurement configuration with the 20,000-credit hard ceiling.
 
 ## Recommendation
 
-Do not unpark 008 or 009 merely because the source migrations are clean. The strategic next action is to collect the first natural backup evidence, complete the second-user phone gate, then execute the backed-up operator migration sequence. This preserves reversibility, source provenance, and the no-spend/no-public-media posture.
+Do not unpark 008 or 009 merely because the source migrations are clean. The fixed first-episode path is: close Phase 1; execute the backed-up `008` then `009` sequence; attest the qualified reviewer and approve the report; create the already-approved private R2 bucket and import/approve the canvas assets plus human recitation; bring the exact script-derived estimate to the owner; then perform one owner-approved capped measurement render. Dataset licence discovery, imports, reference-library schema, and research agents belong only to Phase 2b and do not block Bukhari 6306.
