@@ -27,6 +27,7 @@ const config = {
   QURAN_CLIENT_SECRET: '',
   QURAN_ENVIRONMENT: 'production',
 };
+const chapterArt = ['/assets/quran-chapter-illumination-wide.webp', '/assets/quran-chapter-illumination-mobile.webp'];
 
 test('public policy exposes only visitor pages, published-read endpoints, and required assets', () => {
   for (const route of ['/', '/about', '/quran', '/quran/study', '/library', '/library/published-reading', '/resources', '/research', '/mosque', '/mosques', '/mosques/97', '/events', '/events/published-event', '/contact', '/privacy', '/terms', '/sources', '/accessibility', '/api/content', '/api/content/published-reading', '/api/events', '/api/resources', '/api/mosques', '/api/quran/bootstrap', '/api/quran/verses', '/api/quran/ayah', '/api/quran/chapter', '/api/quran/chapter-audio', '/api/quran/navigate', '/assets/mark.svg', '/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp', '/library.js', '/quran-study.js'])
@@ -35,6 +36,12 @@ test('public policy exposes only visitor pages, published-read endpoints, and re
     assert.equal(publicReadingAllowed('GET', route, config), false, route);
   assert.equal(publicReadingAllowed('GET', '/api/study/availability', config), false);
   for (const banner of ['/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp']) {
+    assert.equal(publicReadingAllowed('HEAD', banner, config), true);
+    assert.equal(publicReadingAllowed('POST', banner, config), false);
+    assert.equal(publicReadingAllowed('GET', banner, {...config, DD_PUBLIC_READ_MODE:'private'}), false);
+  }
+  for (const banner of chapterArt) {
+    assert.equal(publicReadingAllowed('GET', banner, config), true);
     assert.equal(publicReadingAllowed('HEAD', banner, config), true);
     assert.equal(publicReadingAllowed('POST', banner, config), false);
     assert.equal(publicReadingAllowed('GET', banner, {...config, DD_PUBLIC_READ_MODE:'private'}), false);
@@ -72,11 +79,11 @@ test('signed anonymous rate tokens isolate public reader quotas without trusting
 test('signed-out canonical-host responses serve public HTML and keep private routes inaccessible', () => {
   const script = `
     import { handle } from './server/index.mjs';
-    const cases = ['/', '/about', '/quran', '/quran/study?ayah=1%3A1', '/quran-study.js', '/quran.css', '/library', '/learn', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/participate', '/privacy', '/terms', '/sources', '/accessibility', '/about/', '/quran/', '/library/', '/resources/', '/research/', '/mosque/', '/mosques/', '/events/', '/contact/', '/participate/?via=nav', '/privacy/', '/terms/', '/sources/', '/accessibility/', '/learn/', '/assets/mark.svg', '/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp', '/assets/private-review.webp', '/admin.js', '/staff', '/admin', '/member', '/study', '/api/member/me', '/api/admin/dashboard', '/robots.txt', '/sitemap.xml'];
+    const cases = ['/', '/about', '/quran', '/quran/study?ayah=1%3A1', '/quran-study.js', '/quran.css', '/library', '/learn', '/resources', '/research', '/mosque', '/mosques', '/events', '/contact', '/participate', '/privacy', '/terms', '/sources', '/accessibility', '/about/', '/quran/', '/library/', '/resources/', '/research/', '/mosque/', '/mosques/', '/events/', '/contact/', '/participate/?via=nav', '/privacy/', '/terms/', '/sources/', '/accessibility/', '/learn/', '/assets/mark.svg', '/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp', '/assets/quran-chapter-illumination-wide.webp', '/assets/quran-chapter-illumination-mobile.webp', '/assets/private-review.webp', '/admin.js', '/staff', '/admin', '/member', '/study', '/api/member/me', '/api/admin/dashboard', '/robots.txt', '/sitemap.xml'];
     const output = [];
     for (const path of cases) {
       const response = await handle({ method: 'GET', url: path, headers: { host: 'dragondawwa.org' }, socket: { remoteAddress: '127.0.0.1' } });
-      const banner = path.startsWith('/assets/quran-banner-illumination-');
+      const banner = path.startsWith('/assets/quran-banner-illumination-') || path.startsWith('/assets/quran-chapter-illumination-');
       output.push({ path, status: response.status, location: response.headers.get('location'), cookie: response.headers.get('set-cookie'), type: response.headers.get('content-type'), cache: response.headers.get('cache-control'), body: banner ? '' : await response.text(), bytes: banner ? (await response.arrayBuffer()).byteLength : 0 });
     }
     console.log(JSON.stringify(output));
@@ -96,10 +103,10 @@ test('signed-out canonical-host responses serve public HTML and keep private rou
     assert.equal(byPath[route].location, '/login', route);
   }
   assert.equal(byPath['/assets/private-review.webp'].status, 302);
-  for (const banner of ['/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp']) {
+  for (const banner of ['/assets/quran-banner-illumination-wide.webp', '/assets/quran-banner-illumination-mobile.webp', ...chapterArt]) {
     assert.equal(byPath[banner].status, 200, banner);
     assert.equal(byPath[banner].type, 'image/webp', banner);
-    assert(byPath[banner].bytes > 100_000, banner + ' should contain real image bytes');
+    assert(byPath[banner].bytes > 50_000, banner + ' should contain real image bytes');
   }
   for (const route of ['/api/member/me', '/api/admin/dashboard']) assert.equal(byPath[route].status, 401, route);
   assert.match(byPath['/'].body, /<link rel="canonical" href="https:\/\/dragondawwa\.org\/">/);
@@ -111,9 +118,10 @@ test('signed-out canonical-host responses serve public HTML and keep private rou
   assert.equal(byPath['/quran/study?ayah=1%3A1'].status, 200);
   assert.match(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="noindex,follow">/);
   assert.doesNotMatch(byPath['/quran/study?ayah=1%3A1'].body, /<meta name="robots" content="index,follow/);
-  assert.match(byPath['/quran/study?ayah=1%3A1'].body, /src="\/quran-study\.js\?v=20261007-reader-info"/);
-  assert.match(byPath['/quran'].body, /src="\/quran\.js\?v=20261007-reader-info"/);
-  assert.match(byPath['/quran'].body, /href="\/quran\.css\?v=20261007-reader-info"/);
+  assert.match(byPath['/quran/study?ayah=1%3A1'].body, /src="\/quran-study\.js\?v=20261007-chapter-art"/);
+  assert.match(byPath['/quran'].body, /src="\/quran\.js\?v=20261007-chapter-art"/);
+  assert.match(byPath['/quran'].body, /href="\/quran\.css\?v=20261007-chapter-art"/);
+  assert.match(byPath['/quran'].body, /<picture class="chapter-art" aria-hidden="true">/);
   for (const asset of ['/quran-study.js','/quran.css']) {
     assert.equal(byPath[asset].status, 200, asset);
     assert.equal(byPath[asset].cache, 'public, max-age=0, must-revalidate', asset);

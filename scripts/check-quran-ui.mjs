@@ -13,6 +13,7 @@ function reader(fetch) {
   for (const [, id] of source('quran.html').matchAll(/id="([^"]+)"/g)) {
     elements.set(id, {
       value: '', textContent: '', hidden: false, attrs: {}, listeners: {},
+      style: { properties:{}, setProperty(name,value) { this.properties[name]=value; } },
       setAttribute(name, value) { this.attrs[name] = value; },
       addEventListener(name, listener) { this.listeners[name] = listener; },
       replaceChildren() {},
@@ -50,11 +51,13 @@ test('Reader modes, Arabic size and word-level preference are local and reversib
   assert.equal(ui.preference().view,'arabic');
   ui.el('arabic-size').listeners.input({target:{value:'52'}});
   assert.equal(ui.preference().size,52);
+  assert.equal(ui.el('mushaf-page').style.properties['--quran-arabic-size'],'52px');
   ui.el('show-words').listeners.change({target:{checked:true}});
   assert.equal(ui.preference().words,true);
   assert.equal(ui.preference().view,'verse');
   ui.el('reset-reader').listeners.click();
-  assert.deepEqual(ui.preference(), {view:'verse',script:'uthmani',size:38,words:false});
+  assert.deepEqual(ui.preference(), {view:'verse',script:'uthmani',size:44,words:false});
+  assert.equal(ui.el('mushaf-page').style.properties['--quran-arabic-size'],'44px');
 });
 
 test('Reader loading status follows language changes while a request is pending', () => {

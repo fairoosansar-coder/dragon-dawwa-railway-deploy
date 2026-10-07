@@ -29,6 +29,7 @@ try {
     if (url.pathname.endsWith('.css') && url.hostname === 'dragondawwa.org') return route.fulfill({status:200,contentType:'text/css',body:await file(url.pathname.slice(1))});
     if (url.pathname === '/assets/mark.svg') return route.fulfill({status:200,contentType:'image/svg+xml',body:await file('assets/mark.svg')});
     if (/^\/assets\/quran-banner-illumination-(wide|mobile)\.webp$/.test(url.pathname)) return route.fulfill({status:200,contentType:'image/webp',body:await file(url.pathname.slice(1))});
+    if (/^\/assets\/quran-chapter-illumination-(wide|mobile)\.webp$/.test(url.pathname)) return route.fulfill({status:200,contentType:'image/webp',body:await file(url.pathname.slice(1))});
     if (url.pathname === '/api/member/me') return memberMode === 'guest'
       ? route.fulfill({status:401,contentType:'application/json',body:'{"error":"sign_in_required"}'})
       : route.fulfill({status:200,contentType:'application/json',body:'{"registered":false,"place":null,"saves":[]}'});
@@ -58,6 +59,10 @@ try {
   });
   await page.goto('https://dragondawwa.org/quran',{waitUntil:'domcontentloaded'});
   await page.locator('#ayah-1-1').waitFor({state:'visible'});
+  assert.equal(await page.locator('#arabic-size-value').textContent(),'44 px','the default Arabic type must be readable and agree with its size control');
+  await page.locator('.chapter-art img').evaluate(image=>image.decode());
+  assert.match(await page.locator('.chapter-art img').evaluate(image=>image.currentSrc),/quran-chapter-illumination-mobile\.webp$/);
+  assert.equal(await page.locator('.chapter-art img').getAttribute('alt'),'','the decorative art never replaces source text');
   assert.equal(await page.locator('.quran-banner-art').innerText(),'','generated banner artwork must contain no HTML lettering');
   assert.equal(await page.locator('.quran-banner-art img').getAttribute('alt'),'','decorative artwork must not replace the accessible page title');
   assert.equal(await page.locator('.quran-banner-caption h1').count(),1);
@@ -78,6 +83,7 @@ try {
   await page.locator('#reader-settings summary').click();
   await page.locator('#arabic-size').fill('52');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('dd-quran-reader')).size),52);
+  assert.equal(await page.locator('#ayah-1-1 .verse-arabic').evaluate(element=>getComputedStyle(element).fontSize),'52px','the size control must resize source Arabic, not just its label');
   await page.locator('#arabic-script').selectOption('indopak');
   await page.waitForFunction(()=>document.querySelector('#ayah-1-1 .verse-arabic')?.textContent?.includes('بِسۡمِ'));
   await page.locator('#arabic-script').selectOption('tajweed');
@@ -105,6 +111,13 @@ try {
   assert.match(await page.evaluate(()=>navigator.clipboard.readText()),/^https:\/\/dragondawwa\.org\/quran\/study\?ayah=1%3A1/);
   await page.locator('#ayah-1-1 .save-place').click();
   assert.equal(await page.locator('#resume-reading').isVisible(),true);
+  assert.equal(await page.evaluate(()=>{
+    const controls=[...document.querySelectorAll('.chapter-actions .small-button:not([hidden])')];
+    return controls.every((first,index)=>controls.slice(index+1).every(second=>{
+      const a=first.getBoundingClientRect(), b=second.getBoundingClientRect();
+      return Math.min(a.right,b.right)-Math.max(a.left,b.left)<=0 || Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)<=0;
+    }));
+  }),true,'surah actions must never overlap on a narrow phone');
   await page.locator('#chapter-info-toggle').click();
   await page.waitForFunction(()=>document.querySelector('#chapter-info-credit')?.textContent?.includes('Named edition'));
   assert.equal(await page.evaluate(()=>Boolean(window.infoInjected)),false);
@@ -183,11 +196,23 @@ try {
     await page.setViewportSize({width:1440,height:950});
     await page.waitForFunction(()=>document.querySelector('.quran-banner-art img')?.currentSrc.endsWith('quran-banner-illumination-wide.webp') && document.querySelector('.quran-banner-art img')?.naturalWidth > 0);
     await page.locator('.quran-banner-art img').evaluate(image=>image.decode());
+    await page.waitForFunction(()=>document.querySelector('.chapter-art img')?.currentSrc.endsWith('quran-chapter-illumination-wide.webp') && document.querySelector('.chapter-art img')?.naturalWidth > 0);
+    await page.locator('.chapter-art img').evaluate(image=>image.decode());
+    assert.equal(await page.evaluate(()=>{
+      const a=document.querySelector('#ayah-1-1 .verse-arabic').getBoundingClientRect();
+      const t=document.querySelector('#ayah-1-1 .verse-translation').getBoundingClientRect();
+      return t.right<a.left && Math.abs(a.top-t.top)<40;
+    }),true,'desktop Arabic and translation should pair without a tall empty middle');
     await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-desktop.png'});
     await page.locator('#ayah-1-1').scrollIntoViewIfNeeded();
     await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-reading-desktop.png'});
     await page.setViewportSize({width:390,height:844});
     await page.locator('#ayah-1-1').scrollIntoViewIfNeeded();
+    assert.equal(await page.evaluate(()=>{
+      const a=document.querySelector('#ayah-1-1 .verse-arabic').getBoundingClientRect();
+      const t=document.querySelector('#ayah-1-1 .verse-translation').getBoundingClientRect();
+      return a.bottom<=t.top;
+    }),true,'on a phone the source Arabic must precede its translation in one column');
     await page.screenshot({path:process.env.DD_QURAN_VISUAL_DIR+'/quran-reading-mobile.png'});
   }
   for (const locale of ['ta','si']) {

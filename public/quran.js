@@ -7,7 +7,7 @@
   const storedView = read('dd-quran-reader') || {};
   let viewMode = ['verse','arabic','translation'].includes(storedView.view) ? storedView.view : 'verse';
   let arabicScript = ['uthmani','indopak','tajweed'].includes(storedView.script) ? storedView.script : 'uthmani';
-  let fontSize = Number.isInteger(storedView.size) && storedView.size >= 26 && storedView.size <= 64 ? storedView.size : 38;
+  let fontSize = Number.isInteger(storedView.size) && storedView.size >= 26 && storedView.size <= 64 ? storedView.size : 44;
   let showWords = storedView.words === true, bookmarks = [], chapterInfoRequest = 0, chapterAudioRequest = 0;
   let catalogue, chapter = 1, page = 1, result, requestId = 0, saved = null, activeAudio = null;
   let statusKey = 'loading', placeStatusKey = '', memberState = 'unknown';
@@ -51,7 +51,7 @@
   function applyPreferences() {
     document.body.dataset.readerMode = viewMode;
     document.body.dataset.arabicScript = arabicScript;
-    document.body.style.setProperty('--quran-arabic-size', fontSize + 'px');
+    $('mushaf-page').style.setProperty('--quran-arabic-size', fontSize + 'px');
     $('arabic-size').value = String(fontSize); $('arabic-size-value').textContent = fontSize + ' px';
     $('arabic-script').value = arabicScript; $('show-words').checked = showWords;
     $('verses').hidden = viewMode !== 'verse'; $('reading-flow').hidden = viewMode === 'verse';
@@ -310,6 +310,7 @@
       const translated = card.querySelector('.verse-translation');
       if (translation) translated.lang = ({english:'en',tamil:'ta',sinhala:'si',sinhalese:'si'})[translation.language.toLowerCase()] || 'en';
       for (const text of verse.translations) translated.appendChild(translationNodes(text.text));
+      if (translated.textContent.trim()) card.classList.add('has-translation');
       if (translation && verse.translations.length) { const credit = document.createElement('p'); credit.className = 'translation-credit'; credit.textContent = [translation.name,translation.author,translation.language,'Quran Foundation'].filter(Boolean).join(' · '); card.appendChild(credit); }
       const actionStatus = document.createElement('p'); actionStatus.className = 'verse-action-status'; actionStatus.setAttribute('role','status'); actionStatus.setAttribute('aria-live','polite');
       card.querySelector('.bookmark-ayah').addEventListener('click',event=>toggleBookmark(verse.key,event.currentTarget,actionStatus));
@@ -436,7 +437,7 @@
   });
   $('reset-reader').addEventListener('click',()=>{
     const needsLoad = arabicScript !== 'uthmani' || showWords;
-    viewMode = 'verse'; arabicScript = 'uthmani'; fontSize = 38; showWords = false;
+    viewMode = 'verse'; arabicScript = 'uthmani'; fontSize = 44; showWords = false;
     $('settings-status').textContent = ''; savePreferences(); applyPreferences();
     if (catalogue && needsLoad) load(); else if (result) { renderReadingFlow(catalogue.translations.find(x => x.id === result.translation)); filterVisiblePage(); }
   });
