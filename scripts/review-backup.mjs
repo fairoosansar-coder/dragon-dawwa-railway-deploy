@@ -13,6 +13,8 @@ const members = ['member_profiles','member_saves','member_progress','member_dele
 const sessions = ['review_session_revocations','review_session_epochs'];
 const management = ['managed_resources','managed_resource_revisions','mosque_corrections','mosque_correction_revisions','mosque_directory_overlays','management_intake_state','management_intake_actions','management_settings','management_audit_events','review_admin_audit'];
 const study = ['study_responses','study_audio_jobs','study_response_reports','study_audio','study_usage_daily','study_runtime_locks'];
+// Metadata only: the podcast migration intentionally stores no generated audio BLOBs.
+const podcast = ['podcast_voices','podcast_assets','podcast_episodes','podcast_line_cache','podcast_jobs','podcast_usage_daily','podcast_runtime_locks'];
 const [mode, destination] = process.argv.slice(2);
 const passphrase = process.env.BACKUP_PASSPHRASE;
 if (!['backup','verify'].includes(mode) || !destination || !passphrase || passphrase.length < 32)
@@ -24,6 +26,7 @@ const namesFor = applied => [
   ...(applied.has('005_sessions.sql') ? sessions : []),
   ...(applied.has('006_manage.sql') ? management : []),
   ...(applied.has('007_study.sql') ? study : []),
+  ...(applied.has('008_podcast_foundation.sql') ? podcast : []),
 ];
 
 function encrypt(payload) {
@@ -80,7 +83,7 @@ async function verify() {
     const dir = fileURLToPath(new URL('../migrations/', import.meta.url));
     const applied = new Set(input.rows.review_migrations.map(row=>row.name));
     const all = (await readdir(dir)).filter(name=>/^\d{3}_[a-z0-9_-]+\.sql$/.test(name)).sort();
-    for (const name of all.filter(file => /^00[1-3]_/.test(file) || input.format === 3 && /^00[5-7]_/.test(file) && applied.has(file))) {
+    for (const name of all.filter(file => /^00[1-3]_/.test(file) || input.format === 3 && /^00[5-8]_/.test(file) && applied.has(file))) {
       let source = (await readFile(path.join(dir,name),'utf8')).split('\n').filter(line=>!line.trimStart().startsWith('--')).join('\n');
       if (name === '003_members.sql') source = source.replace(',\n  CONSTRAINT member_deletion_audit_subject_once UNIQUE (subject_hash)', '');
       if (name === '005_sessions.sql') source = source.replace('CHAR(64) CHARACTER SET ascii COLLATE ascii_bin', 'CHAR(64)');

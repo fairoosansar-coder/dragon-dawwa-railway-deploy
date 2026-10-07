@@ -123,6 +123,25 @@
     } catch(error) { $('study-ops-counts').replaceChildren();set('study-ops-state', errorMessage(error), true); }
   }
 
+  async function loadPodcastOperations() {
+    set('podcast-ops-state', 'Checking podcast foundation controls…');
+    try {
+      const data = await api('/api/admin/podcast/availability');
+      const host = $('podcast-ops-counts'); host.replaceChildren();
+      const metrics = {
+        'Podcast rendering': data.enabled ? 'Available' : 'Disabled',
+        'Render mode': data.renderMode || 'disabled',
+        'Current blocker': data.reason || 'foundation_not_wired',
+        'Hadith report adapter': data.reportAdapterConnected ? 'Connected' : 'Not connected',
+        'Private audio storage': data.privateStorageApproved ? 'Approved' : 'Pending owner decision',
+        'ffmpeg worker': data.ffmpegWorkerApproved ? 'Approved' : 'Not approved',
+        'Daily credit cap': data.dailyCreditCapConfigured ? 'Configured' : 'Not configured',
+      };
+      for (const [label, value] of Object.entries(metrics)) { const group = make('div'); group.append(make('dt', label), make('dd', value)); host.append(group); }
+      set('podcast-ops-state', data.message || 'No rendering or media delivery action is exposed by this panel.');
+    } catch (error) { $('podcast-ops-counts').replaceChildren(); set('podcast-ops-state', errorMessage(error), true); }
+  }
+
   async function loadStudyReports(page = 1) {
     const params=new URLSearchParams({page:String(page),status:$('study-reports-status').value});
     set('study-reports-state','Loading bounded report metadata…');
@@ -334,6 +353,7 @@
     $('member-search-form').addEventListener('submit', event => { event.preventDefault(); loadMembers(1); }); $('member-clear').addEventListener('click', () => { $('member-search').value = ''; loadMembers(1); }); bindPage('members', 'member', loadMembers);
     $('intake-filter-form').addEventListener('submit', event => { event.preventDefault(); loadIntake(1); }); $('intake-refresh').addEventListener('click', () => loadIntake(1)); bindPage('intake', 'intake', loadIntake); bindPage('audit', 'audit', loadAudit);
     $('study-ops-refresh').addEventListener('click', loadStudyOperations);
+    $('podcast-ops-refresh').addEventListener('click', loadPodcastOperations);
     $('study-reports-filter-form').addEventListener('submit', event => { event.preventDefault(); loadStudyReports(1); });
     bindPage('studyReports','study-reports',loadStudyReports);
     $('contact-settings-form').addEventListener('submit', event => { event.preventDefault(); saveSetting('contact', {enabled: $('contact-enabled').checked, type: $('contact-type').value, value: $('contact-value').value}); });
@@ -348,7 +368,7 @@
     $('staff-workspace').hidden = false; roleVisibility(); set('staff-status', 'Staff hub ready. Visible actions reflect the verified server role.');
     const pending = [loadDashboard(), loadCorrections(1)];
     if (curationRoles.has(role)) pending.push(loadResources(1));
-    if (role === 'owner') pending.push(loadMembers(1), loadIntake(1), loadAudit(1), loadSettings(),loadStudyOperations(),loadStudyReports(1));
+    if (role === 'owner') pending.push(loadMembers(1), loadIntake(1), loadAudit(1), loadSettings(),loadStudyOperations(),loadPodcastOperations(),loadStudyReports(1));
     await Promise.all(pending);
   }
   init();

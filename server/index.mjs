@@ -13,6 +13,7 @@ import { memberResponse } from './member.mjs';
 import { manageResponse, validateSafeSetting } from './manage.mjs';
 import { studyResponse, configUsageLimits } from './study.mjs';
 import { GEMINI_LIMITS } from './gemini-study.mjs';
+import { podcastAdminResponse } from './podcast/api.mjs';
 import { publicReadingAllowed, publicReadEnabled } from './public-read.mjs';
 import { quranResponse } from '../lib/quran.mjs';
 import { editorialResponse } from '../lib/editorial.mjs';
@@ -278,6 +279,7 @@ export async function handle(req) {
     if (pathname === '/api/review/session' || pathname.startsWith('/api/admin/roles')) return accessResponse(request, actor, process.env);
     if (pathname.startsWith('/api/member/') || pathname === '/api/admin/members' || pathname === '/api/admin/member-audit')
       return memberResponse(request, { ...process.env, DB: database() }, actor);
+    if (pathname === '/api/admin/podcast/availability') return podcastAdminResponse(request, process.env, actor);
     if (pathname === '/api/resources' || pathname === '/api/mosques' || pathname === '/api/mosque-overlays' ||
         pathname === '/api/admin/dashboard' || pathname === '/api/admin/audit' ||
         pathname === '/api/admin/resources' || pathname.startsWith('/api/admin/resources/') ||

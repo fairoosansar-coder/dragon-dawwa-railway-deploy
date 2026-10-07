@@ -87,7 +87,7 @@ test('a programmatic bootstrap cannot validate an alternate env and then connect
   }), /DD_BOOTSTRAP_EMPTY_PRIVATE_DB|Bootstrap target does not match/);
 });
 
-test('the committed migration inventory remains the required seven ordered steps', async () => {
+test('the committed migration inventory remains the required eight ordered steps', async () => {
   const migrations = (await readdir(path.join(root, 'migrations')))
     .filter(name => /^\d{3}_[a-z0-9_-]+\.sql$/.test(name))
     .sort();
@@ -99,5 +99,6 @@ test('the committed migration inventory remains the required seven ordered steps
     '005_sessions.sql',
     '006_manage.sql',
     '007_study.sql',
+    '008_podcast_foundation.sql',
   ]);
 });
