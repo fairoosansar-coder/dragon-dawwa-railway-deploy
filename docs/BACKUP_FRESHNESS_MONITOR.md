@@ -1,6 +1,6 @@
 # Dragon Dawwa R2 backup freshness monitor
 
-**Status:** enabled on 7 October 2026; four pre-backup natural scheduled reads have completed silently without an error. Railway's daily backup cron is now enabled at `02:15 UTC`; the first post-backup monitor execution remains pending.
+**Status:** enabled on 7 October 2026; pre-backup natural scheduled reads completed silently without error. Railway's daily backup cron remains enabled at `02:15 UTC`; the first post-backup monitor execution completed silently and passed on 8 October.
 
 > The monitor is an independent **Manus scheduled script**. It does not run the Railway worker, query MySQL, alter R2, deploy code, or enable the daily backup cron.
 
@@ -17,7 +17,7 @@
 | Alert conditions | Missing snapshot, stale snapshot, invalid metadata/size/hash, or failed R2 read |
 | Recovery | One owner-visible recovery event after an alert state clears |
 | Alert deduplication | One alert per unchanged condition signature |
-| Daily Railway cron | **Enabled:** `15 2 * * *` / 02:15 UTC; first natural-run evidence pending |
+| Daily Railway cron | **Enabled:** `15 2 * * *` / 02:15 UTC; first natural-run evidence accepted on 8 October |
 
 ## Validation performed
 
@@ -41,13 +41,13 @@ This is **operationally read-only**, not cryptographic bucket-level credential i
 
 If stricter credential isolation becomes mandatory, replace this monitor with a separately reviewed monitoring architecture before enabling the daily cron.
 
-## Remaining Gate 1 decision
+## Gate 1 decision — satisfied
 
-Observe at least one natural scheduled execution without error, then obtain an explicit owner decision before configuring Railway's daily `02:15 UTC` cron. The failure notifier and freshness monitor do not authorize retention deletion, migration execution, podcast activation, or public media delivery.
+The owner-authorized daily `02:15 UTC` cron is now proven by the first natural worker run and the independent following monitor execution. The failure notifier and freshness monitor still do not authorize retention deletion, migration execution, podcast activation, or public media delivery.
 
 
 ## First natural execution
 
 The monitor's first natural scheduled execution started at **2026-10-07T20:00:04Z** and completed at **20:00:18Z**. It had no failed stage, error code, or error message; `not_pass` means it returned no alert payload, which is the intended silent result for a fresh valid snapshot. This passed the owner-defined prerequisite for enabling the Railway daily cron.
 
-The next use of this monitor as evidence is the scheduled check after the first daily `02:15 UTC` backup run. It must stay silent while the scheduled-worker log and R2 metadata independently demonstrate a new byte-verified encrypted snapshot.
+The first post-run execution began at `2026-10-08T02:30:01.871Z` and completed at `2026-10-08T02:30:16.745Z`. It had no failed stage, error code, error message, match, or payload. The scheduled-worker log and independent R2 metadata separately proved the new byte-verified encrypted snapshot; see [the redacted evidence record](./FIRST_DAILY_BACKUP_VERIFICATION_2026-10-08.md).

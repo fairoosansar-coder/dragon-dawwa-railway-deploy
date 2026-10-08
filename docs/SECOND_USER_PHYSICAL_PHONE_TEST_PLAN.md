@@ -4,7 +4,7 @@
 **Release scope:** one invited reader, one consenting adult, private Railway production only.  
 **Not a community launch:** a pass authorizes no public signup, no wider cohort, no content publication, no Hadith migration, and no podcast activation.
 
-> **Current gate state:** the Quran reader is available to the owner, the backup failure path and independent freshness monitor have passed, and the Railway backup cron is enabled at `15 2 * * *` UTC. The first natural scheduled backup has not yet occurred at the time this plan was prepared. Do **not** invite the tester until the post-run evidence confirms the new byte-verified snapshot and healthy monitor result.
+> **Current gate state:** the Quran reader is available to the owner, the backup failure path and independent freshness monitor have passed, and the Railway backup cron is enabled at `15 2 * * *` UTC. The first natural scheduled backup was verified on 8 October through an explicit worker upload/byte-verification message, newer valid private-R2 metadata, and a silent healthy post-run monitor execution. The remaining prerequisite is one consenting adult tester and their bounded test window; see [the backup evidence record](./FIRST_DAILY_BACKUP_VERIFICATION_2026-10-08.md).
 
 ## 1. Required human and operational preconditions
 

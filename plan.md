@@ -192,3 +192,8 @@ Phase 1 remains the deployment priority. Until the backup alert/freshness gate a
 ### 7 October — canonical Bukhari 6306 first-episode path (owner correction)
 
 The order is fixed: **Phase 1 closed → 008 applied → 009 applied → qualified reviewer attested and report approved → private R2 bucket plus canvas assets and human recitation imported/approved by ear → exact script-derived estimate brought to the owner → one owner-approved capped render**. Phase 2a reviewer-authored reports and the Balanced private-R2 design are approved. Dataset licences, reference-library schema, imports, and six research agents are Phase 2b only and do not block Bukhari 6306. `PODCAST_RENDER_MODE` stays `disabled` until the final measurement approval; the approved 20,000-credit ceiling is a hard stop, not permission to spend before the preceding gates pass.
+
+
+### 8 October — Gate 1 closed; physical-phone gate ready
+
+The first natural Railway scheduled backup is proven: the worker emitted its explicit encrypted upload/byte-verification pass, Cloudflare metadata independently confirmed a newer positive-size object with valid SHA-256 metadata, and the following 30-minute monitor run was error-free and silent. No production setting changed during verification. Phase 1 may now proceed only through the existing one-consenting-adult physical-phone protocol. The owner must select a bounded test period and use the protected staff invitation flow for the tester identity; no identity, credential, token, or private phone record goes into source control or chat.

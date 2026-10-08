@@ -166,3 +166,10 @@
 - [ ] **3. Human provenance.** Attest the qualified Hadith reviewer, approve the Bukhari report revision and claims, enter/approve the Tamil script, and obtain the Tamil language review.
 - [ ] **4. Private assets.** Create the already-approved dedicated private R2 bucket, import the owner-supplied canvas assets and human recitation, and approve each by ear.
 - [ ] **5. Capped measurement.** Count the final script, bring the exact estimate to the owner, then only after explicit approval enable one episode-specific `cost_measurement` render below the 20,000-credit cap.
+
+
+## 8 October — first natural daily backup accepted
+
+- [x] **Verify the 02:15 UTC worker run:** Railway's scheduled execution completed successfully, emitted its explicit encrypted upload/byte-verification pass, and did not change the cron, variables, retention, lifecycle, R2 contents, migrations, or podcast controls.
+- [x] **Independently verify R2 and monitor:** the newest private object was created after the run with positive size and valid SHA-256 metadata; the 02:30 freshness execution was error-free and silent.
+- [ ] **Run the remaining physical-phone gate:** owner must nominate one consenting adult tester and bounded window. The tester identity belongs only in the protected invitation workflow, never in this repository or chat.

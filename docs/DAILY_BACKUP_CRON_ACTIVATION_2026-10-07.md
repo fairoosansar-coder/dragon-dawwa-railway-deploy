@@ -34,3 +34,8 @@ A one-time verification is scheduled for **2026-10-08T02:40:00Z**, after the fir
 4. Retention/lifecycle deletion remains off.
 
 If any check fails, the verification task must report the exact failure and leave the existing schedule, retention, R2 contents, migrations, and feature flags unchanged.
+
+
+## First natural run — verified 8 October 2026
+
+The first production cron execution was independently proven. Railway recorded a successful scheduled worker execution from `2026-10-08T02:18:59.958Z` to `2026-10-08T02:19:14.946Z` and emitted its explicit encrypted-upload/byte-verification success line. The newest private R2 object metadata was created after the scheduled run, had positive size, and contained valid SHA-256 metadata. The following 02:30 UTC freshness execution had no error or alert payload. Detailed, redacted evidence is in [the first daily backup verification record](./FIRST_DAILY_BACKUP_VERIFICATION_2026-10-08.md).
