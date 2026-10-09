@@ -78,7 +78,7 @@ Record only: test date/time, release commit and deployment identifier, device mo
 
 ## 6. Owner actions needed to begin
 
-1. Wait for and accept the first scheduled-backup verification record.
+1. Review the accepted first scheduled-backup verification record and confirm no current freshness-monitor alert is unresolved.
 2. Nominate one consenting adult tester and a short test window.
 3. Privately obtain their exact verified identity and invite **only** that reader identity with a defined expiry/removal plan.
 4. Confirm whether the optional nonreligious WAV decode check is in scope **without** expanding any paid or owner-only canary.

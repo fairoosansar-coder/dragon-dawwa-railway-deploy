@@ -197,3 +197,8 @@ The order is fixed: **Phase 1 closed → 008 applied → 009 applied → qualifi
 ### 8 October — Gate 1 closed; physical-phone gate ready
 
 The first natural Railway scheduled backup is proven: the worker emitted its explicit encrypted upload/byte-verification pass, Cloudflare metadata independently confirmed a newer positive-size object with valid SHA-256 metadata, and the following 30-minute monitor run was error-free and silent. No production setting changed during verification. Phase 1 may now proceed only through the existing one-consenting-adult physical-phone protocol. The owner must select a bounded test period and use the protected staff invitation flow for the tester identity; no identity, credential, token, or private phone record goes into source control or chat.
+
+
+### 9 October — operator sequencing and acceptance controls
+
+The canonical Phase 2 path now has a single executable runbook: after the independent physical-phone gate closes, stage `008_hadith.sql` in a non-deploy operator checkout, create and verify a fresh encrypted snapshot, execute only with the protected migrator role, record ledger/schema/health evidence, then publish the matching source commit. Repeat the same isolated sequence and a new snapshot for `009_podcast_foundation.sql`. Do not push either source move to `main` before its DDL succeeds, because application startup verifies every top-level migration is already in the ledger. The two-person acceptance protocol uses normal second-browser logout-all and role revocation; it never extracts or replays a browser cookie/token. Public-read routing remains an exact GET/HEAD allowlist, with `DD_PUBLIC_READ_MODE=private` as the explicit lock-down setting and `approved-public-readonly` as the explicit visitor posture.

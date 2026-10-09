@@ -173,3 +173,10 @@
 - [x] **Verify the 02:15 UTC worker run:** Railway's scheduled execution completed successfully, emitted its explicit encrypted upload/byte-verification pass, and did not change the cron, variables, retention, lifecycle, R2 contents, migrations, or podcast controls.
 - [x] **Independently verify R2 and monitor:** the newest private object was created after the run with positive size and valid SHA-256 metadata; the 02:30 freshness execution was error-free and silent.
 - [ ] **Run the remaining physical-phone gate:** owner must nominate one consenting adult tester and bounded window. The tester identity belongs only in the protected invitation workflow, never in this repository or chat.
+
+
+## 9 October — execution controls clarified
+
+- [x] **Prepare the Phase 2 operator runbook:** document the non-deploy staging, fresh encrypted backup, protected migrator-role, ledger, health, and stop conditions for `008_hadith.sql` then `009_podcast_foundation.sql`.
+- [x] **Align physical-phone acceptance documentation:** remove stale pre-backup wait language and replace cookie/token replay wording with the normal two-session logout-all and role-revocation test.
+- [ ] **Phase 1 remains open:** obtain one different consenting adult tester, bounded window, reader-only invitation, expiry/removal plan, and optional nonreligious WAV decision before any migration window.

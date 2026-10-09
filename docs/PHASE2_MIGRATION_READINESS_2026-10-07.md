@@ -7,12 +7,12 @@
 
 | Control | Verified state | Effect on migrations |
 |---|---|---|
-| Railway daily backup cron | Enabled at `15 2 * * *` / 02:15 UTC | First natural worker run has not occurred yet |
-| Latest independent freshness evidence | Four healthy executions through 21:30 UTC; no failed stage, error code, message, or alert payload | Healthy pre-run signal only; not proof of the scheduled worker run |
+| Railway daily backup cron | Enabled at `15 2 * * *` / 02:15 UTC; the first natural 8 October run was explicitly uploaded and byte-verified | Backup control has passed; a fresh verified encrypted snapshot is still required immediately before each DDL event |
+| Latest independent freshness evidence | The post-run monitor execution was healthy and silent; retain the first-run evidence record | Confirm the newest monitor run has no unresolved alert before opening a migration window |
 | Second-user physical-phone gate | Test plan prepared; no consenting tester has been invited | Phase 1 remains incomplete |
 | `008_hadith.sql` / `009_podcast_foundation.sql` | Both remain under `migrations/pending/` and outside the executable migration inventory | No live schema change has occurred |
 
-> A post-02:15 upload/byte-verification log and following 02:30 monitor result cannot exist before the scheduled time. The latest Railway worker evidence therefore cannot prove the first natural backup yet. Do not treat the prior controlled backup test as a substitute for that run.
+> The first natural daily backup was independently accepted on 8 October. Do not treat that accepted evidence as a substitute for the fresh encrypted snapshot and isolated verification required immediately before each future DDL event.
 
 ## 1. `008_hadith.sql` — reviewer-authored report foundation
 
@@ -54,7 +54,7 @@
 
 | Step | Action | Required evidence | Stop condition |
 |---|---|---|---|
-| 0 | Close the first natural daily-backup evidence | Railway upload + byte-verification log, new R2 metadata, and following healthy monitor execution | Any missing, malformed, stale, or unverified snapshot |
+| 0 | Retain the accepted daily-backup evidence and check current monitor health | 8 October upload/byte-verification, new R2 metadata, healthy post-run monitor, plus a current healthy monitor state | Any unresolved monitor failure or stale/unverified current snapshot |
 | 1 | Close the physical second-user gate | Witnessed, consented physical-phone acceptance record | Any anonymous/private-data, revocation, deletion, or playback safety defect |
 | 2 | Take a fresh verified encrypted backup immediately before DDL | New snapshot and restore/metadata evidence | No current verified restore point |
 | 3 | Move and apply `008_hadith.sql` through the normal operator migration path | Ledger increments from 001–007 to include 008; Phase 2a tests pass against migrated schema | Migration error, schema mismatch, audit/approval failure |
